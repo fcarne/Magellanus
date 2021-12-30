@@ -111,8 +111,8 @@ tomcat
 # Maven
 target/
 
-# eclipse project file
-
+# Eclipse project file
+.project
 .metadata
 bin/
 tmp/
