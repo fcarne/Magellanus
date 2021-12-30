@@ -12,4 +12,5 @@ class MainActivity : AppCompatActivity() {
 =======
 >>>>>>> branch 'main' of https://github.com/fcarne/Magellanus.git
     }
+    s
 }
