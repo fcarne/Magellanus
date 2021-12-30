@@ -8,7 +8,6 @@ public class Application {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
-		//pipo
+		System.out.println(37);
 	}
-	// testardo
 }
