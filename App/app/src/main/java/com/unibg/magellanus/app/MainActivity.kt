@@ -8,7 +8,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 <<<<<<< HEAD
+<<<<<<< HEAD
         //Questo e' un commento magico v4
+=======
+>>>>>>> parent of abdca93 (Metto il commento)
 =======
 >>>>>>> parent of abdca93 (Metto il commento)
     }
