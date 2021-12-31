@@ -1,4 +1,4 @@
-package com.unibg.magellanus.backend.usermanager.autogenerate;
+package com.unibg.magellanus.backend.autogenerate;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

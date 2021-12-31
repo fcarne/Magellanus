@@ -5,7 +5,7 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 
 public interface UserAccountAPI {
-	public ResponseEntity<String> signUp(String email);
+	public ResponseEntity<String> signUp(User user);
 
 	public ResponseEntity<String> updatePreferences(Map<String, Object> preferences);
 

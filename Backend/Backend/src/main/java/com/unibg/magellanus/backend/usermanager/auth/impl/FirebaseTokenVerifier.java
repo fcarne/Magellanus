@@ -2,7 +2,6 @@ package com.unibg.magellanus.backend.usermanager.auth.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -40,11 +39,9 @@ public class FirebaseTokenVerifier implements TokenVerifier<FirebaseToken> {
 	public User tokenToUser(FirebaseToken token) {
 		if (token == null)
 			return null;
-		List<User> users = repository.findByEmail(token.getEmail());
-		if (users.size() != 1)
-			return null;
-		else
-			return users.get(0);
+		String id = token.getUid();
+		String email = token.getEmail();
+		return repository.existsById(id) ? new User(id, email) : null;
 	}
 
 	@Configuration
@@ -58,7 +55,7 @@ public class FirebaseTokenVerifier implements TokenVerifier<FirebaseToken> {
 				if (FirebaseApp.getApps().isEmpty()) {
 					FirebaseApp.initializeApp(options);
 				}
-				System.out.println("Firebase Initialize");
+				System.out.println("Firebase Initialized");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

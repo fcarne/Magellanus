@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,10 +27,11 @@ public class UserController implements UserAccountAPI {
 	}
 
 	@Override
-	@PostMapping("signUp")
-	public ResponseEntity<String> signUp(String email) {
-		User user = service.signUp(email);
-		if (user != null)
+	@PostMapping("signup")
+	public ResponseEntity<String> signUp(@RequestBody User user) {
+		System.out.println(user.getId());
+		System.out.println(user.getEmail());
+		if (service.signUp(user) != null)
 			return ResponseEntity.ok().build();
 		else
 			return ResponseEntity.unprocessableEntity().body("Could not create user: already created!");
@@ -37,7 +39,7 @@ public class UserController implements UserAccountAPI {
 
 	@Override
 	@PostMapping("preferences")
-	public ResponseEntity<String> updatePreferences(Map<String, Object> preferences) {
+	public ResponseEntity<String> updatePreferences(@RequestBody Map<String, Object> preferences) {
 		User updatedUser = service.updatePreferences(preferences);
 		if (updatedUser != null)
 			return ResponseEntity.ok().build();

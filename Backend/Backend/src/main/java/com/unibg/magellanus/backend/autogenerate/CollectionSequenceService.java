@@ -1,4 +1,4 @@
-package com.unibg.magellanus.backend.usermanager.autogenerate;
+package com.unibg.magellanus.backend.autogenerate;
 
 import static org.springframework.data.mongodb.core.FindAndModifyOptions.options;
 import static org.springframework.data.mongodb.core.query.Criteria.where;

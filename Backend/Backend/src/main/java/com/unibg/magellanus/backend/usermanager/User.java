@@ -1,31 +1,30 @@
 package com.unibg.magellanus.backend.usermanager;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document("users")
 public class User {
-	@Transient
-	public static final String SEQUENCE_NAME = "users_sequence";
 
 	@Id
-	private long id;
+	private String id;
 	private String email;
 	private Map<String, Object> preferences;
 
-	public User(String email, Map<String, Object> preferences) {
+	public User(String id, String email) {
+		this.id = id;
 		this.email = email;
-		this.preferences = preferences;
+		this.preferences = new HashMap<>();
 	}
 
-	public long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

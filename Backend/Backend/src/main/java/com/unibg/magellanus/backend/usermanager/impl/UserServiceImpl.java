@@ -1,6 +1,5 @@
 package com.unibg.magellanus.backend.usermanager.impl;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +21,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public User signUp(String email) {
-		User user = new User(email, new HashMap<>());
-		if (repository.findByEmail(email).size() == 0)
+	public User signUp(User user) {
+		if (repository.findById(user.getId()).isEmpty())
 			return repository.save(user);
 		else
 			return null;
@@ -44,16 +42,19 @@ public class UserServiceImpl implements UserService {
 	public Map<String, Object> getPreferences() {
 		User loggedUser = getUserFromContext();
 		if (loggedUser != null)
-			return loggedUser.getPreferences();
+			return repository.findById(loggedUser.getId()).get().getPreferences();
 		else
 			return null;
 	}
 
 	@Override
-	public void deleteUser() {
+	public boolean deleteUser() {
 		User loggedUser = getUserFromContext();
-		if (loggedUser != null)
-			repository.delete(loggedUser);
+		if (loggedUser != null) {
+			repository.deleteById(loggedUser.getId());
+			return true;
+		} else
+			return false;
 	}
 
 	private User getUserFromContext() {
