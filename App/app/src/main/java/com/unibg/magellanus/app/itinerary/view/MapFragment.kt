@@ -1,9 +1,15 @@
 package com.unibg.magellanus.app.itinerary.view
 
+import android.Manifest
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
@@ -15,7 +21,22 @@ import com.unibg.magellanus.app.itinerary.viewmodel.MapViewModel
 import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import android.content.pm.PackageManager
+import android.widget.Toast
+import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
+
+import org.osmdroid.views.overlay.compass.CompassOverlay
+import org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay2
+
+
+
+
+
+
 
 
 class MapFragment : Fragment() {
@@ -27,7 +48,7 @@ class MapFragment : Fragment() {
     private lateinit var navController: NavController
     private lateinit var binding: FragmentMapBinding
 
-    private lateinit var map: MapView;
+    private lateinit var map: MapView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,8 +71,54 @@ class MapFragment : Fragment() {
         map.setMultiTouchControls(true)
         map.visibility = View.VISIBLE
 
-        if (!provider.isUserLoggedIn())
-            navController.navigate(MapFragmentDirections.actionMapFragmentToLoginFragment())
+
+
+        //if (!provider.isUserLoggedIn())
+        //navController.navigate(MapFragmentDirections.actionMapFragmentToLoginFragment())
+        //else {
+
+            //Permissions check
+            if (ContextCompat.checkSelfPermission(
+                    this.requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_DENIED
+            ) {
+                if (ContextCompat.checkSelfPermission(
+                        this.requireContext(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) == PackageManager.PERMISSION_DENIED
+                )
+                    ActivityCompat.requestPermissions(
+                        this.requireActivity(),
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        ),
+                        1
+                    )
+                ActivityCompat.requestPermissions(
+                    this.requireActivity(),
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    1
+                )
+            }
+
+        //Controller usage, overlay declaration and location enabling
+            var mapController = map.controller
+            var myLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), map)
+            myLocationOverlay.enableMyLocation()
+            myLocationOverlay.enableFollowLocation()
+            myLocationOverlay.isDrawAccuracyEnabled = true
+
+            mapController.setZoom(9.5)
+            var compassOverlay =
+                CompassOverlay(context, InternalCompassOrientationProvider(context), map)
+            compassOverlay.enableCompass()
+            map.overlays.add(compassOverlay)
+            //map.overlays.add(myLocationOverlay)
+       // }
+
+
     }
 
     override fun onResume() {
