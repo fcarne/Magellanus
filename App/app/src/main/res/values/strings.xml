@@ -1,3 +1,39 @@
 <resources>
     <string name="app_name">Magellanus</string>
+    <string name="login_prompt">Sign In and start using Magellanus</string>
+    <string name="sign_in_btn">Sign In</string>
+    <string name="log_error">There was an error while signing in, please retry</string>
+    <string name="home_menu_item">Home</string>
+    <string name="user_settings_menu_item">User Settings</string>
+    <string name="settings_menu_item">Settings</string>
+    <string name="log_out_menu_item">Log out</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <string name="ui">UI</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="dark_mode_def_value">MODE_NIGHT_FOLLOW_SYSTEM</string>
+    <string name="delete_account_btn">Delete Account</string>
+    <string name="manage_your_account">Manage your account</string>
 </resources>
