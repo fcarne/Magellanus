@@ -26,17 +26,14 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import android.content.pm.PackageManager
+import android.widget.Button
 import android.widget.Toast
+import com.unibg.magellanus.app.R
+import org.osmdroid.api.IMapController
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay2
-
-
-
-
-
-
 
 
 class MapFragment : Fragment() {
@@ -47,14 +44,17 @@ class MapFragment : Fragment() {
 
     private lateinit var navController: NavController
     private lateinit var binding: FragmentMapBinding
+    private lateinit var myLocationOverlay: MyLocationNewOverlay
 
     private lateinit var map: MapView
+    private lateinit var mapController: IMapController
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentMapBinding.inflate(inflater, container, false)
+        binding.bntCentra.setOnClickListener{test()}
         return binding.root
     }
 
@@ -73,9 +73,9 @@ class MapFragment : Fragment() {
 
 
 
-        //if (!provider.isUserLoggedIn())
-        //navController.navigate(MapFragmentDirections.actionMapFragmentToLoginFragment())
-        //else {
+        if (!provider.isUserLoggedIn())
+        navController.navigate(MapFragmentDirections.actionMapFragmentToLoginFragment())
+        else {
 
             //Permissions check
             if (ContextCompat.checkSelfPermission(
@@ -104,19 +104,19 @@ class MapFragment : Fragment() {
             }
 
         //Controller usage, overlay declaration and location enabling
-            var mapController = map.controller
-            var myLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), map)
+            this.mapController = map.controller
+            myLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), map)
             myLocationOverlay.enableMyLocation()
             myLocationOverlay.enableFollowLocation()
             myLocationOverlay.isDrawAccuracyEnabled = true
 
-            mapController.setZoom(9.5)
+            this.mapController.setZoom(15)
             var compassOverlay =
                 CompassOverlay(context, InternalCompassOrientationProvider(context), map)
             compassOverlay.enableCompass()
             map.overlays.add(compassOverlay)
-            //map.overlays.add(myLocationOverlay)
-       // }
+            map.overlays.add(myLocationOverlay)
+        }
 
 
     }
@@ -139,4 +139,11 @@ class MapFragment : Fragment() {
         map.onPause() //needed for compass, my location overlays, v6.0.0 and up
     }
 
+    fun test(){
+        this.mapController.animateTo(myLocationOverlay.myLocation)
+        this.mapController.setZoom(15)
+        myLocationOverlay.enableMyLocation()
+        myLocationOverlay.enableFollowLocation()
+        myLocationOverlay.isDrawAccuracyEnabled = true
+    }
 }
