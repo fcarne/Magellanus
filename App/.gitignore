@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+deploymentTargetDropDown.xml
+google-services.json
