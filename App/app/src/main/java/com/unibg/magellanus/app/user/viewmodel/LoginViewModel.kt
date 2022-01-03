@@ -1,8 +1,8 @@
 package com.unibg.magellanus.app.user.viewmodel
 
 import androidx.lifecycle.*
-import com.unibg.magellanus.app.user.model.UserAccountAPI
 import com.unibg.magellanus.app.user.auth.UserInfo
+import com.unibg.magellanus.app.user.model.UserAccountAPI
 import kotlinx.coroutines.launch
 
 class LoginViewModel(private val api: UserAccountAPI) : ViewModel() {

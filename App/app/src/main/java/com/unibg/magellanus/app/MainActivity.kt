@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
+import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -13,11 +14,9 @@ import androidx.navigation.ui.*
 import androidx.preference.PreferenceManager
 import com.firebase.ui.auth.AuthUI
 import com.google.android.material.navigation.NavigationView
-import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
 import com.unibg.magellanus.app.databinding.ActivityMainBinding
-
-import androidx.databinding.DataBindingUtil
 import com.unibg.magellanus.app.databinding.HeaderUserProfileBinding
+import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
 
 
 interface ToggleableDrawer {

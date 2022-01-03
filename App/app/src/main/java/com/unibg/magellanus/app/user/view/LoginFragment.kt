@@ -18,10 +18,10 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.android.material.snackbar.Snackbar
 import com.unibg.magellanus.app.R
 import com.unibg.magellanus.app.ToggleableDrawer
-import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
 import com.unibg.magellanus.app.databinding.FragmentLoginBinding
-import com.unibg.magellanus.app.user.viewmodel.LoginViewModel
+import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
 import com.unibg.magellanus.app.user.model.UserAccountAPI
+import com.unibg.magellanus.app.user.viewmodel.LoginViewModel
 
 class LoginFragment : Fragment() {
 

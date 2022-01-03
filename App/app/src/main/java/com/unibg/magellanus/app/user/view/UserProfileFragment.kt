@@ -18,8 +18,8 @@ import androidx.preference.PreferenceManager
 import com.firebase.ui.auth.AuthUI
 import com.google.android.material.snackbar.Snackbar
 import com.unibg.magellanus.app.R
-import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
 import com.unibg.magellanus.app.databinding.FragmentUserProfileBinding
+import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
 import com.unibg.magellanus.app.user.model.UserAccountAPI
 import com.unibg.magellanus.app.user.viewmodel.UserProfileViewModel
 import kotlin.properties.Delegates

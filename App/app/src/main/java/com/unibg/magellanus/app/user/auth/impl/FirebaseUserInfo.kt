@@ -1,16 +1,9 @@
 package com.unibg.magellanus.app.user.auth.impl
 
 import android.net.Uri
-import androidx.annotation.NonNull
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.GetTokenResult
 import com.unibg.magellanus.app.user.auth.UserInfo
-import com.google.android.gms.tasks.OnCompleteListener
-
-import com.google.firebase.auth.FirebaseAuth
-
-
 
 
 class FirebaseUserInfo(private val user: FirebaseUser) : UserInfo {
@@ -39,5 +32,4 @@ class FirebaseUserInfo(private val user: FirebaseUser) : UserInfo {
     override fun updatePassword(password: String): Task<Void> = user.updatePassword(password)
     override fun isNewUser(): Boolean =
         user.metadata?.run { creationTimestamp == lastSignInTimestamp } ?: false
-}
 }

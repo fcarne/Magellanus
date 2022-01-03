@@ -9,13 +9,13 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
-import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
+import com.unibg.magellanus.app.BuildConfig
 import com.unibg.magellanus.app.databinding.FragmentMapBinding
+import com.unibg.magellanus.app.itinerary.viewmodel.MapViewModel
+import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
+import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.views.MapView
-import com.unibg.magellanus.app.BuildConfig
-import com.unibg.magellanus.app.itinerary.viewmodel.MapViewModel
-import org.osmdroid.config.Configuration
 
 
 class MapFragment : Fragment() {
