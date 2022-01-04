@@ -2,6 +2,7 @@ package com.unibg.magellanus.app
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
@@ -17,6 +18,8 @@ import com.google.android.material.navigation.NavigationView
 import com.unibg.magellanus.app.databinding.ActivityMainBinding
 import com.unibg.magellanus.app.databinding.HeaderUserProfileBinding
 import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
+import com.unibg.magellanus.app.user.model.UserAccountAPI
+import com.unibg.magellanus.app.user.viewmodel.LoginViewModel
 
 
 interface ToggleableDrawer {
@@ -28,8 +31,12 @@ class MainActivity : AppCompatActivity(), ToggleableDrawer {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
+    private val viewModel by viewModels<LoginViewModel> {
+        val provider = FirebaseAuthenticationProvider
+        LoginViewModel.Factory(provider, UserAccountAPI.create(provider))
+    }
+
     private lateinit var drawerLayout: DrawerLayout
-    private val provider = FirebaseAuthenticationProvider()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +52,6 @@ class MainActivity : AppCompatActivity(), ToggleableDrawer {
         }
 
         binding = ActivityMainBinding.inflate(layoutInflater)
-        binding.user = provider.currentUser
         setContentView(binding.root)
 
         val navBinding: HeaderUserProfileBinding = DataBindingUtil.inflate(
@@ -54,9 +60,11 @@ class MainActivity : AppCompatActivity(), ToggleableDrawer {
             binding.navView,
             true
         )
-        navBinding.user = provider.currentUser
 
-
+        navBinding.apply {
+            lifecycleOwner = this@MainActivity
+            user = viewModel.currentUser
+        }
         setSupportActionBar(binding.appBarMain.toolbar)
 
         drawerLayout = binding.drawerLayout

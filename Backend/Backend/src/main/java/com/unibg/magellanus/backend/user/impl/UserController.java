@@ -1,6 +1,7 @@
 package com.unibg.magellanus.backend.user.impl;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -67,8 +68,10 @@ public class UserController implements UserAccountAPI {
 			@RequestBody Map<String, Object> preferences) {
 		if (!getUserFromContext().getUid().equals(uid))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sorry, but you can't set other user preferences");
-
-		service.updatePreferences(uid, preferences);
+		
+		Map<String, Object> sanitized = preferences.entrySet().stream().filter(t -> !t.getKey().contains("."))
+				.collect(Collectors.toMap(map -> map.getKey(), map -> map.getValue()));
+		service.updatePreferences(uid, sanitized);
 		return ResponseEntity.noContent().build();
 	}
 

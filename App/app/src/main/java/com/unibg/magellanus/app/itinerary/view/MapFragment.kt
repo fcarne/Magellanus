@@ -1,15 +1,13 @@
 package com.unibg.magellanus.app.itinerary.view
 
 import android.Manifest
-import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
@@ -19,26 +17,19 @@ import com.unibg.magellanus.app.BuildConfig
 import com.unibg.magellanus.app.databinding.FragmentMapBinding
 import com.unibg.magellanus.app.itinerary.viewmodel.MapViewModel
 import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
+import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.compass.CompassOverlay
+import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
-import android.content.pm.PackageManager
-import android.widget.Button
-import android.widget.Toast
-import com.unibg.magellanus.app.R
-import org.osmdroid.api.IMapController
-import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
-
-import org.osmdroid.views.overlay.compass.CompassOverlay
-import org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay2
 
 
 class MapFragment : Fragment() {
 
-    private val provider = FirebaseAuthenticationProvider()
+    private val provider = FirebaseAuthenticationProvider
 
     private val viewModel by viewModels<MapViewModel>()
 
@@ -73,8 +64,8 @@ class MapFragment : Fragment() {
 
 
 
-        if (!provider.isUserLoggedIn())
-        navController.navigate(MapFragmentDirections.actionMapFragmentToLoginFragment())
+        if (provider.currentUser == null)
+            navController.navigate(MapFragmentDirections.actionMapFragmentToLoginFragment())
         else {
 
             //Permissions check

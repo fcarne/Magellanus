@@ -2,17 +2,23 @@ package com.unibg.magellanus.app.user.viewmodel
 
 import androidx.lifecycle.*
 import com.unibg.magellanus.app.user.auth.AuthenticationProvider
-import com.unibg.magellanus.app.user.auth.UserInfo
 import com.unibg.magellanus.app.user.model.UserAccountAPI
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
-class UserProfileViewModel(private val provider: AuthenticationProvider, private val api: UserAccountAPI) :
-    ViewModel() {
-    val user: UserInfo
-        get() = provider.currentUser!!
+class UserProfileViewModel(
+    provider: AuthenticationProvider,
+    private val api: UserAccountAPI
+) : ViewModel() {
+
+    val currentUser = UserInfoLiveData(provider)
+
+    init {
+        currentUser.observeForever {}
+    }
 
     private val _syncedPreferences: MutableLiveData<Map<String, Any>> = MutableLiveData()
-    val syncedPreferences: LiveData<Map<String, Any>>
+    val syncedPreferences: LiveData<Map<String, Any>?>
         get() = _syncedPreferences
 
     private val _successfullyDeleted: MutableLiveData<Boolean> = MutableLiveData()
@@ -23,17 +29,20 @@ class UserProfileViewModel(private val provider: AuthenticationProvider, private
     val errorMessage: LiveData<String>
         get() = _errorMessage
 
-    @JvmSuppressWildcards
-    fun savePreferences(prefs: Map<String, *>) = viewModelScope.launch {
-        api.updatePreferences(user.uid, prefs)
+    suspend fun savePreferences(prefs: Map<String, Any?>) {
+        api.updatePreferences(currentUser.value!!.uid, prefs)
     }
 
     fun getPreferences() = viewModelScope.launch {
-        _syncedPreferences.value = api.getPreferences(user.uid)
+        try {
+            _syncedPreferences.value = api.getPreferences(currentUser.value!!.uid)
+        } catch (e: HttpException) {
+            _errorMessage.value = e.message
+        }
     }
 
     fun delete() = viewModelScope.launch {
-        val response = api.delete(user.uid)
+        val response = api.delete(currentUser.value!!.uid)
         _successfullyDeleted.value = if (response.isSuccessful) {
             true
         } else {
@@ -42,9 +51,12 @@ class UserProfileViewModel(private val provider: AuthenticationProvider, private
         }
     }
 
-    class Factory(private val provider: AuthenticationProvider, private val api: UserAccountAPI) :
-        ViewModelProvider.NewInstanceFactory() {
+    class Factory(
+        private val provider: AuthenticationProvider,
+        private val api: UserAccountAPI
+    ) : ViewModelProvider.NewInstanceFactory() {
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
             UserProfileViewModel(provider, api) as T
     }
+
 }

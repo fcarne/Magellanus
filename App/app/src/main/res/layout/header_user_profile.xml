@@ -6,7 +6,7 @@
     <data>
         <variable
             name="user"
-            type="com.unibg.magellanus.app.user.auth.UserInfo" />
+            type="com.unibg.magellanus.app.user.viewmodel.UserInfoLiveData" />
     </data>
 
     <LinearLayout

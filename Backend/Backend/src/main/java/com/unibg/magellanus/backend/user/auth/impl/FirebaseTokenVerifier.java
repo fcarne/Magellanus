@@ -32,6 +32,7 @@ public class FirebaseTokenVerifier implements TokenVerifier<FirebaseToken> {
 
 	@Override
 	public FirebaseToken verifyToken(String tokenString) throws FirebaseAuthException {
+		System.out.println(tokenString);
 		return FirebaseAuth.getInstance().verifyIdToken(tokenString);
 	}
 

@@ -2,6 +2,7 @@ package com.unibg.magellanus.app.user.auth.impl
 
 import android.net.Uri
 import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseUser
 import com.unibg.magellanus.app.user.auth.UserInfo
 
@@ -18,13 +19,12 @@ class FirebaseUserInfo(private val user: FirebaseUser) : UserInfo {
     override val photoUrl: Uri?
         get() = user.photoUrl
 
+    private var token: String? = null
+
     override fun getToken(refresh: Boolean): String? {
-        var token: String? = null
-        user.getIdToken(refresh).addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                token = task.result!!.token
-            }
-        }
+        if (refresh || token == null)
+            token = Tasks.await(user.getIdToken(refresh)).token
+
         return token
     }
 

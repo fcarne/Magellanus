@@ -42,7 +42,7 @@ public class RequestAndResponseLoggingFilter extends OncePerRequestFilter {
 	/**
 	 * List of HTTP headers whose values should not be logged.
 	 */
-	private static final List<String> SENSITIVE_HEADERS = Arrays.asList("authorization", "proxy-authorization");
+	private static final List<String> SENSITIVE_HEADERS = Arrays.asList("proxy-authorization");
 
 	private boolean enabled = true;
 

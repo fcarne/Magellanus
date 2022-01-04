@@ -23,7 +23,7 @@ interface UserAccountAPI {
     suspend fun delete(@Path("uid") uid: String): Response<Void>
 
     @PATCH("{uid}/preferences")
-    suspend fun updatePreferences(@Path("uid") uid: String, @Body preferences: Map<String, *>): Response<Void>
+    suspend fun updatePreferences(@Path("uid") uid: String, @Body preferences: Map<String, @JvmSuppressWildcards Any?>): Response<Void>
 
     @GET("{uid}/preferences")
     suspend fun getPreferences(@Path("uid") uid: String): Map<String, Any>?

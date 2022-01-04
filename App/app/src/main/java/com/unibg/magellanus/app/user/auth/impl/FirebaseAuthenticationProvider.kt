@@ -5,9 +5,16 @@ import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.unibg.magellanus.app.user.auth.AuthenticationProvider
 import com.unibg.magellanus.app.user.auth.UserInfo
+import java.util.*
 
-class FirebaseAuthenticationProvider(private val instance: FirebaseAuth = FirebaseAuth.getInstance()) :
-    AuthenticationProvider {
+object FirebaseAuthenticationProvider : AuthenticationProvider {
+
+    private val instance: FirebaseAuth = FirebaseAuth.getInstance()
+    private val listeners: MutableMap<AuthenticationProvider.AuthStateListener,FirebaseAuth.AuthStateListener>
+
+    init {
+        listeners = IdentityHashMap()
+    }
 
     override val currentUser: UserInfo?
         get() = instance.currentUser?.let { FirebaseUserInfo(it) }
@@ -25,5 +32,17 @@ class FirebaseAuthenticationProvider(private val instance: FirebaseAuth = Fireba
 
     override fun signOut() = instance.signOut()
 
-    override fun isUserLoggedIn(): Boolean = currentUser != null
+    override fun addAuthStateListener(listener: AuthenticationProvider.AuthStateListener) {
+        val firebaseListener = FirebaseAuth.AuthStateListener {
+            listener.onAuthStateChanged(this)
+        }
+        listeners[listener] = firebaseListener
+        instance.addAuthStateListener(firebaseListener)
+        println(listeners.size.toString() + "---" + listener + " ---" + firebaseListener)
+    }
+
+    override fun removeAuthStateListener(listener: AuthenticationProvider.AuthStateListener) {
+        listeners[listener]?.let { instance.removeAuthStateListener(it) }
+        listeners.remove(listener)
+    }
 }

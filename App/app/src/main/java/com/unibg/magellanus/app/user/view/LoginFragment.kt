@@ -24,11 +24,9 @@ import com.unibg.magellanus.app.user.model.UserAccountAPI
 import com.unibg.magellanus.app.user.viewmodel.LoginViewModel
 
 class LoginFragment : Fragment() {
-
-    private val provider = FirebaseAuthenticationProvider()
-
     private val viewModel by viewModels<LoginViewModel> {
-        LoginViewModel.Factory(UserAccountAPI.create(provider))
+        val provider = FirebaseAuthenticationProvider
+        LoginViewModel.Factory(provider, UserAccountAPI.create(provider))
     }
 
     private lateinit var navController: NavController
@@ -94,14 +92,8 @@ class LoginFragment : Fragment() {
     }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
-        if (result.resultCode == RESULT_OK) {
-            // Successfully signed in (Firebase)
-            val user = provider.currentUser
-            viewModel.signIn(user!!)
-        } else {
-            if (provider.isUserLoggedIn()) {
-                AuthUI.getInstance().signOut(requireContext())
-            }
+        if (result.resultCode == RESULT_OK) viewModel.signIn()
+        else {
             Snackbar.make(
                 requireActivity().findViewById(android.R.id.content),
                 R.string.log_error,

@@ -5,10 +5,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.preference.ListPreference
@@ -21,22 +23,27 @@ import com.unibg.magellanus.app.R
 import com.unibg.magellanus.app.databinding.FragmentUserProfileBinding
 import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
 import com.unibg.magellanus.app.user.model.UserAccountAPI
+import com.unibg.magellanus.app.user.viewmodel.LoginViewModel
 import com.unibg.magellanus.app.user.viewmodel.UserProfileViewModel
+import kotlinx.coroutines.*
 import kotlin.properties.Delegates
 
 class UserProfileFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener,
     Preference.SummaryProvider<ListPreference> {
 
-    private val provider = FirebaseAuthenticationProvider()
+    private val provider = FirebaseAuthenticationProvider
+    private val api = UserAccountAPI.create(provider)
 
     private val viewModel by viewModels<UserProfileViewModel> {
-        UserProfileViewModel.Factory(provider, UserAccountAPI.create(provider))
+        UserProfileViewModel.Factory(provider, api)
     }
 
     private lateinit var navController: NavController
 
     private lateinit var prefs: SharedPreferences
     private var wasSyncing by Delegates.notNull<Boolean>()
+
+    private lateinit var syncPrefs: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,24 +64,32 @@ class UserProfileFragment : Fragment(), SharedPreferences.OnSharedPreferenceChan
         binding.deleteAccountBtn.setOnClickListener { deleteUserAccount() }
 
         binding.viewModel = viewModel
+        binding.userProfileHeader.apply {
+            lifecycleOwner = viewLifecycleOwner
+            user = viewModel.currentUser
+        }
 
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         PreferenceManager.getDefaultSharedPreferences(requireContext())
             .registerOnSharedPreferenceChangeListener(this)
         navController = findNavController()
+        prefs =
+            PreferenceManager.getDefaultSharedPreferences(requireContext())
 
-        prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        wasSyncing = prefs.getBoolean("sync_prefs", false)
+        syncPrefs = resources.getResourceEntryName(R.id.sync_prefs)
+
+        wasSyncing = prefs.getBoolean(syncPrefs, false)
         if (wasSyncing) viewModel.getPreferences()
 
         viewModel.syncedPreferences.observe(viewLifecycleOwner) {
-            val shouldSync = it["sync_prefs"] as Boolean?
+            val shouldSync = it?.get(syncPrefs) as Boolean?
             if (shouldSync == true) {
-                it.map { (key, value) ->
+                it?.map { (key, value) ->
                     {
                         prefs.edit().apply {
                             when (value) {
@@ -87,26 +102,41 @@ class UserProfileFragment : Fragment(), SharedPreferences.OnSharedPreferenceChan
                 }
             }
         }
+
+       requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+           val isSyncing = prefs.getBoolean(syncPrefs, false)
+           val preferences = if (isSyncing) {
+               getImportantPreferences(prefs)
+           } else if (!isSyncing && wasSyncing) {
+               emptyMap<String, Any>()
+           } else null
+
+           requireActivity().lifecycleScope.launch {
+               preferences?.let {
+                   viewModel.savePreferences(it)
+               }
+           }
+
+           navController.popBackStack()
+       }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
-        val isSyncing = prefs.getBoolean("sync_prefs", false);
-        if (isSyncing) {
-            viewModel.savePreferences(prefs.all)
-        } else if (!isSyncing && wasSyncing) {
-            viewModel.savePreferences(emptyMap<String, Any>())
-        }
         PreferenceManager.getDefaultSharedPreferences(requireContext())
             .unregisterOnSharedPreferenceChangeListener(this)
     }
 
-    private fun deleteUserAccount() {
-        viewModel.delete()
-        navController.navigate(UserProfileFragmentDirections.actionUserProfileFragmentToLoginFragment())
+    private fun getImportantPreferences(prefs: SharedPreferences): Map<String, Any?> {
+        val darkMode = resources.getResourceEntryName(R.id.dark_mode_pref)
+        return buildMap {
+            put(syncPrefs, prefs.getBoolean(syncPrefs, false))
+            put(darkMode, prefs.getString(darkMode, getString(R.string.dark_mode_def_value)))
+        }
     }
 
-    private fun signOut() {
+    private fun deleteUserAccount() {
         viewModel.successfullyDeleted.observe(viewLifecycleOwner) {
             if (it) {
                 AuthUI.getInstance().signOut(requireContext())
@@ -121,6 +151,12 @@ class UserProfileFragment : Fragment(), SharedPreferences.OnSharedPreferenceChan
             ).show()
         }
         viewModel.delete()
+        AuthUI.getInstance().delete(requireContext())
+    }
+
+    private fun signOut() {
+        AuthUI.getInstance().signOut(requireContext())
+        navController.navigate(UserProfileFragmentDirections.actionUserProfileFragmentToLoginFragment())
     }
 
 
