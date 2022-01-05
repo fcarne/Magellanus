@@ -25,6 +25,10 @@ import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import org.osmdroid.views.overlay.Marker
+
+
+
 
 
 class MapFragment : Fragment() {
@@ -45,7 +49,9 @@ class MapFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentMapBinding.inflate(inflater, container, false)
-        binding.bntCentra.setOnClickListener{test()}
+        binding.bntCentra.setOnClickListener{btnCentra()}
+        binding.btnPOI.setOnClickListener{btnPOI()}
+        binding.btnItinerari.setOnClickListener{btnItinerari()}
         return binding.root
     }
 
@@ -102,11 +108,9 @@ class MapFragment : Fragment() {
             myLocationOverlay.isDrawAccuracyEnabled = true
 
             this.mapController.setZoom(15)
-            var compassOverlay =
-                CompassOverlay(context, InternalCompassOrientationProvider(context), map)
-            compassOverlay.enableCompass()
-            map.overlays.add(compassOverlay)
+
             map.overlays.add(myLocationOverlay)
+
         }
 
 
@@ -130,11 +134,18 @@ class MapFragment : Fragment() {
         map.onPause() //needed for compass, my location overlays, v6.0.0 and up
     }
 
-    fun test(){
+    fun btnCentra(){
         this.mapController.animateTo(myLocationOverlay.myLocation)
-        this.mapController.setZoom(15)
         myLocationOverlay.enableMyLocation()
         myLocationOverlay.enableFollowLocation()
         myLocationOverlay.isDrawAccuracyEnabled = true
+    }
+
+    fun btnPOI(){
+
+    }
+
+    fun btnItinerari(){
+
     }
 }

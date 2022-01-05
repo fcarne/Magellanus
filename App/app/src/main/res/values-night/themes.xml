@@ -16,4 +16,13 @@
         <item name="windowNoTitle">true</item>
         <item name="android:windowTranslucentStatus">true</item>
     </style>
+
+    <style name="ThemeOverlay.Magellanus.FullscreenContainer" parent="">
+        <item name="fullscreenBackgroundColor">@color/light_blue_900</item>
+        <item name="fullscreenTextColor">@color/light_blue_A400</item>
+    </style>
+
+    <style name="Theme.Magellanus.SearchBar" parent="@style/Base.ThemeOverlay.AppCompat.Dark">
+        <item name="android:background">@color/background_material_dark</item>
+    </style>
 </resources>
