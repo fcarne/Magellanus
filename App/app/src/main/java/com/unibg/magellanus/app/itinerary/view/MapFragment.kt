@@ -68,7 +68,7 @@ class MapFragment : Fragment() {
         map.setMultiTouchControls(true)
         map.visibility = View.VISIBLE
 
-
+        println(provider.currentUser)
 
         if (provider.currentUser == null)
             navController.navigate(MapFragmentDirections.actionMapFragmentToLoginFragment())

@@ -95,12 +95,13 @@ class MainActivity : AppCompatActivity(), ToggleableDrawer {
     }
 
     private fun signOut() {
-        AuthUI.getInstance().signOut(applicationContext)
-        val intent = Intent(
-            applicationContext,
-            MainActivity::class.java
-        ).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        startActivity(intent)
+        AuthUI.getInstance().signOut(applicationContext).addOnSuccessListener {
+            val intent = Intent(
+                applicationContext,
+                MainActivity::class.java
+            ).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

@@ -23,9 +23,8 @@ import com.unibg.magellanus.app.R
 import com.unibg.magellanus.app.databinding.FragmentUserProfileBinding
 import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
 import com.unibg.magellanus.app.user.model.UserAccountAPI
-import com.unibg.magellanus.app.user.viewmodel.LoginViewModel
 import com.unibg.magellanus.app.user.viewmodel.UserProfileViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
 
 class UserProfileFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener,
@@ -84,7 +83,6 @@ class UserProfileFragment : Fragment(), SharedPreferences.OnSharedPreferenceChan
         syncPrefs = resources.getResourceEntryName(R.id.sync_prefs)
 
         wasSyncing = prefs.getBoolean(syncPrefs, false)
-        if (wasSyncing) viewModel.getPreferences()
 
         viewModel.syncedPreferences.observe(viewLifecycleOwner) {
             val shouldSync = it?.get(syncPrefs) as Boolean?
@@ -97,13 +95,15 @@ class UserProfileFragment : Fragment(), SharedPreferences.OnSharedPreferenceChan
                                 is String -> putString(key, value)
                                 is Boolean -> putBoolean(key, value)
                             }
-                        }
+                        }.commit()
                     }
                 }
             }
         }
 
-       requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+        viewModel.getPreferences()
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
            val isSyncing = prefs.getBoolean(syncPrefs, false)
            val preferences = if (isSyncing) {
                getImportantPreferences(prefs)
