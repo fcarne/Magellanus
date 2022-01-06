@@ -1,6 +1,7 @@
 package com.unibg.magellanus.backend.user.impl;
 
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ import com.unibg.magellanus.backend.user.UserService;
 import com.unibg.magellanus.backend.user.model.User;
 
 @RestController()
-@RequestMapping("users")
+@RequestMapping("api/users")
 public class UserController implements UserAccountAPI {
 
 	UserService service;
@@ -45,11 +46,12 @@ public class UserController implements UserAccountAPI {
 	@Override
 	@PostMapping
 	public ResponseEntity<Void> signUp(@RequestBody User user) {
-		System.out.println(user.getUid());
-		System.out.println(user.getEmail());
-
-		service.signUp(user);
-		return ResponseEntity.noContent().build();
+		try {
+			service.signUp(user);
+			return ResponseEntity.noContent().build();
+		} catch (IllegalArgumentException e) {
+			throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
+		}
 	}
 
 	@Override
@@ -68,11 +70,15 @@ public class UserController implements UserAccountAPI {
 			@RequestBody Map<String, Object> preferences) {
 		if (!getUserFromContext().getUid().equals(uid))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sorry, but you can't set other user preferences");
-		
+
 		Map<String, Object> sanitized = preferences.entrySet().stream().filter(t -> !t.getKey().contains("."))
 				.collect(Collectors.toMap(map -> map.getKey(), map -> map.getValue()));
-		service.updatePreferences(uid, sanitized);
-		return ResponseEntity.noContent().build();
+		try {
+			service.updatePreferences(uid, sanitized);
+			return ResponseEntity.noContent().build();
+		} catch (NoSuchElementException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
 	}
 
 	@Override
@@ -81,8 +87,12 @@ public class UserController implements UserAccountAPI {
 		if (!getUserFromContext().getUid().equals(uid))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sorry, but you can't get other user preferences");
 
-		Map<String, Object> map = service.getPreferences(uid);
-		return map;
+		try {
+			Map<String, Object> map = service.getPreferences(uid);
+			return map;
+		} catch (NoSuchElementException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
 	}
 
 	private User getUserFromContext() {

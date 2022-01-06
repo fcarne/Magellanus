@@ -1,11 +1,10 @@
 package com.unibg.magellanus.backend.user.impl;
 
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.unibg.magellanus.backend.user.UserRepository;
 import com.unibg.magellanus.backend.user.UserService;
@@ -31,14 +30,12 @@ public class UserServiceImpl implements UserService {
 		if (repository.findById(user.getUid()).isEmpty())
 			return repository.save(user);
 		else
-			throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-					"Seems like you are already registered!");
+			throw new IllegalArgumentException("Seems like you are already registered!");
 	}
 
 	@Override
-	public boolean delete(String uid) {
+	public void delete(String uid) {
 		repository.deleteById(uid);
-		return true;
 	}
 
 	@Override
@@ -46,12 +43,12 @@ public class UserServiceImpl implements UserService {
 		return repository.findById(uid).map(user -> {
 			user.setPreferences(preferences);
 			return repository.save(user);
-		}).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Requested user not found"));
+		}).orElseThrow(() -> new NoSuchElementException("Requested user not found"));
 	}
 
 	@Override
 	public Map<String, Object> getPreferences(String uid) {
 		return repository.findById(uid).map(User::getPreferences)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Requested user not found"));
+				.orElseThrow(() -> new NoSuchElementException("Requested user not found"));
 	}
 }
