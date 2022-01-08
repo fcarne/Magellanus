@@ -20,8 +20,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.unibg.magellanus.backend.user.auth.TokenFilter;
-import com.unibg.magellanus.backend.user.auth.TokenVerifier;
 import com.unibg.magellanus.backend.user.model.User;
 
 @ExtendWith(MockitoExtension.class)
