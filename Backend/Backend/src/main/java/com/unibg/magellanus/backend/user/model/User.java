@@ -2,6 +2,7 @@ package com.unibg.magellanus.backend.user.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -14,12 +15,18 @@ public class User {
 	private String email;
 	private Map<String, Object> preferences;
 
-	public User(String uid, String email) {
+	public User() {}
+	
+	public User(String uid, String email, Map<String, Object> preferences) {
 		this.uid = uid;
 		this.email = email;
-		this.preferences = new HashMap<>();
+		this.preferences = preferences;
 	}
-	
+
+	public User(String uid, String email) {
+		this(uid, email, new HashMap<>());
+	}
+
 	public String getUid() {
 		return uid;
 	}
@@ -42,6 +49,23 @@ public class User {
 
 	public void setPreferences(Map<String, Object> preferences) {
 		this.preferences = preferences;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(email, uid);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		User other = (User) obj;
+		return Objects.equals(email, other.email) && Objects.equals(uid, other.uid);
 	}
 
 }

@@ -24,8 +24,8 @@ public class TokenFilter<T> extends OncePerRequestFilter {
 
 	Logger logger = LoggerFactory.getLogger(TokenFilter.class);
 
-	private static final String AUTHORIZATION_HEADER = "Authorization";
-	private static final String TOKEN_HEADER = "Bearer ";
+	public static final String AUTHORIZATION_HEADER = "Authorization";
+	public static final String TOKEN_HEADER = "Bearer ";
 
 	private final TokenVerifier<T> verifier;
 

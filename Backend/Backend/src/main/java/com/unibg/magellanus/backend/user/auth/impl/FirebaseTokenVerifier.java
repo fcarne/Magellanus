@@ -32,14 +32,12 @@ public class FirebaseTokenVerifier implements TokenVerifier<FirebaseToken> {
 
 	@Override
 	public FirebaseToken verifyToken(String tokenString) throws FirebaseAuthException {
-		System.out.println(tokenString);
 		return FirebaseAuth.getInstance().verifyIdToken(tokenString);
 	}
 
 	@Override
 	public User tokenToUser(FirebaseToken token) {
-		if (token == null)
-			return null;
+		if (token == null) return null;
 		String id = token.getUid();
 		String email = token.getEmail();
 		return repository.existsById(id) ? new User(id, email) : null;
@@ -53,9 +51,8 @@ public class FirebaseTokenVerifier implements TokenVerifier<FirebaseToken> {
 			try (InputStream inputStream = new ClassPathResource("firebase_config.json").getInputStream()) {
 				FirebaseOptions options = FirebaseOptions.builder()
 						.setCredentials(GoogleCredentials.fromStream(inputStream)).build();
-				if (FirebaseApp.getApps().isEmpty()) {
+				if (FirebaseApp.getApps().isEmpty())
 					FirebaseApp.initializeApp(options);
-				}
 				System.out.println("Firebase Initialized");
 			} catch (IOException e) {
 				e.printStackTrace();
