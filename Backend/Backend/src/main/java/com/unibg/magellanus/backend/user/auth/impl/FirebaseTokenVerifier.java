@@ -16,9 +16,9 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.unibg.magellanus.backend.user.User;
 import com.unibg.magellanus.backend.user.UserRepository;
 import com.unibg.magellanus.backend.user.auth.TokenVerifier;
-import com.unibg.magellanus.backend.user.model.User;
 
 @Component
 public class FirebaseTokenVerifier implements TokenVerifier<FirebaseToken> {

@@ -30,8 +30,8 @@ import org.springframework.web.context.WebApplicationContext;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.unibg.magellanus.backend.user.User;
 import com.unibg.magellanus.backend.user.UserRepository;
-import com.unibg.magellanus.backend.user.model.User;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)

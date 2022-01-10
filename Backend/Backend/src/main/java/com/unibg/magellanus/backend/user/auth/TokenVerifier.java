@@ -1,6 +1,6 @@
 package com.unibg.magellanus.backend.user.auth;
 
-import com.unibg.magellanus.backend.user.model.User;
+import com.unibg.magellanus.backend.user.User;
 
 public interface TokenVerifier<T> {
 

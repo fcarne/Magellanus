@@ -4,8 +4,6 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 
-import com.unibg.magellanus.backend.user.model.User;
-
 public interface UserAccountAPI {
 	public ResponseEntity<Void> checkIfExists(String uid);
 

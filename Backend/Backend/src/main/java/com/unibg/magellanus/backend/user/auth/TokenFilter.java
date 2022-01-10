@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.unibg.magellanus.backend.user.model.User;
+import com.unibg.magellanus.backend.user.User;
 
 @Component
 public class TokenFilter<T> extends OncePerRequestFilter {

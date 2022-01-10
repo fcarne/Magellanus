@@ -20,8 +20,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.unibg.magellanus.backend.user.User;
 import com.unibg.magellanus.backend.user.UserRepository;
-import com.unibg.magellanus.backend.user.model.User;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {

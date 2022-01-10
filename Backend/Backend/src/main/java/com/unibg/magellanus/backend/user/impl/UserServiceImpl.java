@@ -6,9 +6,9 @@ import java.util.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.unibg.magellanus.backend.user.User;
 import com.unibg.magellanus.backend.user.UserRepository;
 import com.unibg.magellanus.backend.user.UserService;
-import com.unibg.magellanus.backend.user.model.User;
 
 @Service
 public class UserServiceImpl implements UserService {

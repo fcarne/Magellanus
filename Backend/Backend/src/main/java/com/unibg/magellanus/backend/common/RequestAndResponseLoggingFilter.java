@@ -18,7 +18,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
@@ -43,18 +42,6 @@ public class RequestAndResponseLoggingFilter extends OncePerRequestFilter {
 	 * List of HTTP headers whose values should not be logged.
 	 */
 	private static final List<String> SENSITIVE_HEADERS = Arrays.asList("proxy-authorization");
-
-	private boolean enabled = true;
-
-	@ManagedOperation(description = "Enable logging of HTTP requests and responses")
-	public void enable() {
-		this.enabled = true;
-	}
-
-	@ManagedOperation(description = "Disable logging of HTTP requests and responses")
-	public void disable() {
-		this.enabled = false;
-	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

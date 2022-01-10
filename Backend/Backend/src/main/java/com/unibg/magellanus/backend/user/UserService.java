@@ -3,8 +3,6 @@ package com.unibg.magellanus.backend.user;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import com.unibg.magellanus.backend.user.model.User;
-
 public interface UserService {
 	public boolean checkIfExists(String uid);
 

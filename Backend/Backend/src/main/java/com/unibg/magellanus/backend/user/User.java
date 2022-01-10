@@ -1,4 +1,4 @@
-package com.unibg.magellanus.backend.user.model;
+package com.unibg.magellanus.backend.user;
 
 import java.util.HashMap;
 import java.util.Map;

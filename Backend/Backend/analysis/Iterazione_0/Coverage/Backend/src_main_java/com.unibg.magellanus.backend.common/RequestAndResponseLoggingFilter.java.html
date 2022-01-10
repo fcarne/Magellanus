@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>RequestAndResponseLoggingFilter.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">Iterazione_0 (10 gen 2022 21:05:00)</a> &gt; <a href="../../index.html" class="el_group">Backend</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.unibg.magellanus.backend.common</a> &gt; <span class="el_source">RequestAndResponseLoggingFilter.java</span></div><h1>RequestAndResponseLoggingFilter.java</h1><pre class="source lang-java linenums">package com.unibg.magellanus.backend.common;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Stream;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.jmx.export.annotation.ManagedResource;
+import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.ContentCachingRequestWrapper;
+import org.springframework.web.util.ContentCachingResponseWrapper;
+
+@ManagedResource
+<span class="fc" id="L27">public class RequestAndResponseLoggingFilter extends OncePerRequestFilter {</span>
+
+<span class="fc" id="L29">	private final static Logger log = LoggerFactory.getLogger(RequestAndResponseLoggingFilter.class);</span>
+
+<span class="fc" id="L31">	private static final List&lt;MediaType&gt; VISIBLE_TYPES = Arrays.asList(</span>
+<span class="fc" id="L32">			MediaType.valueOf(&quot;text/*&quot;),</span>
+<span class="fc" id="L33">			MediaType.APPLICATION_FORM_URLENCODED, </span>
+<span class="fc" id="L34">			MediaType.APPLICATION_JSON, </span>
+<span class="fc" id="L35">			MediaType.APPLICATION_XML,</span>
+<span class="fc" id="L36">			MediaType.valueOf(&quot;application/*+json&quot;), </span>
+<span class="fc" id="L37">			MediaType.valueOf(&quot;application/*+xml&quot;),</span>
+<span class="fc" id="L38">			MediaType.MULTIPART_FORM_DATA</span>
+		);
+
+	/**
+	 * List of HTTP headers whose values should not be logged.
+	 */
+<span class="fc" id="L44">	private static final List&lt;String&gt; SENSITIVE_HEADERS = Arrays.asList(&quot;proxy-authorization&quot;);</span>
+
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">		if (isAsyncDispatch(request)) {</span>
+<span class="nc" id="L50">			filterChain.doFilter(request, response);</span>
+<span class="nc" id="L51">		} else {</span>
+<span class="fc" id="L52">			doFilterWrapped(wrapRequest(request), wrapResponse(response), filterChain);</span>
+		}
+<span class="fc" id="L54">	}</span>
+
+	protected void doFilterWrapped(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response,
+			FilterChain filterChain) throws ServletException, IOException {
+
+<span class="fc" id="L59">		StringBuilder msg = new StringBuilder();</span>
+
+		try {
+<span class="fc" id="L62">			beforeRequest(request, response, msg);</span>
+<span class="fc" id="L63">			filterChain.doFilter(request, response);</span>
+<span class="fc" id="L64">		} finally {</span>
+<span class="fc" id="L65">			afterRequest(request, response, msg);</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">			if (log.isInfoEnabled()) {</span>
+<span class="fc" id="L67">				log.info(msg.toString());</span>
+			}
+<span class="fc" id="L69">			response.copyBodyToResponse();</span>
+		}
+<span class="fc" id="L71">	}</span>
+
+	protected void beforeRequest(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response,
+			StringBuilder msg) {
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">		if (log.isInfoEnabled()) {</span>
+<span class="fc" id="L76">			msg.append(&quot;\n-- REQUEST --\n&quot;);</span>
+<span class="fc" id="L77">			logRequestHeader(request, request.getRemoteAddr() + &quot;|&gt;&quot;, msg);</span>
+		}
+<span class="fc" id="L79">	}</span>
+
+	protected void afterRequest(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response,
+			StringBuilder msg) {
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">		if (log.isInfoEnabled()) {</span>
+<span class="fc" id="L84">			logRequestBody(request, request.getRemoteAddr() + &quot;|&gt;&quot;, msg);</span>
+<span class="fc" id="L85">			msg.append(&quot;\n-- RESPONSE --\n&quot;);</span>
+<span class="fc" id="L86">			logResponse(response, request.getRemoteAddr() + &quot;|&lt;&quot;, msg);</span>
+		}
+<span class="fc" id="L88">	}</span>
+
+	private static void logRequestHeader(ContentCachingRequestWrapper request, String prefix, StringBuilder msg) {
+<span class="fc" id="L91">		String queryString = request.getQueryString();</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">		if (queryString == null) {</span>
+<span class="fc" id="L93">			msg.append(String.format(&quot;%s %s %s&quot;, prefix, request.getMethod(), request.getRequestURI())).append(&quot;\n&quot;);</span>
+<span class="fc" id="L94">		} else {</span>
+<span class="nc" id="L95">			msg.append(String.format(&quot;%s %s %s?%s&quot;, prefix, request.getMethod(), request.getRequestURI(), queryString))</span>
+<span class="nc" id="L96">					.append(&quot;\n&quot;);</span>
+		}
+<span class="fc" id="L98">		Collections.list(request.getHeaderNames())</span>
+<span class="fc" id="L99">				.forEach(headerName -&gt; Collections.list(request.getHeaders(headerName)).forEach(headerValue -&gt; {</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">					if (isSensitiveHeader(headerName)) {</span>
+<span class="nc" id="L101">						msg.append(String.format(&quot;%s %s: %s&quot;, prefix, headerName, &quot;*******&quot;)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L102">					} else {</span>
+<span class="fc" id="L103">						msg.append(String.format(&quot;%s %s: %s&quot;, prefix, headerName, headerValue)).append(&quot;\n&quot;);</span>
+					}
+<span class="fc" id="L105">				}));</span>
+<span class="fc" id="L106">		msg.append(prefix).append(&quot;\n&quot;);</span>
+<span class="fc" id="L107">	}</span>
+
+	private static void logRequestBody(ContentCachingRequestWrapper request, String prefix, StringBuilder msg) {
+<span class="fc" id="L110">		byte[] content = request.getContentAsByteArray();</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">		if (content.length &gt; 0) {</span>
+<span class="fc" id="L112">			logContent(content, request.getContentType(), request.getCharacterEncoding(), prefix, msg);</span>
+		}
+<span class="fc" id="L114">	}</span>
+
+	private static void logResponse(ContentCachingResponseWrapper response, String prefix, StringBuilder msg) {
+<span class="fc" id="L117">		int status = response.getStatus();</span>
+<span class="fc" id="L118">		msg.append(String.format(&quot;%s %s %s&quot;, prefix, status, HttpStatus.valueOf(status).getReasonPhrase()))</span>
+<span class="fc" id="L119">				.append(&quot;\n&quot;);</span>
+<span class="fc" id="L120">		response.getHeaderNames().forEach(headerName -&gt; response.getHeaders(headerName).forEach(headerValue -&gt; {</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">			if (isSensitiveHeader(headerName)) {</span>
+<span class="nc" id="L122">				msg.append(String.format(&quot;%s %s: %s&quot;, prefix, headerName, &quot;*******&quot;)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L123">			} else {</span>
+<span class="fc" id="L124">				msg.append(String.format(&quot;%s %s: %s&quot;, prefix, headerName, headerValue)).append(&quot;\n&quot;);</span>
+			}
+<span class="fc" id="L126">		}));</span>
+<span class="fc" id="L127">		msg.append(prefix).append(&quot;\n&quot;);</span>
+<span class="fc" id="L128">		byte[] content = response.getContentAsByteArray();</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">		if (content.length &gt; 0) {</span>
+<span class="fc" id="L130">			logContent(content, response.getContentType(), response.getCharacterEncoding(), prefix, msg);</span>
+		}
+<span class="fc" id="L132">	}</span>
+
+	private static void logContent(byte[] content, String contentType, String contentEncoding, String prefix,
+			StringBuilder msg) {
+<span class="fc" id="L136">		MediaType mediaType = MediaType.valueOf(contentType);</span>
+<span class="fc" id="L137">		boolean visible = VISIBLE_TYPES.stream().anyMatch(visibleType -&gt; visibleType.includes(mediaType));</span>
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">		if (visible) {</span>
+			try {
+<span class="fc" id="L140">				String contentString = new String(content, contentEncoding);</span>
+<span class="fc" id="L141">				Stream.of(contentString.split(&quot;\r\n|\r|\n&quot;))</span>
+<span class="fc" id="L142">						.forEach(line -&gt; msg.append(prefix).append(&quot; &quot;).append(line).append(&quot;\n&quot;));</span>
+<span class="pc" id="L143">			} catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L144">				msg.append(String.format(&quot;%s [%d bytes content]&quot;, prefix, content.length)).append(&quot;\n&quot;);</span>
+			}
+<span class="nc" id="L146">		} else {</span>
+<span class="nc" id="L147">			msg.append(String.format(&quot;%s [%d bytes content]&quot;, prefix, content.length)).append(&quot;\n&quot;);</span>
+		}
+<span class="fc" id="L149">	}</span>
+
+	/**
+	 * Determine if a given header name should have its value logged.
+	 * 
+	 * @param headerName HTTP header name.
+	 * @return True if the header is sensitive (i.e. its value should &lt;b&gt;not&lt;/b&gt; be
+	 *         logged).
+	 */
+	private static boolean isSensitiveHeader(String headerName) {
+<span class="fc" id="L159">		return SENSITIVE_HEADERS.contains(headerName.toLowerCase());</span>
+	}
+
+	private static ContentCachingRequestWrapper wrapRequest(HttpServletRequest request) {
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">		if (request instanceof ContentCachingRequestWrapper) {</span>
+<span class="nc" id="L164">			return (ContentCachingRequestWrapper) request;</span>
+		} else {
+<span class="fc" id="L166">			return new ContentCachingRequestWrapper(request);</span>
+		}
+	}
+
+	private static ContentCachingResponseWrapper wrapResponse(HttpServletResponse response) {
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">		if (response instanceof ContentCachingResponseWrapper) {</span>
+<span class="nc" id="L172">			return (ContentCachingResponseWrapper) response;</span>
+		} else {
+<span class="fc" id="L174">			return new ContentCachingResponseWrapper(response);</span>
+		}
+	}
+	
+	
+	
+	@Configuration
+<span class="fc" id="L181">	public static class LoggingConfiguration {</span>
+	   @Bean
+	   public RequestAndResponseLoggingFilter requestResponseLoggingFilter() {
+<span class="fc" id="L184">	       return new RequestAndResponseLoggingFilter();</span>
+	   }
+	}   
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>Iterazione_0 (10 gen 2022 21:05:00)</div></body></html>

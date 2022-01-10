@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TokenFilterTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">Iterazione_0 (10 gen 2022 21:05:00)</a> &gt; <a href="../../index.html" class="el_group">Backend</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.unibg.magellanus.backend.user.auth</a> &gt; <span class="el_source">TokenFilterTest.java</span></div><h1>TokenFilterTest.java</h1><pre class="source lang-java linenums">package com.unibg.magellanus.backend.user.auth;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockFilterChain;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import com.unibg.magellanus.backend.user.User;
+
+@ExtendWith(MockitoExtension.class)
+<span class="fc" id="L26">public class TokenFilterTest {</span>
+
+	@Mock
+	TokenVerifier&lt;String&gt; verifier;
+
+	@InjectMocks
+	TokenFilter&lt;String&gt; filter;
+
+	@AfterEach
+	public void setupSecurityContext() {
+<span class="fc" id="L36">		SecurityContextHolder.getContext().setAuthentication(null);</span>
+<span class="fc" id="L37">	}</span>
+	
+	@Test
+	public void doFilterInternal_noAuth_nullAuth() throws IOException, ServletException {
+<span class="fc" id="L41">		MockHttpServletRequest req = new MockHttpServletRequest();</span>
+<span class="fc" id="L42">		MockHttpServletResponse res = new MockHttpServletResponse();</span>
+<span class="fc" id="L43">		MockFilterChain chain = new MockFilterChain();</span>
+
+<span class="fc" id="L45">		filter.doFilterInternal(req, res, chain);</span>
+
+<span class="fc" id="L47">		assertNull(SecurityContextHolder.getContext().getAuthentication());</span>
+<span class="fc" id="L48">	}</span>
+	
+	@Test
+	public void doFilterInternal_auth_UserAuth() throws Exception {
+<span class="fc" id="L52">		MockHttpServletRequest req = new MockHttpServletRequest();</span>
+<span class="fc" id="L53">		req.addHeader(TokenFilter.AUTHORIZATION_HEADER, TokenFilter.TOKEN_HEADER + &quot;mock_token&quot;);</span>
+<span class="fc" id="L54">		MockHttpServletResponse res = new MockHttpServletResponse();</span>
+<span class="fc" id="L55">		MockFilterChain chain = new MockFilterChain();</span>
+
+<span class="fc" id="L57">		User user = new User(&quot;mock&quot;, &quot;mock@test.com&quot;); </span>
+		
+<span class="fc" id="L59">		when(verifier.verifyToken(any(String.class))).thenReturn(new String(&quot;authenticated!&quot;));</span>
+<span class="fc" id="L60">		when(verifier.tokenToUser(any(String.class))).thenReturn(user);</span>
+
+<span class="fc" id="L62">		filter.doFilterInternal(req, res, chain);</span>
+
+<span class="fc" id="L64">		assertEquals(SecurityContextHolder.getContext().getAuthentication().getPrincipal(), user);</span>
+<span class="fc" id="L65">		assertEquals(SecurityContextHolder.getContext().getAuthentication().getCredentials(), &quot;authenticated!&quot;);</span>
+<span class="fc" id="L66">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>Iterazione_0 (10 gen 2022 21:05:00)</div></body></html>

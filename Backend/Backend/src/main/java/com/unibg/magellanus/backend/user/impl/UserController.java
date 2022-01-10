@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.unibg.magellanus.backend.user.User;
 import com.unibg.magellanus.backend.user.UserAccountAPI;
 import com.unibg.magellanus.backend.user.UserService;
-import com.unibg.magellanus.backend.user.model.User;
 
 @RestController()
 @RequestMapping("api/users")

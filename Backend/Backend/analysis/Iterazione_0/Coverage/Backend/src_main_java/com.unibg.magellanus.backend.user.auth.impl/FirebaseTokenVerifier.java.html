@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>FirebaseTokenVerifier.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">Iterazione_0 (10 gen 2022 21:05:00)</a> &gt; <a href="../../index.html" class="el_group">Backend</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.unibg.magellanus.backend.user.auth.impl</a> &gt; <span class="el_source">FirebaseTokenVerifier.java</span></div><h1>FirebaseTokenVerifier.java</h1><pre class="source lang-java linenums">package com.unibg.magellanus.backend.user.auth.impl;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Component;
+
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
+import com.unibg.magellanus.backend.user.User;
+import com.unibg.magellanus.backend.user.UserRepository;
+import com.unibg.magellanus.backend.user.auth.TokenVerifier;
+
+@Component
+public class FirebaseTokenVerifier implements TokenVerifier&lt;FirebaseToken&gt; {
+
+	UserRepository repository;
+
+	@Autowired
+<span class="fc" id="L29">	public FirebaseTokenVerifier(UserRepository repository) {</span>
+<span class="fc" id="L30">		this.repository = repository;</span>
+<span class="fc" id="L31">	}</span>
+
+	@Override
+	public FirebaseToken verifyToken(String tokenString) throws FirebaseAuthException {
+<span class="nc" id="L35">		return FirebaseAuth.getInstance().verifyIdToken(tokenString);</span>
+	}
+
+	@Override
+	public User tokenToUser(FirebaseToken token) {
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">		if (token == null) return null;</span>
+<span class="nc" id="L41">		String id = token.getUid();</span>
+<span class="nc" id="L42">		String email = token.getEmail();</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">		return repository.existsById(id) ? new User(id, email) : null;</span>
+	}
+
+	@Configuration
+<span class="fc" id="L47">	public static class FirebaseConfig {</span>
+		@Primary
+		@Bean
+		public void firebaseInit() {
+<span class="fc" id="L51">			try (InputStream inputStream = new ClassPathResource(&quot;firebase_config.json&quot;).getInputStream()) {</span>
+<span class="fc" id="L52">				FirebaseOptions options = FirebaseOptions.builder()</span>
+<span class="fc" id="L53">						.setCredentials(GoogleCredentials.fromStream(inputStream)).build();</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">				if (FirebaseApp.getApps().isEmpty())</span>
+<span class="fc" id="L55">					FirebaseApp.initializeApp(options);</span>
+<span class="fc" id="L56">				System.out.println(&quot;Firebase Initialized&quot;);</span>
+<span class="nc" id="L57">			} catch (IOException e) {</span>
+<span class="nc" id="L58">				e.printStackTrace();</span>
+			}
+<span class="fc" id="L60">		}</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>Iterazione_0 (10 gen 2022 21:05:00)</div></body></html>

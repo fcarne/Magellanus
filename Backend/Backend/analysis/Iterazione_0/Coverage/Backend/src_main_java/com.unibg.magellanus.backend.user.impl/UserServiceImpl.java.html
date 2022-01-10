@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>UserServiceImpl.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">Iterazione_0 (10 gen 2022 21:05:00)</a> &gt; <a href="../../index.html" class="el_group">Backend</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.unibg.magellanus.backend.user.impl</a> &gt; <span class="el_source">UserServiceImpl.java</span></div><h1>UserServiceImpl.java</h1><pre class="source lang-java linenums">package com.unibg.magellanus.backend.user.impl;
+
+import java.util.Map;
+import java.util.NoSuchElementException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.unibg.magellanus.backend.user.User;
+import com.unibg.magellanus.backend.user.UserRepository;
+import com.unibg.magellanus.backend.user.UserService;
+
+@Service
+public class UserServiceImpl implements UserService {
+
+	UserRepository repository;
+
+	@Autowired
+<span class="fc" id="L19">	public UserServiceImpl(UserRepository repository) {</span>
+<span class="fc" id="L20">		this.repository = repository;</span>
+<span class="fc" id="L21">	}</span>
+
+	@Override
+	public boolean checkIfExists(String uid) {
+<span class="fc" id="L25">		return repository.existsById(uid);</span>
+	}
+
+	@Override
+	public User signUp(User user) {
+<span class="fc bfc" id="L30" title="All 2 branches covered.">		if (repository.findById(user.getUid()).isEmpty())</span>
+<span class="fc" id="L31">			return repository.save(user);</span>
+		else
+<span class="fc" id="L33">			throw new IllegalArgumentException(&quot;Seems like you are already registered!&quot;);</span>
+	}
+
+	@Override
+	public void delete(String uid) {
+<span class="fc" id="L38">		repository.deleteById(uid);</span>
+<span class="fc" id="L39">	}</span>
+
+	@Override
+	public User updatePreferences(String uid, Map&lt;String, Object&gt; preferences) {
+<span class="fc" id="L43">		return repository.findById(uid).map(user -&gt; {</span>
+<span class="fc" id="L44">			user.setPreferences(preferences);</span>
+<span class="fc" id="L45">			return repository.save(user);</span>
+<span class="fc" id="L46">		}).orElseThrow(() -&gt; new NoSuchElementException(&quot;Requested user not found&quot;));</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getPreferences(String uid) {
+<span class="fc" id="L51">		return repository.findById(uid).map(User::getPreferences)</span>
+<span class="fc" id="L52">				.orElseThrow(() -&gt; new NoSuchElementException(&quot;Requested user not found&quot;));</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>Iterazione_0 (10 gen 2022 21:05:00)</div></body></html>
