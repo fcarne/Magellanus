@@ -17,6 +17,7 @@
         <item name="android:windowTranslucentStatus">true</item>
     </style>
 
+
     <style name="Theme.Magellanus.SearchBar" parent="@style/Base.ThemeOverlay.AppCompat.Dark">
         <item name="android:background">@color/background_material_dark</item>
     </style>

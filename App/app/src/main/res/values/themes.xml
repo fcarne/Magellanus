@@ -21,8 +21,6 @@
 
     <style name="Theme.Magellanus.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-
-
     <style name="Theme.Magellanus.SearchBar" parent="ThemeOverlay.AppCompat.Light">
         <item name="android:background">@color/white</item>
     </style>
