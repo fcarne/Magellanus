@@ -3,9 +3,12 @@ package com.unibg.magellanus.app.itinerary.view
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -13,13 +16,16 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
+import com.google.android.material.snackbar.Snackbar
 import com.unibg.magellanus.app.BuildConfig
+import com.unibg.magellanus.app.R
 import com.unibg.magellanus.app.databinding.FragmentMapBinding
 import com.unibg.magellanus.app.itinerary.viewmodel.MapViewModel
 import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
 import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
@@ -27,11 +33,7 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import org.osmdroid.views.overlay.Marker
 
-
-
-
-
-class MapFragment : Fragment() {
+class MapFragment : Fragment(){
 
     private val provider = FirebaseAuthenticationProvider
 
@@ -44,19 +46,25 @@ class MapFragment : Fragment() {
     private lateinit var map: MapView
     private lateinit var mapController: IMapController
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View {
         binding = FragmentMapBinding.inflate(inflater, container, false)
         binding.bntCentra.setOnClickListener{btnCentra()}
         binding.btnPOI.setOnClickListener{btnPOI()}
-        binding.btnItinerari.setOnClickListener{btnItinerari()}
+        binding.btnItinerari.setOnEditorActionListener{ _,keyCode, event ->
+            if (((event?.action ?: -1 ) == KeyEvent.ACTION_DOWN) || keyCode == EditorInfo.IME_ACTION_SEARCH){
+                searchQuery()
+                return@setOnEditorActionListener true
+            }
+            return@setOnEditorActionListener false
+        }
+        binding.searchBar.setOnSearchClickListener{searchText()}
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setHasOptionsMenu(true)
         navController = findNavController()
 
         val ctx = requireActivity().applicationContext
@@ -111,6 +119,12 @@ class MapFragment : Fragment() {
 
             map.overlays.add(myLocationOverlay)
 
+            var berlin = Marker(map)
+            berlin.position = GeoPoint(52.50693,13.39748)
+            berlin.title = "Berlino"
+            map.overlays.add(berlin)
+
+            map.invalidate()
         }
 
 
@@ -142,10 +156,28 @@ class MapFragment : Fragment() {
     }
 
     fun btnPOI(){
-
+        myLocationOverlay.disableFollowLocation()
+        myLocationOverlay.disableMyLocation()
+        this.mapController.animateTo(GeoPoint(52.50693,13.39748))
     }
 
     fun btnItinerari(){
 
+    }
+
+    fun searchQuery(){
+        Snackbar.make(
+            requireActivity().findViewById(android.R.id.content),
+            "SearchQuery",
+            Snackbar.LENGTH_LONG
+        ).show()
+    }
+
+    fun searchText(){
+        Snackbar.make(
+            requireActivity().findViewById(android.R.id.content),
+            "SearchText",
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 }
