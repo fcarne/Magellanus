@@ -18,7 +18,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 import com.unibg.magellanus.app.BuildConfig
-import com.unibg.magellanus.app.R
 import com.unibg.magellanus.app.databinding.FragmentMapBinding
 import com.unibg.magellanus.app.itinerary.viewmodel.MapViewModel
 import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
@@ -27,11 +26,9 @@ import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.compass.CompassOverlay
-import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
+import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
-import org.osmdroid.views.overlay.Marker
 
 class MapFragment : Fragment(){
 
@@ -57,7 +54,23 @@ class MapFragment : Fragment(){
             }
             return@setOnEditorActionListener false
         }
-        binding.searchBar.setOnSearchClickListener{searchText()}
+
+        binding.searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(s: String): Boolean {
+                binding.searchBar.clearFocus();
+                Snackbar.make(
+                    requireActivity().findViewById(android.R.id.content),
+                    s,
+                    Snackbar.LENGTH_LONG
+                ).show()
+                return false
+            }
+
+            override fun onQueryTextChange(s: String): Boolean {
+                print(s)
+                return false
+            }
+        })
 
         return binding.root
     }
