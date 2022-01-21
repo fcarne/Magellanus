@@ -3,11 +3,9 @@ package com.unibg.magellanus.app.itinerary.view
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import android.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -17,12 +15,19 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.google.android.material.snackbar.Snackbar
 import com.unibg.magellanus.app.BuildConfig
 import com.unibg.magellanus.app.R
 import com.unibg.magellanus.app.databinding.FragmentMapBinding
 import com.unibg.magellanus.app.itinerary.viewmodel.MapViewModel
 import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
+import kotlinx.serialization.json.JsonElement
+import org.json.JSONObject
+import org.json.JSONTokener
 import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -31,6 +36,7 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+
 
 class MapFragment : Fragment(){
 
@@ -53,14 +59,16 @@ class MapFragment : Fragment(){
 
         binding.searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(s: String): Boolean {
+                if(s.length>2) {
+                    searchTextChange(s)
+                }
                 binding.searchBar.clearFocus();
-                searchTextSubmit()
                 return false
             }
 
             override fun onQueryTextChange(s: String): Boolean {
                 if(s.length>2) {
-                    searchTextChange()
+                    searchTextChange(s)
                 }
                 return false
             }
@@ -114,6 +122,18 @@ class MapFragment : Fragment(){
                     1
                 )
             }
+            if (ContextCompat.checkSelfPermission(
+                    this.requireContext(),
+                    Manifest.permission.INTERNET
+                ) == PackageManager.PERMISSION_DENIED
+            )
+                ActivityCompat.requestPermissions(
+                    this.requireActivity(),
+                    arrayOf(
+                        Manifest.permission.INTERNET
+                    ),
+                    1
+                )
 
         //Controller usage, overlay declaration and location enabling
             this.mapController = map.controller
@@ -171,21 +191,47 @@ class MapFragment : Fragment(){
 
     }
 
-    fun searchTextSubmit(){
-        Snackbar.make(
-            requireActivity().findViewById(android.R.id.content),
-            "SearchQuery",
-            Snackbar.LENGTH_LONG
-        ).show()
+    fun searchTextChange(search : String){
+        val url = "https://photon.komoot.io/api/?q="+search+"&limit=5"
+        var text : JsonElement
+        val queue = Volley.newRequestQueue(context)
+
+// Request a string response from the provided URL.
+        val stringRequest = StringRequest(
+            Request.Method.GET, url,
+            Response.Listener<String> { response ->
+
+                var test = ""
+                val jsonObject = JSONTokener(response).nextValue() as JSONObject
+
+                val jsonArray = jsonObject.getJSONArray("features")
+                for (i in 0 until jsonArray.length()) {
+                    val risultato = jsonArray.getJSONObject(i)
+                    var coords = risultato.getJSONObject("geometry").getJSONArray("coordinates")
+                    var lat = coords.getDouble(0)
+                    var long = coords.getDouble(1)
+                    var name = risultato.getJSONObject("properties").getString("name")
+                    test += "POI: "+name+" lat:"+lat.toString()+" Long:"+long.toString()+"\n"
+                }
+
+                Snackbar.make(
+                    requireActivity().findViewById(android.R.id.content),
+                    test,
+                    Snackbar.LENGTH_LONG
+                ).show()
+            },
+            Response.ErrorListener {
+               // text = "That didn't work!"
+                //todo iplementare l'errore
+            })
+
+// Add the request to the RequestQueue.
+        queue.add(stringRequest)
+
+
     }
 
-    fun searchTextChange(){
-        Snackbar.make(
-            requireActivity().findViewById(android.R.id.content),
-            "SearchText",
-            Snackbar.LENGTH_LONG
-        ).show()
-    }
+
 
     //myLocationOverlay.disableFollowLocation()
     //myLocationOverlay.disableMyLocation()
