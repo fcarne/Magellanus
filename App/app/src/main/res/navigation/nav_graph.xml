@@ -1,21 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/mapFragment">
 
     <fragment
         android:id="@+id/mapFragment"
         android:name="com.unibg.magellanus.app.itinerary.view.MapFragment"
-        android:label="MapFragment" >
+        android:label="Magellanus">
         <action
             android:id="@+id/action_mapFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_mapFragment_to_POIFragment"
+            app:destination="@id/POIListFragment" />
+        <action
+            android:id="@+id/action_mapFragment_to_itineraryListFragment"
+            app:destination="@id/itineraryListFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.unibg.magellanus.app.user.view.LoginFragment"
-        android:label="LoginFragment" >
+        android:label="Login">
         <action
             android:id="@+id/action_loginFragment_to_mapFragment"
             app:destination="@id/mapFragment"
@@ -25,12 +32,22 @@
     <fragment
         android:id="@+id/userProfileFragment"
         android:name="com.unibg.magellanus.app.user.view.UserProfileFragment"
-        android:label="UserProfileFragment" >
+        android:label="User Profile">
         <action
             android:id="@+id/action_userProfileFragment_to_loginFragment"
             app:destination="@id/loginFragment"
+            app:launchSingleTop="true"
             app:popUpTo="@id/nav_graph"
-            app:popUpToInclusive="true"
-            app:launchSingleTop="true" />
+            app:popUpToInclusive="true" />
     </fragment>
+    <fragment
+        android:id="@+id/POIListFragment"
+        android:name="com.unibg.magellanus.app.itinerary.view.POIListFragment"
+        android:label="POI List"
+        tools:layout="@layout/fragment_poi_list" />
+    <fragment
+        android:id="@+id/itineraryListFragment"
+        android:name="com.unibg.magellanus.app.itinerary.view.ItineraryListFragment"
+        android:label="Itinerary List"
+        tools:layout="@layout/fragment_itinerary_list" />
 </navigation>

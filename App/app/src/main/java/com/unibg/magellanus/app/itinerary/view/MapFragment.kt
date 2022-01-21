@@ -14,10 +14,12 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 import com.unibg.magellanus.app.BuildConfig
+import com.unibg.magellanus.app.R
 import com.unibg.magellanus.app.databinding.FragmentMapBinding
 import com.unibg.magellanus.app.itinerary.viewmodel.MapViewModel
 import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
@@ -46,28 +48,20 @@ class MapFragment : Fragment(){
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View {
         binding = FragmentMapBinding.inflate(inflater, container, false)
         binding.bntCentra.setOnClickListener{btnCentra()}
-        binding.btnPOI.setOnClickListener{btnPOI()}
-        binding.btnItinerari.setOnEditorActionListener{ _,keyCode, event ->
-            if (((event?.action ?: -1 ) == KeyEvent.ACTION_DOWN) || keyCode == EditorInfo.IME_ACTION_SEARCH){
-                searchQuery()
-                return@setOnEditorActionListener true
-            }
-            return@setOnEditorActionListener false
-        }
+        binding.btnPOI.setOnClickListener{btnPOI(this.requireView())}
+        binding.btnItinerari.setOnClickListener{btnItinerari(this.requireView())}
 
         binding.searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(s: String): Boolean {
                 binding.searchBar.clearFocus();
-                Snackbar.make(
-                    requireActivity().findViewById(android.R.id.content),
-                    s,
-                    Snackbar.LENGTH_LONG
-                ).show()
+                searchTextSubmit()
                 return false
             }
 
             override fun onQueryTextChange(s: String): Boolean {
-                print(s)
+                if(s.length>2) {
+                    searchTextChange()
+                }
                 return false
             }
         })
@@ -168,17 +162,16 @@ class MapFragment : Fragment(){
         myLocationOverlay.isDrawAccuracyEnabled = true
     }
 
-    fun btnPOI(){
-        myLocationOverlay.disableFollowLocation()
-        myLocationOverlay.disableMyLocation()
-        this.mapController.animateTo(GeoPoint(52.50693,13.39748))
+    fun btnPOI(view : View){
+        Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_POIFragment)
     }
 
-    fun btnItinerari(){
+    fun btnItinerari(view : View){
+        Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_itineraryListFragment)
 
     }
 
-    fun searchQuery(){
+    fun searchTextSubmit(){
         Snackbar.make(
             requireActivity().findViewById(android.R.id.content),
             "SearchQuery",
@@ -186,11 +179,16 @@ class MapFragment : Fragment(){
         ).show()
     }
 
-    fun searchText(){
+    fun searchTextChange(){
         Snackbar.make(
             requireActivity().findViewById(android.R.id.content),
             "SearchText",
             Snackbar.LENGTH_LONG
         ).show()
     }
+
+    //myLocationOverlay.disableFollowLocation()
+    //myLocationOverlay.disableMyLocation()
+    //this.mapController.animateTo(GeoPoint(52.50693,13.39748))
+
 }
