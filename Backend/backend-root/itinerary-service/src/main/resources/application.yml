@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: itinerary-service
+  profiles:
+    active:
+    - dev
+server:
+  port: 8082
+  error:
+    include-stacktrace: never
+

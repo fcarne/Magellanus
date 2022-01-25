@@ -30,19 +30,19 @@ class UserProfileViewModel(
         get() = _errorMessage
 
     suspend fun savePreferences(prefs: Map<String, Any?>) {
-        api.updatePreferences(currentUser.value!!.uid, prefs)
+        api.updatePreferences(prefs)
     }
 
     fun getPreferences() = viewModelScope.launch {
         try {
-            _syncedPreferences.value = api.getPreferences(currentUser.value!!.uid)
+            _syncedPreferences.value = api.getPreferences()
         } catch (e: HttpException) {
             _errorMessage.value = e.message
         }
     }
 
     fun delete() = viewModelScope.launch {
-        val response = api.delete(currentUser.value!!.uid)
+        val response = api.delete()
         _successfullyDeleted.value = if (response.isSuccessful) {
             true
         } else {

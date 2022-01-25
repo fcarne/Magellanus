@@ -1,0 +1,11 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://admin:admin@cluster-magellanus.huxjl.mongodb.net/magellanus_pac_2021
+      database: magellanus_pac_2021
+  security:
+    oauth2:
+     resourceserver:
+        jwt:
+          issuer-uri: https://securetoken.google.com/magellanus-pac  
+          jwk-set-uri: https://www.googleapis.com/robot/v1/metadata/jwk/securetoken@system.gserviceaccount.com

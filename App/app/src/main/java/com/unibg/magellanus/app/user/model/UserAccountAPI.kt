@@ -19,19 +19,19 @@ interface UserAccountAPI {
     @Headers(AuthInterceptor.NO_AUTH_HEADER)
     suspend fun signUp(@Body user: User): Response<Void>
 
-    @DELETE("{uid}")
-    suspend fun delete(@Path("uid") uid: String): Response<Void>
+    @DELETE("me")
+    suspend fun delete(): Response<Void>
 
-    @PATCH("{uid}/preferences")
-    suspend fun updatePreferences(@Path("uid") uid: String, @Body preferences: Map<String, @JvmSuppressWildcards Any?>): Response<Void>
+    @PATCH("me/preferences")
+    suspend fun updatePreferences(@Body preferences: Map<String, @JvmSuppressWildcards Any?>): Response<Void>
 
-    @GET("{uid}/preferences")
-    suspend fun getPreferences(@Path("uid") uid: String): Map<String, Any>?
+    @GET("me/preferences")
+    suspend fun getPreferences(): Map<String, Any>?
 
     data class User (val uid: String, val email: String)
 
     companion object {
-        var BASE_URL = "http://10.0.2.2:5000/api/users/"
+        var BASE_URL = "http://10.0.2.2:8080/api/users/"
         fun create(provider: AuthenticationProvider): UserAccountAPI {
             val authInterceptor = AuthInterceptor(provider)
             val httpInterceptor =
