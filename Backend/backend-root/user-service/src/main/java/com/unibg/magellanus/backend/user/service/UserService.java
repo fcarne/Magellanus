@@ -4,11 +4,11 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 public interface UserService {
-	public User get(String uid);
+	public User get(String uid) throws NoSuchElementException;
 
 	public User signUp(User user) throws IllegalArgumentException;
 
-	public void delete(String uid) throws IllegalArgumentException;
+	public void delete(String uid);
 
 	public User updatePreferences(String uid, Map<String, Object> preferences) throws NoSuchElementException;
 

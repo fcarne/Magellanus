@@ -3,6 +3,8 @@ package com.unibg.magellanus.backend.user;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,7 +40,7 @@ import com.unibg.magellanus.backend.user.service.UserRepository;
 @AutoConfigureMockMvc
 @ContextConfiguration
 @ActiveProfiles(profiles = {"dev", "test"})
-class UserManagerIntegrationTest {
+public class UserMicroserviceIntegrationTest {
 
 	private static final String TEST_USER_UID = "eXs3E6tEyrUTbz6LWqaspj5oCPW2";
 	private static final String TEST_USER_EMAIL = "integration@test.com";
@@ -55,7 +57,9 @@ class UserManagerIntegrationTest {
 	
 	@BeforeAll
 	public static void setup() {
-		testUser = new User(TEST_USER_UID, TEST_USER_EMAIL);
+		testUser = new User();
+		testUser.setUid(TEST_USER_UID);
+		testUser.setEmail(TEST_USER_EMAIL);
 		Map<String, Object> prefs = new HashMap<>();
 		prefs.put("pref_a", "A");
 		testUser.setPreferences(prefs);
@@ -92,7 +96,9 @@ class UserManagerIntegrationTest {
 
 	@Test
 	void signUp_newUser_returnsNoContent() throws Exception {
-		User user = new User("NEW_USER", "new_user@test.com");
+		User user = new User();
+		user.setUid("NEW_USER");
+		user.setEmail("new_user@test.com");
 		repository.delete(user);
 
 		MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
@@ -105,6 +111,7 @@ class UserManagerIntegrationTest {
 				.andExpect(status().isNoContent())
 				.andExpect(jsonPath("$").doesNotExist());
 		
+		assertNotNull(repository.findById(TEST_USER_UID));
 	}
 
 	@Test
@@ -120,7 +127,7 @@ class UserManagerIntegrationTest {
 	}
 	
 	@Test
-	void delete_nonAuth_returnsForbidden() throws Exception {
+	void delete_nonAuth_returnsUnauthorized() throws Exception {
 		MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
 				.delete("/api/users/me")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -128,7 +135,6 @@ class UserManagerIntegrationTest {
 		
 		mockMvc.perform(mockRequest)
 		       .andExpect(status().isUnauthorized());
-
 	}
 	
 	@Test
@@ -143,6 +149,7 @@ class UserManagerIntegrationTest {
 				.andExpect(status().isNoContent())
 				.andExpect(jsonPath("$").doesNotExist());
 
+		assertFalse(repository.existsById(TEST_USER_UID));
 	}
 	
 	@Test
@@ -160,7 +167,7 @@ class UserManagerIntegrationTest {
 	}
 	
 	@Test
-	@WithMockUser(username =TEST_USER_UID)
+	@WithMockUser(username = TEST_USER_UID)
 	void setPreferences_ownAccount_returnsNoContent() throws Exception {
 		Map<String, Object> prefs = new HashMap<>();
 		prefs.put("pref_b", "B");
@@ -169,6 +176,7 @@ class UserManagerIntegrationTest {
 			.patch("/api/users/me/preferences")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(this.mapper.writeValueAsString(prefs));
+		
 		mockMvc.perform(mockRequest)
 				.andExpect(status().isNoContent())
 				.andExpect(jsonPath("$").doesNotExist());

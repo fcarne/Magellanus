@@ -13,7 +13,7 @@ public class ItineraryServiceSecurityConfig extends WebSecurityConfigurerAdapter
 		.formLogin().disable()
 		.httpBasic().disable()
 		.authorizeRequests()
-		.anyRequest().permitAll()
+		.anyRequest().authenticated()
 		.and().oauth2ResourceServer().jwt();
 	}
 }

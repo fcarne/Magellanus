@@ -1,0 +1,5 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://admin:admin@cluster-magellanus.huxjl.mongodb.net/magellanus_pac_2021_test
+      database: magellanus_pac_2021_test

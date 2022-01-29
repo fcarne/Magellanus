@@ -32,14 +32,21 @@ class UserServiceTest {
 
 	@InjectMocks
 	UserServiceImpl service;
+	
+	User buildUser() {
+		User user = new User();
+		user.setUid("1");
+		user.setEmail("test@test.com");
+		return user;
+	}
 
 	@BeforeEach
 	void setupUser() {
-		user = new User("1", "test@test.com");
+		user = buildUser();
 	}
 
 	@Test
-	void checkIfExists_exists_returnsTrue() {
+	void get_exists_returnsUser() {
 		when(repository.findById("1")).thenReturn(Optional.of(user));
 
 		User exists = service.get("1");
@@ -47,7 +54,7 @@ class UserServiceTest {
 	}
 
 	@Test
-	void checkIfExists_notExists_returnsFalse() {
+	void get_notExists_throwsNoSuchElement() {
 		when(repository.findById("2")).thenReturn(Optional.empty());
 		assertThrows(NoSuchElementException.class, () ->  service.get("2"));
 	}
@@ -55,7 +62,7 @@ class UserServiceTest {
 	@Test
 	void signUp_nonExistent_returnsUser() {
 		when(repository.findById(user.getUid())).thenReturn(Optional.empty());
-		when(repository.save(user)).thenReturn(new User(user.getUid(), user.getEmail()));
+		when(repository.save(user)).thenReturn(buildUser());
 
 		User newUser = service.signUp(user);
 		assertEquals(newUser, user);
@@ -68,7 +75,7 @@ class UserServiceTest {
 	}
 
 	@Test
-	void testUpdatePreferences() {
+	void setPreferences_existent_updatesPreferences() {
 		Map<String, Object> prefs = new HashMap<>();
 		prefs.put("A", 1);
 		prefs.put("B", 1);

@@ -15,16 +15,8 @@ public class User {
 	private String email;
 	private Map<String, Object> preferences;
 
-	public User() {}
-	
-	public User(String uid, String email, Map<String, Object> preferences) {
-		this.uid = uid;
-		this.email = email;
-		this.preferences = preferences;
-	}
-
-	public User(String uid, String email) {
-		this(uid, email, new HashMap<>());
+	public User() {
+		this.preferences = new HashMap<>();
 	}
 
 	public String getUid() {

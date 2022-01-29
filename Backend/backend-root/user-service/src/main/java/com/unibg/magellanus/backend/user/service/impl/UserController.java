@@ -1,6 +1,5 @@
 package com.unibg.magellanus.backend.user.service.impl;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -35,11 +34,11 @@ public class UserController implements UserAccountAPI {
 	}
 
 	@Override
-	@GetMapping(value = "{uid}")
+	@GetMapping("{uid}")
 	public User getUser(@PathVariable String uid) {
 		try {
-		return service.get(uid);}
-		catch (NoSuchElementException e) {
+			return service.get(uid);
+		} catch (NoSuchElementException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}
 	}
@@ -49,9 +48,6 @@ public class UserController implements UserAccountAPI {
 	public ResponseEntity<Void> signUp(@RequestBody User user) {
 		try {
 			service.signUp(user);
-			if(user.getPreferences() == null) {
-				user.setPreferences(new HashMap<>());
-			}
 			return ResponseEntity.noContent().build();
 		} catch (IllegalArgumentException e) {
 			throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
@@ -68,7 +64,7 @@ public class UserController implements UserAccountAPI {
 
 	@Override
 	@PatchMapping("me/preferences")
-	public ResponseEntity<Void> updatePreferencesMe(@RequestBody Map<String, Object> preferences) {
+	public ResponseEntity<Void> updateMinePreferences(@RequestBody Map<String, Object> preferences) {
 		String uid = SecurityContextHolder.getContext().getAuthentication().getName();
 		Map<String, Object> sanitized = preferences.entrySet().stream().filter(t -> !t.getKey().contains("."))
 				.collect(Collectors.toMap(map -> map.getKey(), map -> map.getValue()));
@@ -82,7 +78,7 @@ public class UserController implements UserAccountAPI {
 
 	@Override
 	@GetMapping("me/preferences")
-	public Map<String, Object> getPreferencesMe() {
+	public Map<String, Object> getMinePreferences() {
 		String uid = SecurityContextHolder.getContext().getAuthentication().getName();
 		try {
 			Map<String, Object> map = service.getPreferences(uid);

@@ -11,8 +11,8 @@ public interface UserAccountAPI {
 
 	public ResponseEntity<Void> deleteMe();
 
-	public ResponseEntity<Void> updatePreferencesMe(Map<String, Object> preferences);
+	public ResponseEntity<Void> updateMinePreferences(Map<String, Object> preferences);
 
-	public Map<String, Object> getPreferencesMe();
+	public Map<String, Object> getMinePreferences();
 
 }
