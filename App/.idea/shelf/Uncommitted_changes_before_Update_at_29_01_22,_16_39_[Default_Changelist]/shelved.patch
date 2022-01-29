@@ -1,0 +1,896 @@
+Index: app/src/main/res/navigation/nav_graph.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<navigation xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    xmlns:tools=\"http://schemas.android.com/tools\"\n    android:id=\"@+id/nav_graph\"\n    app:startDestination=\"@id/mapFragment\">\n\n    <fragment\n        android:id=\"@+id/mapFragment\"\n        android:name=\"com.unibg.magellanus.app.itinerary.view.MapFragment\"\n        android:label=\"Magellanus\">\n        <action\n            android:id=\"@+id/action_mapFragment_to_loginFragment\"\n            app:destination=\"@id/loginFragment\" />\n        <action\n            android:id=\"@+id/action_mapFragment_to_POIFragment\"\n            app:destination=\"@id/POIListFragment\" />\n        <action\n            android:id=\"@+id/action_mapFragment_to_itineraryExplorerFragment\"\n            app:destination=\"@id/itineraryExplorerFragment\" />\n    </fragment>\n    <fragment\n        android:id=\"@+id/loginFragment\"\n        android:name=\"com.unibg.magellanus.app.user.view.LoginFragment\"\n        android:label=\"Login\">\n        <action\n            android:id=\"@+id/action_loginFragment_to_mapFragment\"\n            app:destination=\"@id/mapFragment\"\n            app:popUpTo=\"@id/mapFragment\"\n            app:popUpToInclusive=\"true\" />\n    </fragment>\n    <fragment\n        android:id=\"@+id/userProfileFragment\"\n        android:name=\"com.unibg.magellanus.app.user.view.UserProfileFragment\"\n        android:label=\"User Profile\">\n        <action\n            android:id=\"@+id/action_userProfileFragment_to_loginFragment\"\n            app:destination=\"@id/loginFragment\"\n            app:launchSingleTop=\"true\"\n            app:popUpTo=\"@id/nav_graph\"\n            app:popUpToInclusive=\"true\" />\n    </fragment>\n    <fragment\n        android:id=\"@+id/POIListFragment\"\n        android:name=\"com.unibg.magellanus.app.itinerary.view.POIListFragment\"\n        android:label=\"POI List\"\n        tools:layout=\"@layout/fragment_poi_list\" />\n    <fragment\n        android:id=\"@+id/itineraryExplorerFragment\"\n        android:name=\"com.unibg.magellanus.app.itinerary.view.ItineraryExplorerFragment\"\n        android:label=\"Itinerary Explorer\" />\n</navigation>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/navigation/nav_graph.xml b/app/src/main/res/navigation/nav_graph.xml
+--- a/app/src/main/res/navigation/nav_graph.xml	
++++ b/app/src/main/res/navigation/nav_graph.xml	
+@@ -49,4 +49,13 @@
+         android:id="@+id/itineraryExplorerFragment"
+         android:name="com.unibg.magellanus.app.itinerary.view.ItineraryExplorerFragment"
+         android:label="Itinerary Explorer" />
++    <fragment
++        android:id="@+id/itineraryListFragment"
++        android:name="com.unibg.magellanus.app.itinerary.view.ItineraryListFragment"
++        android:label="Itinerary List"
++        tools:layout="@layout/fragment_itinerary_list" >
++        <action
++            android:id="@+id/action_itineraryListFragment_to_mapFragment"
++            app:destination="@id/mapFragment" />
++    </fragment>
+ </navigation>
+\ No newline at end of file
+Index: app/src/main/java/com/unibg/magellanus/app/itinerary/view/MapFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.unibg.magellanus.app.itinerary.view\n\nimport android.Manifest\nimport android.content.pm.PackageManager\nimport android.os.Bundle\nimport android.view.LayoutInflater\nimport android.view.View\nimport android.view.ViewGroup\nimport android.widget.SearchView\nimport androidx.core.app.ActivityCompat\nimport androidx.core.content.ContextCompat\nimport androidx.fragment.app.Fragment\nimport androidx.fragment.app.viewModels\nimport androidx.navigation.NavController\nimport androidx.navigation.Navigation\nimport androidx.navigation.fragment.findNavController\nimport androidx.preference.PreferenceManager\nimport com.android.volley.Request\nimport com.android.volley.Response\nimport com.android.volley.toolbox.StringRequest\nimport com.android.volley.toolbox.Volley\nimport com.google.android.material.snackbar.Snackbar\nimport com.unibg.magellanus.app.BuildConfig\nimport com.unibg.magellanus.app.R\nimport com.unibg.magellanus.app.databinding.FragmentMapBinding\nimport com.unibg.magellanus.app.itinerary.viewmodel.MapViewModel\nimport com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider\nimport kotlinx.serialization.json.JsonElement\nimport org.json.JSONObject\nimport org.json.JSONTokener\nimport org.osmdroid.api.IMapController\nimport org.osmdroid.config.Configuration\nimport org.osmdroid.tileprovider.tilesource.TileSourceFactory\nimport org.osmdroid.util.GeoPoint\nimport org.osmdroid.views.MapView\nimport org.osmdroid.views.overlay.Marker\nimport org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider\nimport org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay\n\n\nclass MapFragment : Fragment(){\n\n    private val provider = FirebaseAuthenticationProvider\n\n    private val viewModel by viewModels<MapViewModel>()\n\n    private lateinit var navController: NavController\n    private lateinit var binding: FragmentMapBinding\n    private lateinit var myLocationOverlay: MyLocationNewOverlay\n\n    private lateinit var map: MapView\n    private lateinit var mapController: IMapController\n\n    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View {\n        binding = FragmentMapBinding.inflate(inflater, container, false)\n        binding.bntCentra.setOnClickListener{btnCentra()}\n        binding.btnPOI.setOnClickListener{btnPOI(this.requireView())}\n        binding.btnItinerari.setOnClickListener{btnItinerari(this.requireView())}\n\n        binding.searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {\n            override fun onQueryTextSubmit(s: String): Boolean {\n                if(s.length>2) {\n                    searchTextChange(s)\n                }\n                binding.searchBar.clearFocus();\n                return false\n            }\n\n            override fun onQueryTextChange(s: String): Boolean {\n                if(s.length>2) {\n                    searchTextChange(s)\n                }\n                return false\n            }\n        })\n\n        return binding.root\n    }\n\n    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {\n        super.onViewCreated(view, savedInstanceState)\n        setHasOptionsMenu(true)\n        navController = findNavController()\n\n        val ctx = requireActivity().applicationContext\n        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))\n        Configuration.getInstance().userAgentValue = BuildConfig.APPLICATION_ID\n\n        map = binding.map\n        map.setTileSource(TileSourceFactory.MAPNIK)\n        map.setMultiTouchControls(true)\n        map.visibility = View.VISIBLE\n\n        println(provider.currentUser)\n\n        if (provider.currentUser == null)\n            navController.navigate(MapFragmentDirections.actionMapFragmentToLoginFragment())\n        else {\n\n            //Permissions check\n            if (ContextCompat.checkSelfPermission(\n                    this.requireContext(),\n                    Manifest.permission.ACCESS_FINE_LOCATION\n                ) == PackageManager.PERMISSION_DENIED\n            ) {\n                if (ContextCompat.checkSelfPermission(\n                        this.requireContext(),\n                        Manifest.permission.ACCESS_COARSE_LOCATION\n                    ) == PackageManager.PERMISSION_DENIED\n                )\n                    ActivityCompat.requestPermissions(\n                        this.requireActivity(),\n                        arrayOf(\n                            Manifest.permission.ACCESS_FINE_LOCATION,\n                            Manifest.permission.ACCESS_COARSE_LOCATION\n                        ),\n                        1\n                    )\n                ActivityCompat.requestPermissions(\n                    this.requireActivity(),\n                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),\n                    1\n                )\n            }\n            if (ContextCompat.checkSelfPermission(\n                    this.requireContext(),\n                    Manifest.permission.INTERNET\n                ) == PackageManager.PERMISSION_DENIED\n            )\n                ActivityCompat.requestPermissions(\n                    this.requireActivity(),\n                    arrayOf(\n                        Manifest.permission.INTERNET\n                    ),\n                    1\n                )\n\n        //Controller usage, overlay declaration and location enabling\n            this.mapController = map.controller\n            myLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), map)\n            myLocationOverlay.enableMyLocation()\n            myLocationOverlay.enableFollowLocation()\n            myLocationOverlay.isDrawAccuracyEnabled = true\n\n            this.mapController.setZoom(15)\n\n            map.overlays.add(myLocationOverlay)\n\n            var berlin = Marker(map)\n            berlin.position = GeoPoint(52.50693,13.39748)\n            berlin.title = \"Berlino\"\n            map.overlays.add(berlin)\n\n            map.invalidate()\n        }\n\n\n    }\n\n    override fun onResume() {\n        super.onResume()\n        //this will refresh the osmdroid configuration on resuming.\n        //if you make changes to the configuration, use\n        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);\n        //Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));\n        map.onResume() //needed for compass, my location overlays, v6.0.0 and up\n    }\n\n    override fun onPause() {\n        super.onPause()\n        //this will refresh the osmdroid configuration on resuming.\n        //if you make changes to the configuration, use\n        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);\n        //Configuration.getInstance().save(this, prefs);\n        map.onPause() //needed for compass, my location overlays, v6.0.0 and up\n    }\n\n    fun btnCentra(){\n        this.mapController.animateTo(myLocationOverlay.myLocation)\n        myLocationOverlay.enableMyLocation()\n        myLocationOverlay.enableFollowLocation()\n        myLocationOverlay.isDrawAccuracyEnabled = true\n    }\n\n    fun btnPOI(view : View){\n        Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_POIFragment)\n    }\n\n    fun btnItinerari(view : View){\n        Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_itineraryExplorerFragment)\n\n    }\n\n    fun searchTextChange(search : String){\n        val url = \"https://photon.komoot.io/api/?q=\"+search+\"&limit=5\"\n        var text : JsonElement\n        val queue = Volley.newRequestQueue(context)\n\n// Request a string response from the provided URL.\n        val stringRequest = StringRequest(\n            Request.Method.GET, url,\n            Response.Listener<String> { response ->\n\n                var test = \"\"\n                val jsonObject = JSONTokener(response).nextValue() as JSONObject\n\n                val jsonArray = jsonObject.getJSONArray(\"features\")\n                var pos = Marker(map)\n\n                for (i in 0 until jsonArray.length()) {\n                    val risultato = jsonArray.getJSONObject(i)\n                    var coords = risultato.getJSONObject(\"geometry\").getJSONArray(\"coordinates\")\n                    var lat = coords.getDouble(1)\n                    var long = coords.getDouble(0)\n                    var name = risultato.getJSONObject(\"properties\").getString(\"name\")\n                    test += \"POI: \"+name+\" lat:\"+lat.toString()+\" Long:\"+long.toString()+\"\\n\"\n                    pos.position = GeoPoint(lat,long)\n                    pos.title = name\n                    map.overlays.add(pos)\n                }\n                map.invalidate()\n            },\n            Response.ErrorListener {\n               // text = \"That didn't work!\"\n                //todo iplementare l'errore\n            })\n\n// Add the request to the RequestQueue.\n        queue.add(stringRequest)\n\n\n    }\n\n\n\n    //myLocationOverlay.disableFollowLocation()\n    //myLocationOverlay.disableMyLocation()\n    //this.mapController.animateTo(GeoPoint(52.50693,13.39748))\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/unibg/magellanus/app/itinerary/view/MapFragment.kt b/app/src/main/java/com/unibg/magellanus/app/itinerary/view/MapFragment.kt
+--- a/app/src/main/java/com/unibg/magellanus/app/itinerary/view/MapFragment.kt	
++++ b/app/src/main/java/com/unibg/magellanus/app/itinerary/view/MapFragment.kt	
+@@ -7,13 +7,16 @@
+ import android.view.View
+ import android.view.ViewGroup
+ import android.widget.SearchView
++import androidx.activity.addCallback
+ import androidx.core.app.ActivityCompat
+ import androidx.core.content.ContextCompat
+ import androidx.fragment.app.Fragment
+ import androidx.fragment.app.viewModels
++import androidx.lifecycle.lifecycleScope
+ import androidx.navigation.NavController
+ import androidx.navigation.Navigation
+ import androidx.navigation.fragment.findNavController
++import androidx.navigation.fragment.navArgs
+ import androidx.preference.PreferenceManager
+ import com.android.volley.Request
+ import com.android.volley.Response
+@@ -23,8 +26,13 @@
+ import com.unibg.magellanus.app.BuildConfig
+ import com.unibg.magellanus.app.R
+ import com.unibg.magellanus.app.databinding.FragmentMapBinding
++import com.unibg.magellanus.app.itinerary.model.Itinerary
++import com.unibg.magellanus.app.itinerary.model.ItineraryRepositoryImpl
++import com.unibg.magellanus.app.itinerary.model.network.GeocodingAPI
++import com.unibg.magellanus.app.itinerary.model.network.ItineraryAPI
+ import com.unibg.magellanus.app.itinerary.viewmodel.MapViewModel
+ import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
++import kotlinx.coroutines.launch
+ import kotlinx.serialization.json.JsonElement
+ import org.json.JSONObject
+ import org.json.JSONTokener
+@@ -33,42 +41,65 @@
+ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+ import org.osmdroid.util.GeoPoint
+ import org.osmdroid.views.MapView
++import org.osmdroid.views.overlay.FolderOverlay
+ import org.osmdroid.views.overlay.Marker
+ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
+ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+ 
+ 
+-class MapFragment : Fragment(){
++class MapFragment : Fragment() {
+ 
+     private val provider = FirebaseAuthenticationProvider
+ 
+-    private val viewModel by viewModels<MapViewModel>()
++    private val viewModel by viewModels<MapViewModel> {
++        //TODO capire perchè non funzionano i safeargs
++        //var itinerary: Itinerary? = args.itinerary
++        var itinerary: Itinerary? = null
++
++        if(itinerary == null)
++            itinerary = Itinerary(id = provider.currentUser?.uid, name = "Default itinerary")
++
++        val provider = FirebaseAuthenticationProvider
++        val cacheDir = requireContext().cacheDir
++        val api = ItineraryAPI.create(provider, cacheDir)
++        val geoApi = GeocodingAPI.create(cacheDir)
++        val repository = ItineraryRepositoryImpl(api, geoApi)
++
++        MapViewModel.Factory(itinerary!!, repository)
++    }
+ 
+     private lateinit var navController: NavController
++    //private val args: MapFragmentArgs by navArgs()
++
+     private lateinit var binding: FragmentMapBinding
+     private lateinit var myLocationOverlay: MyLocationNewOverlay
+ 
+     private lateinit var map: MapView
+     private lateinit var mapController: IMapController
+ 
+-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View {
++    override fun onCreateView(
++        inflater: LayoutInflater,
++        container: ViewGroup?,
++        savedInstanceState: Bundle?
++    ): View {
+         binding = FragmentMapBinding.inflate(inflater, container, false)
+-        binding.bntCentra.setOnClickListener{btnCentra()}
+-        binding.btnPOI.setOnClickListener{btnPOI(this.requireView())}
+-        binding.btnItinerari.setOnClickListener{btnItinerari(this.requireView())}
++        binding.bntCentra.setOnClickListener { btnCentra() }
++        binding.btnPOI.setOnClickListener { btnPOI(this.requireView()) }
++        binding.btnItinerari.setOnClickListener { btnItinerari(this.requireView()) }
+ 
+         binding.searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+             override fun onQueryTextSubmit(s: String): Boolean {
+-                if(s.length>2) {
+-                    searchTextChange(s)
++                if (s.length > 2) {
++                    viewModel.search(s)
++                    //searchTextChange(s)
+                 }
+-                binding.searchBar.clearFocus();
++                binding.searchBar.clearFocus()
+                 return false
+             }
+ 
+             override fun onQueryTextChange(s: String): Boolean {
+-                if(s.length>2) {
+-                    searchTextChange(s)
++                if (s.length > 2) {
++                    //searchTextChange(s)
+                 }
+                 return false
+             }
+@@ -91,11 +122,10 @@
+         map.setMultiTouchControls(true)
+         map.visibility = View.VISIBLE
+ 
+-        println(provider.currentUser)
+-
+-        if (provider.currentUser == null)
++        if (provider.currentUser == null) {
+             navController.navigate(MapFragmentDirections.actionMapFragmentToLoginFragment())
+-        else {
++            return
++        } else {
+ 
+             //Permissions check
+             if (ContextCompat.checkSelfPermission(
+@@ -135,7 +165,7 @@
+                     1
+                 )
+ 
+-        //Controller usage, overlay declaration and location enabling
++            //Controller usage, overlay declaration and location enabling
+             this.mapController = map.controller
+             myLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), map)
+             myLocationOverlay.enableMyLocation()
+@@ -144,16 +174,65 @@
+ 
+             this.mapController.setZoom(15)
+ 
+-            map.overlays.add(myLocationOverlay)
++            val searchOverlay = FolderOverlay()
++            val poiOverlay = FolderOverlay()
+ 
+-            var berlin = Marker(map)
+-            berlin.position = GeoPoint(52.50693,13.39748)
++            map.overlays.apply {
++                add(myLocationOverlay)
++                add(searchOverlay)
++                add(poiOverlay)
++            }
++
++            val berlin = Marker(map)
++            berlin.position = GeoPoint(52.50693, 13.39748)
+             berlin.title = "Berlino"
+             map.overlays.add(berlin)
+ 
+             map.invalidate()
+-        }
++
++            viewModel.poiSet.observe(viewLifecycleOwner) {
++                poiOverlay.items.forEach { marker -> poiOverlay.remove(marker) }
++                it.forEach { poi ->
++                    val marker = Marker(map)
++                    marker.position = GeoPoint(poi.latitude, poi.longitude)
++                    marker.title = poi.name
++                    //TODO: dovrebbe essere un long click
++                    marker.setOnMarkerClickListener { _, _ ->
++                        viewModel.removePOI(poi)
++                        true
++                    }
++                    poiOverlay.add(marker)
++                }
++
++                map.invalidate()
++            }
+ 
++            viewModel.currentSearch.observe(viewLifecycleOwner) {
++                searchOverlay.items.forEach { marker -> searchOverlay.remove(marker) }
++                it.forEach { poi ->
++                    val marker = Marker(map)
++                    marker.position = GeoPoint(poi.latitude, poi.longitude)
++                    marker.title = poi.name
++                    //TODO: dovrebbe essere un long click
++                    marker.setOnMarkerClickListener { _, _ ->
++                        viewModel.addPOI(poi)
++                        true
++                    }
++                    searchOverlay.add(marker)
++                }
++
++                map.invalidate()
++            }
++
++            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
++                requireActivity().lifecycleScope.launch {
++                    viewModel.saveChanges()
++                }
++
++                navController.popBackStack()
++            }
++        }
++
+ 
+     }
+ 
+@@ -191,9 +270,9 @@
+ 
+     }
+ 
+-    fun searchTextChange(search : String){
+-        val url = "https://photon.komoot.io/api/?q="+search+"&limit=5"
+-        var text : JsonElement
++    fun searchTextChange(search: String) {
++        val url = "https://photon.komoot.io/api/?q=" + search + "&limit=5"
++        var text: JsonElement
+         val queue = Volley.newRequestQueue(context)
+ 
+ // Request a string response from the provided URL.
+Index: app/src/main/java/com/unibg/magellanus/app/itinerary/view/POIListFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.unibg.magellanus.app.itinerary.view\n\nimport android.os.Bundle\nimport androidx.fragment.app.Fragment\nimport androidx.recyclerview.widget.GridLayoutManager\nimport androidx.recyclerview.widget.LinearLayoutManager\nimport androidx.recyclerview.widget.RecyclerView\nimport android.view.LayoutInflater\nimport android.view.View\nimport android.view.ViewGroup\nimport com.unibg.magellanus.app.R\nimport com.unibg.magellanus.app.itinerary.model.POI\n\n/**\n * A fragment representing a list of Items.\n */\nclass POIListFragment : Fragment() {\n\n    private var columnCount = 1\n\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n\n        arguments?.let {\n            columnCount = it.getInt(ARG_COLUMN_COUNT)\n        }\n    }\n\n    override fun onCreateView(\n        inflater: LayoutInflater, container: ViewGroup?,\n        savedInstanceState: Bundle?\n    ): View? {\n        val view = inflater.inflate(R.layout.fragment_poi_list, container, false)\n\n        // Set the adapter\n        if (view is RecyclerView) {\n            with(view) {\n                layoutManager = when {\n                    columnCount <= 1 -> LinearLayoutManager(context)\n                    else -> GridLayoutManager(context, columnCount)\n                }\n\n                //Lista temporanea di test\n                var effe = listOf<POI>(POI(\"Unibg\",72.2,72.2),POI(\"Unimi\",712.2,723.2),POI(\"Unippino\",7212.2,723232.2))\n                //\n                adapter = POIRecyclerViewAdapter(effe)\n            }\n        }\n        return view\n    }\n\n    companion object {\n\n        // TODO: Customize parameter argument names\n        const val ARG_COLUMN_COUNT = \"column-count\"\n\n        // TODO: Customize parameter initialization\n        @JvmStatic\n        fun newInstance(columnCount: Int) =\n            POIListFragment().apply {\n                arguments = Bundle().apply {\n                    putInt(ARG_COLUMN_COUNT, columnCount)\n                }\n            }\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/unibg/magellanus/app/itinerary/view/POIListFragment.kt b/app/src/main/java/com/unibg/magellanus/app/itinerary/view/POIListFragment.kt
+--- a/app/src/main/java/com/unibg/magellanus/app/itinerary/view/POIListFragment.kt	
++++ b/app/src/main/java/com/unibg/magellanus/app/itinerary/view/POIListFragment.kt	
+@@ -41,7 +41,7 @@
+                 }
+ 
+                 //Lista temporanea di test
+-                var effe = listOf<POI>(POI("Unibg",72.2,72.2),POI("Unimi",712.2,723.2),POI("Unippino",7212.2,723232.2))
++                val effe = listOf<POI>(POI("Unibg",72.2,72.2, null),POI("Unimi",712.2,723.2, null),POI("Unippino",7212.2,723232.2, null))
+                 //
+                 adapter = POIRecyclerViewAdapter(effe)
+             }
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_21_01_22,_15_36_[Default_Changelist]/shelved.patch
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Update_at_21_01_22,_15_36_[Default_Changelist]/shelved.patch b/.idea/shelf/Uncommitted_changes_before_Update_at_21_01_22,_15_36_[Default_Changelist]/shelved.patch
+deleted file mode 100644
+--- a/.idea/shelf/Uncommitted_changes_before_Update_at_21_01_22,_15_36_[Default_Changelist]/shelved.patch	
++++ /dev/null	
+@@ -1,54 +0,0 @@
+-Index: app/src/main/java/com/unibg/magellanus/app/itinerary/view/MapFragment.kt
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+>package com.unibg.magellanus.app.itinerary.view\n\nimport android.Manifest\nimport android.content.pm.PackageManager\nimport android.os.Bundle\nimport android.view.KeyEvent\nimport android.view.LayoutInflater\nimport android.view.View\nimport android.view.ViewGroup\nimport android.view.inputmethod.EditorInfo\nimport android.widget.SearchView\nimport androidx.core.app.ActivityCompat\nimport androidx.core.content.ContextCompat\nimport androidx.fragment.app.Fragment\nimport androidx.fragment.app.viewModels\nimport androidx.navigation.NavController\nimport androidx.navigation.fragment.findNavController\nimport androidx.preference.PreferenceManager\nimport com.google.android.material.snackbar.Snackbar\nimport com.unibg.magellanus.app.BuildConfig\nimport com.unibg.magellanus.app.R\nimport com.unibg.magellanus.app.databinding.FragmentMapBinding\nimport com.unibg.magellanus.app.itinerary.viewmodel.MapViewModel\nimport com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider\nimport org.osmdroid.api.IMapController\nimport org.osmdroid.config.Configuration\nimport org.osmdroid.tileprovider.tilesource.TileSourceFactory\nimport org.osmdroid.util.GeoPoint\nimport org.osmdroid.views.MapView\nimport org.osmdroid.views.overlay.compass.CompassOverlay\nimport org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider\nimport org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider\nimport org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay\nimport org.osmdroid.views.overlay.Marker\n\nclass MapFragment : Fragment(){\n\n    private val provider = FirebaseAuthenticationProvider\n\n    private val viewModel by viewModels<MapViewModel>()\n\n    private lateinit var navController: NavController\n    private lateinit var binding: FragmentMapBinding\n    private lateinit var myLocationOverlay: MyLocationNewOverlay\n\n    private lateinit var map: MapView\n    private lateinit var mapController: IMapController\n\n    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View {\n        binding = FragmentMapBinding.inflate(inflater, container, false)\n        binding.bntCentra.setOnClickListener{btnCentra()}\n        binding.btnPOI.setOnClickListener{btnPOI()}\n        binding.btnItinerari.setOnEditorActionListener{ _,keyCode, event ->\n            if (((event?.action ?: -1 ) == KeyEvent.ACTION_DOWN) || keyCode == EditorInfo.IME_ACTION_SEARCH){\n                searchQuery()\n                return@setOnEditorActionListener true\n            }\n            return@setOnEditorActionListener false\n        }\n        binding.searchBar.setOnSearchClickListener{searchText()}\n\n        return binding.root\n    }\n\n    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {\n        super.onViewCreated(view, savedInstanceState)\n        setHasOptionsMenu(true)\n        navController = findNavController()\n\n        val ctx = requireActivity().applicationContext\n        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))\n        Configuration.getInstance().userAgentValue = BuildConfig.APPLICATION_ID\n\n        map = binding.map\n        map.setTileSource(TileSourceFactory.MAPNIK)\n        map.setMultiTouchControls(true)\n        map.visibility = View.VISIBLE\n\n        println(provider.currentUser)\n\n        if (provider.currentUser == null)\n            navController.navigate(MapFragmentDirections.actionMapFragmentToLoginFragment())\n        else {\n\n            //Permissions check\n            if (ContextCompat.checkSelfPermission(\n                    this.requireContext(),\n                    Manifest.permission.ACCESS_FINE_LOCATION\n                ) == PackageManager.PERMISSION_DENIED\n            ) {\n                if (ContextCompat.checkSelfPermission(\n                        this.requireContext(),\n                        Manifest.permission.ACCESS_COARSE_LOCATION\n                    ) == PackageManager.PERMISSION_DENIED\n                )\n                    ActivityCompat.requestPermissions(\n                        this.requireActivity(),\n                        arrayOf(\n                            Manifest.permission.ACCESS_FINE_LOCATION,\n                            Manifest.permission.ACCESS_COARSE_LOCATION\n                        ),\n                        1\n                    )\n                ActivityCompat.requestPermissions(\n                    this.requireActivity(),\n                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),\n                    1\n                )\n            }\n\n        //Controller usage, overlay declaration and location enabling\n            this.mapController = map.controller\n            myLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), map)\n            myLocationOverlay.enableMyLocation()\n            myLocationOverlay.enableFollowLocation()\n            myLocationOverlay.isDrawAccuracyEnabled = true\n\n            this.mapController.setZoom(15)\n\n            map.overlays.add(myLocationOverlay)\n\n            var berlin = Marker(map)\n            berlin.position = GeoPoint(52.50693,13.39748)\n            berlin.title = \"Berlino\"\n            map.overlays.add(berlin)\n\n            map.invalidate()\n        }\n\n\n    }\n\n    override fun onResume() {\n        super.onResume()\n        //this will refresh the osmdroid configuration on resuming.\n        //if you make changes to the configuration, use\n        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);\n        //Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));\n        map.onResume() //needed for compass, my location overlays, v6.0.0 and up\n    }\n\n    override fun onPause() {\n        super.onPause()\n        //this will refresh the osmdroid configuration on resuming.\n        //if you make changes to the configuration, use\n        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);\n        //Configuration.getInstance().save(this, prefs);\n        map.onPause() //needed for compass, my location overlays, v6.0.0 and up\n    }\n\n    fun btnCentra(){\n        this.mapController.animateTo(myLocationOverlay.myLocation)\n        myLocationOverlay.enableMyLocation()\n        myLocationOverlay.enableFollowLocation()\n        myLocationOverlay.isDrawAccuracyEnabled = true\n    }\n\n    fun btnPOI(){\n        myLocationOverlay.disableFollowLocation()\n        myLocationOverlay.disableMyLocation()\n        this.mapController.animateTo(GeoPoint(52.50693,13.39748))\n    }\n\n    fun btnItinerari(){\n\n    }\n\n    fun searchQuery(){\n        Snackbar.make(\n            requireActivity().findViewById(android.R.id.content),\n            \"SearchQuery\",\n            Snackbar.LENGTH_LONG\n        ).show()\n    }\n\n    fun searchText(){\n        Snackbar.make(\n            requireActivity().findViewById(android.R.id.content),\n            \"SearchText\",\n            Snackbar.LENGTH_LONG\n        ).show()\n    }\n}
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/app/src/main/java/com/unibg/magellanus/app/itinerary/view/MapFragment.kt b/app/src/main/java/com/unibg/magellanus/app/itinerary/view/MapFragment.kt
+---- a/app/src/main/java/com/unibg/magellanus/app/itinerary/view/MapFragment.kt	(revision 20481d66d62b23ebd3f2b4e1e3e073a5d33d196e)
+-+++ b/app/src/main/java/com/unibg/magellanus/app/itinerary/view/MapFragment.kt	(date 1642613129032)
+-@@ -11,6 +11,7 @@
+- import android.widget.SearchView
+- import androidx.core.app.ActivityCompat
+- import androidx.core.content.ContextCompat
+-+import androidx.databinding.adapters.SearchViewBindingAdapter
+- import androidx.fragment.app.Fragment
+- import androidx.fragment.app.viewModels
+- import androidx.navigation.NavController
+-@@ -50,14 +51,9 @@
+-         binding = FragmentMapBinding.inflate(inflater, container, false)
+-         binding.bntCentra.setOnClickListener{btnCentra()}
+-         binding.btnPOI.setOnClickListener{btnPOI()}
+--        binding.btnItinerari.setOnEditorActionListener{ _,keyCode, event ->
+--            if (((event?.action ?: -1 ) == KeyEvent.ACTION_DOWN) || keyCode == EditorInfo.IME_ACTION_SEARCH){
+--                searchQuery()
+--                return@setOnEditorActionListener true
+--            }
+--            return@setOnEditorActionListener false
+--        }
+-+        binding.btnItinerari.setOnClickListener{btnItinerari()}
+-         binding.searchBar.setOnSearchClickListener{searchText()}
+-+        binding.searchBar.setOnQueryTextListener{searchQuery()}
+- 
+-         return binding.root
+-     }
+-Index: .idea/misc.xml
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"DesignSurface\">\n    <option name=\"filePathToZoomLevelMap\">\n      <map>\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/drawable/ic_menu_24dp.xml\" value=\"0.10989583333333333\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/activity_main.xml\" value=\"0.33\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/activity_main2.xml\" value=\"0.2\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/app_bar_main.xml\" value=\"0.2\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/content_main.xml\" value=\"0.16666666666666666\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/fragment_gallery.xml\" value=\"0.2\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/fragment_home.xml\" value=\"0.2\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/fragment_login.xml\" value=\"0.25\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/fragment_map.xml\" value=\"0.2\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/fragment_slideshow.xml\" value=\"0.2\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/fragment_user_profile.xml\" value=\"0.30409356725146197\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/header_navigation_drawer.xml\" value=\"0.2\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/header_user_profile.xml\" value=\"0.1\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/login_fragment.xml\" value=\"0.33\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/nav_header_main.xml\" value=\"0.2\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/settings_activity.xml\" value=\"0.1\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/user_profile.xml\" value=\"0.1\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/menu/activity_main_drawer.xml\" value=\"0.2\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/menu/bottom_navigation_menu.xml\" value=\"0.22\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/menu/main.xml\" value=\"0.2\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/menu/navigation_drawer.xml\" value=\"0.25\" />\n        <entry key=\"..\\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/xml/root_preferences.xml\" value=\"0.25\" />\n      </map>\n    </option>\n  </component>\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_11\" default=\"true\" project-jdk-name=\"Android Studio default JDK\" project-jdk-type=\"JavaSDK\">\n    <output url=\"file://$PROJECT_DIR$/build/classes\" />\n  </component>\n  <component name=\"ProjectType\">\n    <option name=\"id\" value=\"Android\" />\n  </component>\n  <component name=\"VisualizationToolProject\">\n    <option name=\"state\">\n      <ProjectState>\n        <option name=\"scale\" value=\"0.33\" />\n      </ProjectState>\n    </option>\n  </component>\n</project>
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/.idea/misc.xml b/.idea/misc.xml
+---- a/.idea/misc.xml	(revision 20481d66d62b23ebd3f2b4e1e3e073a5d33d196e)
+-+++ b/.idea/misc.xml	(date 1642178501231)
+-@@ -25,6 +25,8 @@
+-         <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/menu/main.xml" value="0.2" />
+-         <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/menu/navigation_drawer.xml" value="0.25" />
+-         <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/xml/root_preferences.xml" value="0.25" />
+-+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.5715579710144928" />
+-+        <entry key="app/src/main/res/layout/fragment_map.xml" value="0.5715579710144928" />
+-       </map>
+-     </option>
+-   </component>
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_21_01_22__15_36__Default_Changelist_.xml
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Update_at_21_01_22__15_36__Default_Changelist_.xml b/.idea/shelf/Uncommitted_changes_before_Update_at_21_01_22__15_36__Default_Changelist_.xml
+deleted file mode 100644
+--- a/.idea/shelf/Uncommitted_changes_before_Update_at_21_01_22__15_36__Default_Changelist_.xml	
++++ /dev/null	
+@@ -1,4 +0,0 @@
+-<changelist name="Uncommitted_changes_before_Update_at_21_01_22,_15_36_[Default_Changelist]" date="1642775835191" recycled="true" deleted="true">
+-  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_21_01_22,_15_36_[Default_Changelist]/shelved.patch" />
+-  <option name="DESCRIPTION" value="Uncommitted changes before Update at 21/01/22, 15:36 [Default Changelist]" />
+-</changelist>
+\ No newline at end of file
+Index: ../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/impl/ItineraryServiceImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.unibg.magellanus.backend.itinerary.service.impl;\n\nimport java.util.NoSuchElementException;\n\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.stereotype.Service;\n\nimport com.unibg.magellanus.backend.itinerary.service.Itinerary;\nimport com.unibg.magellanus.backend.itinerary.service.ItineraryRepository;\nimport com.unibg.magellanus.backend.itinerary.service.ItineraryService;\n\n@Service\npublic class ItineraryServiceImpl implements ItineraryService {\n\n\tItineraryRepository repository;\n\n\t@Autowired\n\tpublic ItineraryServiceImpl(ItineraryRepository repository) {\n\t\tthis.repository = repository;\n\t}\n\n\t@Override\n\tpublic Itinerary findById(String id) throws NoSuchElementException {\n\t\treturn repository.findById(id).orElseThrow(() -> new NoSuchElementException(\"Requested itinerary not found\"));\n\t}\n\n\t@Override\n\tpublic Itinerary create(Itinerary itinerary) {\n\t\treturn repository.save(itinerary);\n\t}\n\n\t@Override\n\tpublic Itinerary update(Itinerary itinerary, String issuer) throws IllegalStateException {\n\t\tif (!itinerary.getOwner().equals(issuer))\n\t\t\tthrow new IllegalStateException(\"Issuer is not the owner of the itinerary\");\n\t\treturn repository.save(itinerary);\n\t}\n\n\t@Override\n\tpublic void delete(String id, String issuer) throws IllegalStateException {\n\t\trepository.findById(id).ifPresent(i -> {\n\t\t\tif (!i.getOwner().equals(issuer))\n\t\t\t\tthrow new IllegalStateException(\"Issuer is not the owner of the itinerary\");\n\t\t\trepository.deleteById(id);\n\t\t});\n\t}\n\n\t@Override\n\tpublic Iterable<Itinerary> findAll(String owner, Boolean completed) {\n\t\tif (completed != null)\n\t\t\treturn completed ? repository.findByOwnerAndCompletionDateNotNull(owner)\n\t\t\t\t\t: repository.findByOwnerAndCompletionDateIsNull(owner);\n\t\telse\n\t\t\treturn repository.findByOwner(owner);\n\t}\n\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/impl/ItineraryServiceImpl.java b/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/impl/ItineraryServiceImpl.java
+--- a/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/impl/ItineraryServiceImpl.java	
++++ b/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/impl/ItineraryServiceImpl.java	
+@@ -30,9 +30,10 @@
+ 	}
+ 
+ 	@Override
+-	public Itinerary update(Itinerary itinerary, String issuer) throws IllegalStateException {
++	public Itinerary update(String id, Itinerary itinerary, String issuer) throws IllegalStateException {
+ 		if (!itinerary.getOwner().equals(issuer))
+ 			throw new IllegalStateException("Issuer is not the owner of the itinerary");
++		itinerary.setId(id);
+ 		return repository.save(itinerary);
+ 	}
+ 
+Index: app/src/main/java/com/unibg/magellanus/app/itinerary/model/network/ItineraryAPI.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/unibg/magellanus/app/itinerary/model/network/ItineraryAPI.kt b/app/src/main/java/com/unibg/magellanus/app/itinerary/model/network/ItineraryAPI.kt
+new file mode 100644
+--- /dev/null	
++++ b/app/src/main/java/com/unibg/magellanus/app/itinerary/model/network/ItineraryAPI.kt	
+@@ -0,0 +1,61 @@
++package com.unibg.magellanus.app.itinerary.model.network
++
++import com.unibg.magellanus.app.common.network.AuthInterceptor
++import com.unibg.magellanus.app.common.network.CacheControlInterceptor
++import com.unibg.magellanus.app.itinerary.model.Itinerary
++import com.unibg.magellanus.app.user.auth.AuthenticationProvider
++import okhttp3.Cache
++import okhttp3.OkHttpClient
++import okhttp3.logging.HttpLoggingInterceptor
++import retrofit2.Response
++import retrofit2.Retrofit
++import retrofit2.converter.gson.GsonConverterFactory
++import retrofit2.http.*
++import java.io.File
++
++interface ItineraryAPI {
++    @GET("{id}")
++    suspend fun get(@Path("id") id: String): Itinerary?
++
++    @POST(".")
++    suspend fun create(@Body itinerary: Itinerary): Itinerary?
++
++    @PUT("me/{id}")
++    suspend fun updateMine(@Path("id") id: String, @Body itinerary: Itinerary): Response<Void>
++
++    @DELETE("me/{id}")
++    suspend fun deleteMine(@Path("id") id: String): Response<Void>
++
++    @GET("me")
++    suspend fun findMine(@Query("completed") completed: Boolean?): List<Itinerary>
++
++    companion object {
++        var BASE_URL = "http://10.0.2.2:8080/api/itineraries/"
++        fun create(provider: AuthenticationProvider, cacheDir: File): ItineraryAPI {
++            val authInterceptor = AuthInterceptor(provider)
++            val httpInterceptor =
++                HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
++            val cacheInterceptor = CacheControlInterceptor()
++
++            //setup cache
++            val httpCacheDirectory = File(cacheDir, "itinerary-cache")
++            val cacheSize = (10 * 1024 * 1024).toLong() // 10 MiB
++
++            val cache = Cache(httpCacheDirectory, cacheSize)
++
++            val client = OkHttpClient.Builder()
++                .addNetworkInterceptor(cacheInterceptor)
++                .addInterceptor(authInterceptor)
++                .addInterceptor(httpInterceptor)
++                .cache(cache)
++                .build()
++
++            val retrofit = Retrofit.Builder()
++                .addConverterFactory(GsonConverterFactory.create())
++                .baseUrl(BASE_URL)
++                .client(client)
++                .build()
++            return retrofit.create(ItineraryAPI::class.java)
++        }
++    }
++}
+\ No newline at end of file
+Index: ../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/impl/ItineraryController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.unibg.magellanus.backend.itinerary.service.impl;\n\nimport java.util.NoSuchElementException;\n\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.http.HttpStatus;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.security.core.context.SecurityContextHolder;\nimport org.springframework.web.bind.annotation.DeleteMapping;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.PathVariable;\nimport org.springframework.web.bind.annotation.PostMapping;\nimport org.springframework.web.bind.annotation.PutMapping;\nimport org.springframework.web.bind.annotation.RequestBody;\nimport org.springframework.web.bind.annotation.RequestMapping;\nimport org.springframework.web.bind.annotation.RequestParam;\nimport org.springframework.web.bind.annotation.RestController;\nimport org.springframework.web.server.ResponseStatusException;\n\nimport com.unibg.magellanus.backend.itinerary.service.Itinerary;\nimport com.unibg.magellanus.backend.itinerary.service.ItineraryAPI;\nimport com.unibg.magellanus.backend.itinerary.service.ItineraryService;\n\n@RestController\n@RequestMapping(\"/api/itineraries\")\npublic class ItineraryController implements ItineraryAPI {\n\n\tItineraryService service;\n\n\t@Autowired\n\tpublic ItineraryController(ItineraryService service) {\n\t\tthis.service = service;\n\t}\n\n\t@Override\n\t@GetMapping(\"{id}\")\n\tpublic Itinerary get(@PathVariable String id) {\n\t\ttry {\n\t\t\treturn service.findById(id);\n\t\t} catch (NoSuchElementException e) {\n\t\t\tthrow new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());\n\t\t}\n\t}\n\n\t@Override\n\t@PostMapping\n\tpublic Itinerary create(@RequestBody Itinerary itinerary) {\n\t\titinerary.setOwner(getAuthenticatedUid());\n\t\treturn service.create(itinerary);\n\t}\n\n\t@Override\n\t@PutMapping(\"me/{id}\")\n\tpublic ResponseEntity<Void> updateMine(@RequestBody Itinerary itinerary) {\n\t\ttry {\n\t\t\tservice.update(itinerary, getAuthenticatedUid());\n\t\t\treturn ResponseEntity.noContent().build();\n\t\t} catch (IllegalStateException e) {\n\t\t\tthrow new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());\n\t\t}\n\t}\n\n\t@Override\n\t@DeleteMapping(\"me/{id}\")\n\tpublic ResponseEntity<Void> deleteMine(@PathVariable String id) {\n\t\ttry {\n\t\t\tservice.delete(id, getAuthenticatedUid());\n\t\t\treturn ResponseEntity.noContent().build();\n\t\t} catch (IllegalStateException e) {\n\t\t\tthrow new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());\n\t\t}\n\t}\n\n\t@Override\n\t@GetMapping(\"me\")\n\tpublic Iterable<Itinerary> findMine(@RequestParam(required = false) Boolean completed) {\n\t\treturn service.findAll(getAuthenticatedUid(), completed);\n\t}\n\n\tprivate String getAuthenticatedUid() {\n\t\treturn SecurityContextHolder.getContext().getAuthentication().getName();\n\t}\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/impl/ItineraryController.java b/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/impl/ItineraryController.java
+--- a/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/impl/ItineraryController.java	
++++ b/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/impl/ItineraryController.java	
+@@ -51,9 +51,9 @@
+ 
+ 	@Override
+ 	@PutMapping("me/{id}")
+-	public ResponseEntity<Void> updateMine(@RequestBody Itinerary itinerary) {
++	public ResponseEntity<Void> updateMine(@PathVariable String id, @RequestBody Itinerary itinerary) {
+ 		try {
+-			service.update(itinerary, getAuthenticatedUid());
++			service.update(id, itinerary, getAuthenticatedUid());
+ 			return ResponseEntity.noContent().build();
+ 		} catch (IllegalStateException e) {
+ 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+Index: app/src/main/java/com/unibg/magellanus/app/itinerary/model/POI.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.unibg.magellanus.app.itinerary.model\n\ndata class POI(var name: String, var latitude: Double, var longitude: Double){\n\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/unibg/magellanus/app/itinerary/model/POI.kt b/app/src/main/java/com/unibg/magellanus/app/itinerary/model/POI.kt
+--- a/app/src/main/java/com/unibg/magellanus/app/itinerary/model/POI.kt	
++++ b/app/src/main/java/com/unibg/magellanus/app/itinerary/model/POI.kt	
+@@ -1,5 +1,23 @@
+ package com.unibg.magellanus.app.itinerary.model
+ 
+-data class POI(var name: String, var latitude: Double, var longitude: Double){
++import android.os.Parcelable
++import kotlinx.android.parcel.Parcelize
+ 
+-}
++@Parcelize
++data class POI(
++    var name: String?,
++    val latitude: Double,
++    val longitude: Double,
++    var address: Address?
++): Parcelable
++
++@Parcelize
++data class Address(
++    val country: String,
++    val countryCode: String,
++    val city: String?,
++    val postcode: String?,
++    val county: String?,
++    val street: String?,
++    val state: String?
++): Parcelable
+Index: ../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/ItineraryService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.unibg.magellanus.backend.itinerary.service;\n\nimport java.util.NoSuchElementException;\n\npublic interface ItineraryService {\n\tpublic Itinerary findById(String id) throws NoSuchElementException;\n\tpublic Itinerary create(Itinerary itinerary);\n\tpublic Itinerary update(Itinerary itinerary, String issuer) throws IllegalStateException;\n\tpublic void delete(String id, String issuer) throws IllegalStateException;\n\tpublic Iterable<Itinerary> findAll(String owner, Boolean completed);\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/ItineraryService.java b/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/ItineraryService.java
+--- a/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/ItineraryService.java	
++++ b/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/ItineraryService.java	
+@@ -4,8 +4,12 @@
+ 
+ public interface ItineraryService {
+ 	public Itinerary findById(String id) throws NoSuchElementException;
++
+ 	public Itinerary create(Itinerary itinerary);
+-	public Itinerary update(Itinerary itinerary, String issuer) throws IllegalStateException;
++
++	public Itinerary update(String id, Itinerary itinerary, String issuer) throws IllegalStateException;
++
+ 	public void delete(String id, String issuer) throws IllegalStateException;
++
+ 	public Iterable<Itinerary> findAll(String owner, Boolean completed);
+ }
+Index: app/src/main/java/com/unibg/magellanus/app/itinerary/model/ItineraryRepository.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/unibg/magellanus/app/itinerary/model/ItineraryRepository.kt b/app/src/main/java/com/unibg/magellanus/app/itinerary/model/ItineraryRepository.kt
+new file mode 100644
+--- /dev/null	
++++ b/app/src/main/java/com/unibg/magellanus/app/itinerary/model/ItineraryRepository.kt	
+@@ -0,0 +1,11 @@
++package com.unibg.magellanus.app.itinerary.model
++
++interface ItineraryRepository {
++    suspend fun get(id: String): Itinerary?
++    suspend fun create(itinerary: Itinerary): Itinerary?
++    suspend fun update(itinerary: Itinerary)
++    suspend fun delete(itinerary: Itinerary)
++    suspend fun getAll(completed: Boolean?): Iterable<Itinerary>
++    suspend fun getInfo(poi: POI): POI
++    suspend fun search(query: String): Iterable<POI>
++}
+\ No newline at end of file
+Index: ../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/ItineraryRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.unibg.magellanus.backend.itinerary.service;\n\nimport org.springframework.data.repository.CrudRepository;\n\npublic interface ItineraryRepository extends CrudRepository<Itinerary, String> {\n\n\tpublic Iterable<Itinerary> findByOwner(String owner);\n\tpublic Iterable<Itinerary> findByOwnerAndCompletionDateNotNull(String owner);\n\tpublic Iterable<Itinerary> findByOwnerAndCompletionDateIsNull(String owner);\n\t\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/ItineraryRepository.java b/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/ItineraryRepository.java
+--- a/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/ItineraryRepository.java	
++++ b/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/ItineraryRepository.java	
+@@ -5,7 +5,9 @@
+ public interface ItineraryRepository extends CrudRepository<Itinerary, String> {
+ 
+ 	public Iterable<Itinerary> findByOwner(String owner);
++
+ 	public Iterable<Itinerary> findByOwnerAndCompletionDateNotNull(String owner);
++
+ 	public Iterable<Itinerary> findByOwnerAndCompletionDateIsNull(String owner);
+-	
++
+ }
+Index: app/src/main/java/com/unibg/magellanus/app/itinerary/model/network/GeocodingAPI.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/unibg/magellanus/app/itinerary/model/network/GeocodingAPI.kt b/app/src/main/java/com/unibg/magellanus/app/itinerary/model/network/GeocodingAPI.kt
+new file mode 100644
+--- /dev/null	
++++ b/app/src/main/java/com/unibg/magellanus/app/itinerary/model/network/GeocodingAPI.kt	
+@@ -0,0 +1,73 @@
++package com.unibg.magellanus.app.itinerary.model.network
++
++import com.google.gson.*
++import com.unibg.magellanus.app.common.network.CacheControlInterceptor
++import com.unibg.magellanus.app.itinerary.model.Address
++import com.unibg.magellanus.app.itinerary.model.POI
++import okhttp3.Cache
++import okhttp3.OkHttpClient
++import okhttp3.logging.HttpLoggingInterceptor
++import retrofit2.Retrofit
++import retrofit2.converter.gson.GsonConverterFactory
++import retrofit2.http.GET
++import retrofit2.http.Query
++import java.io.File
++import java.lang.reflect.Type
++
++interface GeocodingAPI {
++
++    @GET("api")
++    suspend fun search(@Query("q") query: String, @Query("limit") limit: Int?): Iterable<POI>
++
++    @GET("reverse")
++    suspend fun reverseSearch(@Query("lat") lat: Double, @Query("lon") lon: Double): POI
++
++    companion object {
++        var BASE_URL = "https://photon.komoot.io/"
++        fun create(cacheDir: File): GeocodingAPI {
++            val httpInterceptor =
++                HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
++
++            val cacheInterceptor = CacheControlInterceptor()
++
++            //setup cache
++            val httpCacheDirectory = File(cacheDir, "geocode-cache")
++            val cacheSize = (10 * 1024 * 1024).toLong() // 10 MiB
++
++            val cache = Cache(httpCacheDirectory, cacheSize)
++
++            val client = OkHttpClient.Builder()
++                .addNetworkInterceptor(cacheInterceptor)
++                .addInterceptor(httpInterceptor)
++                .cache(cache)
++                .build()
++
++            val gson =
++                GsonBuilder().registerTypeAdapter(POI::class.java, OsmPOIDeserializer()).create()
++
++            val retrofit = Retrofit.Builder()
++                .addConverterFactory(GsonConverterFactory.create(gson))
++                .baseUrl(BASE_URL)
++                .client(client)
++                .build()
++            return retrofit.create(GeocodingAPI::class.java)
++        }
++    }
++}
++
++class OsmPOIDeserializer : JsonDeserializer<POI> {
++    override fun deserialize(
++        json: JsonElement?,
++        typeOfT: Type?,
++        context: JsonDeserializationContext?
++    ): POI {
++        val response = json!!.asJsonObject
++        val properties = response.getAsJsonObject("properties")
++        val address = Gson().fromJson(properties, Address::class.java)
++
++        val name = properties["name"].asString
++        val coordinates = response.getAsJsonObject("geometry").getAsJsonArray("coordinates")
++
++        return POI(name, coordinates[0].asDouble, coordinates[1].asDouble, address)
++    }
++}
+Index: app/src/main/java/com/unibg/magellanus/app/itinerary/model/ItineraryRepositoryImpl.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/unibg/magellanus/app/itinerary/model/ItineraryRepositoryImpl.kt b/app/src/main/java/com/unibg/magellanus/app/itinerary/model/ItineraryRepositoryImpl.kt
+new file mode 100644
+--- /dev/null	
++++ b/app/src/main/java/com/unibg/magellanus/app/itinerary/model/ItineraryRepositoryImpl.kt	
+@@ -0,0 +1,37 @@
++package com.unibg.magellanus.app.itinerary.model
++
++import com.unibg.magellanus.app.itinerary.model.network.GeocodingAPI
++import com.unibg.magellanus.app.itinerary.model.network.ItineraryAPI
++
++class ItineraryRepositoryImpl(
++    private val itineraryAPI: ItineraryAPI,
++    private val geocodingAPI: GeocodingAPI
++) : ItineraryRepository {
++    override suspend fun get(id: String): Itinerary? {
++        return itineraryAPI.get(id)
++    }
++
++    override suspend fun create(itinerary: Itinerary): Itinerary? {
++        return itineraryAPI.create(itinerary)
++    }
++
++    override suspend fun update(itinerary: Itinerary) {
++        itineraryAPI.updateMine(itinerary.id!!, itinerary)
++    }
++
++    override suspend fun delete(itinerary: Itinerary) {
++        itineraryAPI.deleteMine(itinerary.id!!)
++    }
++
++    override suspend fun getAll(completed: Boolean?): Iterable<Itinerary> {
++        return itineraryAPI.findMine(completed)
++    }
++
++    override suspend fun getInfo(poi: POI): POI {
++        return geocodingAPI.reverseSearch(poi.latitude, poi.longitude)
++    }
++
++    override suspend fun search(query: String): Iterable<POI> {
++        return geocodingAPI.search(query, 5)
++    }
++}
+\ No newline at end of file
+Index: app/src/main/java/com/unibg/magellanus/app/common/network/CacheControlInterceptor.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/unibg/magellanus/app/common/network/CacheControlInterceptor.kt b/app/src/main/java/com/unibg/magellanus/app/common/network/CacheControlInterceptor.kt
+new file mode 100644
+--- /dev/null	
++++ b/app/src/main/java/com/unibg/magellanus/app/common/network/CacheControlInterceptor.kt	
+@@ -0,0 +1,22 @@
++package com.unibg.magellanus.app.common.network
++
++import okhttp3.CacheControl
++import okhttp3.Interceptor
++import okhttp3.Response
++import java.util.concurrent.TimeUnit
++
++class CacheControlInterceptor : Interceptor {
++    override fun intercept(chain: Interceptor.Chain): Response {
++        val response = chain.proceed(chain.request())
++
++        val cacheControl: CacheControl = CacheControl.Builder()
++            .maxAge(5, TimeUnit.MINUTES) // 5 minutes cache
++            .build()
++
++        return response.newBuilder()
++            .removeHeader("Pragma")
++            .removeHeader("Cache-Control")
++            .header("Cache-Control", cacheControl.toString())
++            .build()
++    }
++}
+\ No newline at end of file
+Index: app/src/main/java/com/unibg/magellanus/app/itinerary/model/Itinerary.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.unibg.magellanus.app.itinerary.model\n\nimport java.util.*\n\ndata class Itinerary(val id: String,val name :String,var date : String) {\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/unibg/magellanus/app/itinerary/model/Itinerary.kt b/app/src/main/java/com/unibg/magellanus/app/itinerary/model/Itinerary.kt
+--- a/app/src/main/java/com/unibg/magellanus/app/itinerary/model/Itinerary.kt	
++++ b/app/src/main/java/com/unibg/magellanus/app/itinerary/model/Itinerary.kt	
+@@ -1,6 +1,15 @@
+ package com.unibg.magellanus.app.itinerary.model
+ 
+-import java.util.*
++import android.os.Parcelable
++import kotlinx.android.parcel.Parcelize
++import kotlinx.android.parcel.RawValue
++import java.time.LocalDate
+ 
+-data class Itinerary(val id: String,val name :String,var date : String) {
+-}
+\ No newline at end of file
++@Parcelize
++data class Itinerary(
++    val id: String? = null,
++    val owner: String? = null,
++    val name: String,
++    val date: LocalDate? = null,
++    val poiSet: @RawValue MutableSet<POI> = HashSet()
++): Parcelable
+\ No newline at end of file
+Index: ../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/ItineraryAPI.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.unibg.magellanus.backend.itinerary.service;\n\nimport org.springframework.http.ResponseEntity;\n\npublic interface ItineraryAPI {\n\tpublic Itinerary get(String id);\n\tpublic Itinerary create(Itinerary itinerary);\n\tpublic ResponseEntity<Void> updateMine(Itinerary itinerary);\n\tpublic ResponseEntity<Void> deleteMine(String id);\n\tpublic Iterable<Itinerary> findMine(Boolean completed);\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/ItineraryAPI.java b/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/ItineraryAPI.java
+--- a/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/ItineraryAPI.java	
++++ b/../Backend/backend-root/itinerary-service/src/main/java/com/unibg/magellanus/backend/itinerary/service/ItineraryAPI.java	
+@@ -4,9 +4,13 @@
+ 
+ public interface ItineraryAPI {
+ 	public Itinerary get(String id);
++
+ 	public Itinerary create(Itinerary itinerary);
+-	public ResponseEntity<Void> updateMine(Itinerary itinerary);
++
++	public ResponseEntity<Void> updateMine(String id, Itinerary itinerary);
++
+ 	public ResponseEntity<Void> deleteMine(String id);
++
+ 	public Iterable<Itinerary> findMine(Boolean completed);
+ 
+ }
+\ No newline at end of file
+Index: app/src/main/java/com/unibg/magellanus/app/itinerary/view/ItineraryRecyclerViewAdapter.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.unibg.magellanus.app.itinerary.view\n\nimport androidx.recyclerview.widget.RecyclerView\nimport android.view.LayoutInflater\nimport android.view.ViewGroup\nimport android.widget.TextView\n\nimport com.unibg.magellanus.app.placeholder.PlaceholderContent.PlaceholderItem\nimport com.unibg.magellanus.app.databinding.FragmentItineraryItemBinding\nimport com.unibg.magellanus.app.itinerary.model.Itinerary\n\n\nclass ItineraryRecyclerViewAdapter(\n    private val values: List<Itinerary>\n) : RecyclerView.Adapter<ItineraryRecyclerViewAdapter.ViewHolder>() {\n\n    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {\n\n        return ViewHolder(\n            FragmentItineraryItemBinding.inflate(\n                LayoutInflater.from(parent.context),\n                parent,\n                false\n            )\n        )\n\n    }\n\n    override fun onBindViewHolder(holder: ViewHolder, position: Int) {\n        val item = values[position]\n        holder.id.text = item.id\n        holder.name.text = item.name\n        holder.date.text = item.date\n    }\n\n    override fun getItemCount(): Int = values.size\n\n    inner class ViewHolder(binding: FragmentItineraryItemBinding) :\n        RecyclerView.ViewHolder(binding.root) {\n        val id: TextView = binding.id\n        val name: TextView = binding.name\n        val date: TextView = binding.date\n\n        override fun toString(): String {\n            return super.toString() + \" '\" + name.text + \"'\"\n        }\n    }\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/unibg/magellanus/app/itinerary/view/ItineraryRecyclerViewAdapter.kt b/app/src/main/java/com/unibg/magellanus/app/itinerary/view/ItineraryRecyclerViewAdapter.kt
+--- a/app/src/main/java/com/unibg/magellanus/app/itinerary/view/ItineraryRecyclerViewAdapter.kt	
++++ b/app/src/main/java/com/unibg/magellanus/app/itinerary/view/ItineraryRecyclerViewAdapter.kt	
+@@ -30,7 +30,7 @@
+         val item = values[position]
+         holder.id.text = item.id
+         holder.name.text = item.name
+-        holder.date.text = item.date
++        holder.date.text = item.date?.toString()
+     }
+ 
+     override fun getItemCount(): Int = values.size
+Index: app/src/main/java/com/unibg/magellanus/app/itinerary/viewmodel/MapViewModel.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.unibg.magellanus.app.itinerary.viewmodel\n\nimport androidx.lifecycle.ViewModel\n\nclass MapViewModel : ViewModel() {\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/unibg/magellanus/app/itinerary/viewmodel/MapViewModel.kt b/app/src/main/java/com/unibg/magellanus/app/itinerary/viewmodel/MapViewModel.kt
+--- a/app/src/main/java/com/unibg/magellanus/app/itinerary/viewmodel/MapViewModel.kt	
++++ b/app/src/main/java/com/unibg/magellanus/app/itinerary/viewmodel/MapViewModel.kt	
+@@ -1,7 +1,54 @@
+ package com.unibg.magellanus.app.itinerary.viewmodel
+ 
+-import androidx.lifecycle.ViewModel
++import androidx.lifecycle.*
++import com.unibg.magellanus.app.itinerary.model.Itinerary
++import com.unibg.magellanus.app.itinerary.model.ItineraryRepository
++import com.unibg.magellanus.app.itinerary.model.POI
++import kotlinx.coroutines.launch
++
++class MapViewModel(itinerary: Itinerary, private val repository: ItineraryRepository) :
++    ViewModel() {
++
++    private val _currentItinerary: MutableLiveData<Itinerary> = MutableLiveData()
++    val currentItinerary: LiveData<Itinerary>
++        get() = _currentItinerary
++
++    val poiSet: LiveData<Set<POI>> = _currentItinerary.map { it.poiSet.toSet() }
++
++    private val _currentSearch: MutableLiveData<Iterable<POI>> = MutableLiveData()
++    val currentSearch: LiveData<Iterable<POI>>
++        get() = _currentSearch
++
++    init {
++        viewModelScope.launch {
++            var i = repository.get(itinerary.id!!)
++            if(i == null) i = repository.create(itinerary)
++
++            _currentItinerary.value = i!!
++        }
+ 
+-class MapViewModel : ViewModel() {
++    }
+ 
++    fun search(query: String) = viewModelScope.launch {
++        _currentSearch.value = repository.search(query)
++    }
++
++    fun addPOI(poi: POI) {
++        _currentItinerary.value!!.poiSet.add(poi)
++    }
++
++    fun removePOI(poi: POI) {
++        _currentItinerary.value!!.poiSet.remove(poi)
++    }
++
++    suspend fun saveChanges() {
++        val itinerary = _currentItinerary.value!!
++        repository.update(itinerary)
++    }
++
++    class Factory(val itinerary: Itinerary, private val repository: ItineraryRepository) :
++        ViewModelProvider.NewInstanceFactory() {
++        override fun <T : ViewModel> create(modelClass: Class<T>): T =
++            MapViewModel(itinerary, repository) as T
++    }
+ }
+\ No newline at end of file
+Index: ../Backend/backend-root/itinerary-service/src/test/java/com/unibg/magellanus/backend/itinerary/service/impl/ItineraryServiceTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.unibg.magellanus.backend.itinerary.service.impl;\n\nimport static org.junit.jupiter.api.Assertions.assertEquals;\nimport static org.junit.jupiter.api.Assertions.assertNotNull;\nimport static org.junit.jupiter.api.Assertions.assertThrows;\nimport static org.mockito.ArgumentMatchers.anyString;\nimport static org.mockito.Mockito.doNothing;\nimport static org.mockito.Mockito.times;\nimport static org.mockito.Mockito.verify;\nimport static org.mockito.Mockito.when;\n\nimport java.util.NoSuchElementException;\nimport java.util.Optional;\n\nimport org.junit.jupiter.api.BeforeEach;\nimport org.junit.jupiter.api.Test;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.InjectMocks;\nimport org.mockito.Mock;\nimport org.mockito.junit.jupiter.MockitoExtension;\n\nimport com.unibg.magellanus.backend.itinerary.service.Itinerary;\nimport com.unibg.magellanus.backend.itinerary.service.ItineraryRepository;\n\n@ExtendWith(MockitoExtension.class)\nclass ItineraryServiceTest {\n\n\tItinerary testItinerary;\n\n\t@Mock\n\tItineraryRepository repository;\n\n\t@InjectMocks\n\tItineraryServiceImpl service;\n\n\tItinerary buildItinerary() {\n\t\tItinerary itinerary = new Itinerary();\n\t\titinerary.setId(\"test_id\");\n\t\titinerary.setName(\"test_name\");\n\t\titinerary.setOwner(\"test_owner\");\n\t\treturn itinerary;\n\t}\n\n\t@BeforeEach\n\tvoid setupItinerary() {\n\t\ttestItinerary = buildItinerary();\n\t}\n\n\t@Test\n\tvoid findById_exists_returnsItinerary() {\n\t\twhen(repository.findById(anyString())).thenReturn(Optional.of(testItinerary));\n\n\t\tItinerary i = service.findById(testItinerary.getId());\n\t\tassertNotNull(i);\n\t\tassertEquals(testItinerary.getId(), i.getId());\n\t}\n\n\t@Test\n\tvoid findById_notExists_throwsNoSuchElement() {\n\t\twhen(repository.findById(anyString())).thenReturn(Optional.empty());\n\t\tassertThrows(NoSuchElementException.class, () -> service.findById(\"NOT_EXISTS\"));\n\t}\n\n\t@Test\n\tvoid create_ok_returnsItinerary() {\n\t\twhen(repository.save(testItinerary)).thenReturn(buildItinerary());\n\n\t\tItinerary i = service.create(testItinerary);\n\t\tassertEquals(testItinerary, i);\n\t}\n\n\t@Test\n\tvoid update_ownerIsIssuer_returnsItinerary() {\n\t\twhen(repository.save(testItinerary)).thenReturn(testItinerary);\n\t\ttestItinerary.setName(\"new_name\");\n\t\tItinerary i = service.update(testItinerary, testItinerary.getOwner());\n\t\tassertEquals(testItinerary.getId(), i.getId());\n\t\tassertEquals(testItinerary.getName(), i.getName());\n\t}\n\n\t@Test\n\tvoid update_ownerIsNotIssuer_throwsIllegalState() {\n\t\tassertThrows(IllegalStateException.class, () -> service.update(testItinerary, \"not_owner\"));\n\t}\n\n\t@Test\n\tvoid delete_ownerIsIssuer_returnsVoid() {\n\t\twhen(repository.findById(testItinerary.getId())).thenReturn(Optional.of(testItinerary));\n\t\tdoNothing().when(repository).deleteById(anyString());\n\t\tservice.delete(testItinerary.getId(), testItinerary.getOwner());\n\n\t\tverify(repository, times(1)).deleteById(anyString());\n\t}\n\n\t@Test\n\tvoid delete_ownerIsNotIssuer_throwsIllegalState() {\n\t\twhen(repository.findById(testItinerary.getId())).thenReturn(Optional.of(testItinerary));\n\t\tassertThrows(IllegalStateException.class, () -> service.delete(testItinerary.getId(), \"not_owner\"));\n\t}\n\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/../Backend/backend-root/itinerary-service/src/test/java/com/unibg/magellanus/backend/itinerary/service/impl/ItineraryServiceTest.java b/../Backend/backend-root/itinerary-service/src/test/java/com/unibg/magellanus/backend/itinerary/service/impl/ItineraryServiceTest.java
+--- a/../Backend/backend-root/itinerary-service/src/test/java/com/unibg/magellanus/backend/itinerary/service/impl/ItineraryServiceTest.java	
++++ b/../Backend/backend-root/itinerary-service/src/test/java/com/unibg/magellanus/backend/itinerary/service/impl/ItineraryServiceTest.java	
+@@ -73,14 +73,14 @@
+ 	void update_ownerIsIssuer_returnsItinerary() {
+ 		when(repository.save(testItinerary)).thenReturn(testItinerary);
+ 		testItinerary.setName("new_name");
+-		Itinerary i = service.update(testItinerary, testItinerary.getOwner());
++		Itinerary i = service.update(testItinerary.getId(), testItinerary, testItinerary.getOwner());
+ 		assertEquals(testItinerary.getId(), i.getId());
+ 		assertEquals(testItinerary.getName(), i.getName());
+ 	}
+ 
+ 	@Test
+ 	void update_ownerIsNotIssuer_throwsIllegalState() {
+-		assertThrows(IllegalStateException.class, () -> service.update(testItinerary, "not_owner"));
++		assertThrows(IllegalStateException.class, () -> service.update(testItinerary.getId(), testItinerary, "not_owner"));
+ 	}
+ 
+ 	@Test
