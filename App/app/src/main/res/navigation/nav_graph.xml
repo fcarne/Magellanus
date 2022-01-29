@@ -27,7 +27,11 @@
             android:id="@+id/action_loginFragment_to_mapFragment"
             app:destination="@id/mapFragment"
             app:popUpTo="@id/mapFragment"
-            app:popUpToInclusive="true" />
+            app:popUpToInclusive="true" >
+            <argument
+                android:name="itinerary"
+                android:defaultValue="@null"/>
+        </action>
     </fragment>
     <fragment
         android:id="@+id/userProfileFragment"
@@ -49,5 +53,9 @@
         android:id="@+id/itineraryListFragment"
         android:name="com.unibg.magellanus.app.itinerary.view.ItineraryListFragment"
         android:label="Itinerary List"
-        tools:layout="@layout/fragment_itinerary_list" />
+        tools:layout="@layout/fragment_itinerary_list" >
+        <action
+            android:id="@+id/action_itineraryListFragment_to_mapFragment"
+            app:destination="@id/mapFragment" />
+    </fragment>
 </navigation>

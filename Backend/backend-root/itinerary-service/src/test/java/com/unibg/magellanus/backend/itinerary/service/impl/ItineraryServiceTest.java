@@ -73,14 +73,14 @@ class ItineraryServiceTest {
 	void update_ownerIsIssuer_returnsItinerary() {
 		when(repository.save(testItinerary)).thenReturn(testItinerary);
 		testItinerary.setName("new_name");
-		Itinerary i = service.update(testItinerary, testItinerary.getOwner());
+		Itinerary i = service.update(testItinerary.getId(), testItinerary, testItinerary.getOwner());
 		assertEquals(testItinerary.getId(), i.getId());
 		assertEquals(testItinerary.getName(), i.getName());
 	}
 
 	@Test
 	void update_ownerIsNotIssuer_throwsIllegalState() {
-		assertThrows(IllegalStateException.class, () -> service.update(testItinerary, "not_owner"));
+		assertThrows(IllegalStateException.class, () -> service.update(testItinerary.getId(), testItinerary, "not_owner"));
 	}
 
 	@Test

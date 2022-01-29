@@ -30,7 +30,7 @@ class ItineraryRecyclerViewAdapter(
         val item = values[position]
         holder.id.text = item.id
         holder.name.text = item.name
-        holder.date.text = item.date
+        holder.date.text = item.date?.toString()
     }
 
     override fun getItemCount(): Int = values.size

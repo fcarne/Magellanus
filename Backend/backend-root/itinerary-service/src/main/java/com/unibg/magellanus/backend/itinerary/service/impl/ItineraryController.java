@@ -51,9 +51,9 @@ public class ItineraryController implements ItineraryAPI {
 
 	@Override
 	@PutMapping("me/{id}")
-	public ResponseEntity<Void> updateMine(@RequestBody Itinerary itinerary) {
+	public ResponseEntity<Void> updateMine(@PathVariable String id, @RequestBody Itinerary itinerary) {
 		try {
-			service.update(itinerary, getAuthenticatedUid());
+			service.update(id, itinerary, getAuthenticatedUid());
 			return ResponseEntity.noContent().build();
 		} catch (IllegalStateException e) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());

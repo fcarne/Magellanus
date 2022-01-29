@@ -30,9 +30,10 @@ public class ItineraryServiceImpl implements ItineraryService {
 	}
 
 	@Override
-	public Itinerary update(Itinerary itinerary, String issuer) throws IllegalStateException {
+	public Itinerary update(String id, Itinerary itinerary, String issuer) throws IllegalStateException {
 		if (!itinerary.getOwner().equals(issuer))
 			throw new IllegalStateException("Issuer is not the owner of the itinerary");
+		itinerary.setId(id);
 		return repository.save(itinerary);
 	}
 

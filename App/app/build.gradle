@@ -7,6 +7,7 @@ plugins {
 }
 
 apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-parcelize'
 
 
 android {

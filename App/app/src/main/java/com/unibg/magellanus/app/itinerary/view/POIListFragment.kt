@@ -41,7 +41,7 @@ class POIListFragment : Fragment() {
                 }
 
                 //Lista temporanea di test
-                var effe = listOf<POI>(POI("Unibg",72.2,72.2),POI("Unimi",712.2,723.2),POI("Unippino",7212.2,723232.2))
+                val effe = listOf<POI>(POI("Unibg",72.2,72.2, null),POI("Unimi",712.2,723.2, null),POI("Unippino",7212.2,723232.2, null))
                 //
                 adapter = POIRecyclerViewAdapter(effe)
             }
