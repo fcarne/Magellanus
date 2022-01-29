@@ -16,6 +16,9 @@
             android:id="@+id/action_mapFragment_to_POIFragment"
             app:destination="@id/POIListFragment" />
         <action
+            android:id="@+id/action_mapFragment_to_itineraryExplorerFragment"
+            app:destination="@id/itineraryExplorerFragment" />
+        <action
             android:id="@+id/action_mapFragment_to_itineraryListFragment"
             app:destination="@id/itineraryListFragment" />
     </fragment>
@@ -49,6 +52,11 @@
         android:name="com.unibg.magellanus.app.itinerary.view.POIListFragment"
         android:label="POI List"
         tools:layout="@layout/fragment_poi_list" />
+    <fragment
+        android:id="@+id/itineraryExplorerFragment"
+        android:name="com.unibg.magellanus.app.itinerary.view.ItineraryExplorerFragment"
+        android:label="Itinerary Explorer" />
+
     <fragment
         android:id="@+id/itineraryListFragment"
         android:name="com.unibg.magellanus.app.itinerary.view.ItineraryListFragment"

@@ -20,13 +20,10 @@ import java.sql.Date
 class ItineraryListFragment : Fragment() {
 
     private var columnCount = 1
+    private var call = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        arguments?.let {
-            columnCount = it.getInt(ARG_COLUMN_COUNT)
-        }
     }
 
     override fun onCreateView(
@@ -44,30 +41,39 @@ class ItineraryListFragment : Fragment() {
                 }
 
                 //Lista temporanea di test
-                var effe = listOf<Itinerary>(
-                    Itinerary("01","Primo viaggio", "01/01/2001"),
-                    Itinerary("02","Secondo viaggio", "01/01/2002"),
-                    Itinerary("03","Terzo viaggio", "01/01/2003"),
-                )
-                //
-                adapter = ItineraryRecyclerViewAdapter(effe)
+
+                //Separazione dei casi in cui sia to do oppure storico
+                if(call == 0)
+                {
+                    var effe = listOf<Itinerary>(
+                        Itinerary("01","Primo viaggio", "01/01/2001"),
+                        Itinerary("02","Secondo viaggio", "01/01/2002"),
+                        Itinerary("03","Terzo viaggio", "01/01/2003"),
+                    )
+                    adapter = ItineraryRecyclerViewAdapter(effe)
+                }else{
+                    var effe = listOf<Itinerary>(
+                        Itinerary("04","Gia fatto 1", "01/01/2001"),
+                        Itinerary("05","Gia fatto 2", "01/01/2002"),
+                        Itinerary("06","Gia fatto 3", "01/01/2003"),
+                    )
+                    adapter = ItineraryRecyclerViewAdapter(effe)
+                }
             }
         }
         return view
     }
 
     companion object {
-
-        // TODO: Customize parameter argument names
-        const val ARG_COLUMN_COUNT = "column-count"
-
-        // TODO: Customize parameter initialization
+        //Gestisco la chiamata per lo storico o la lista dei to do con la variabile call, 0=to do , 1=storico
         @JvmStatic
-        fun newInstance(columnCount: Int) =
-            ItineraryListFragment().apply {
-                arguments = Bundle().apply {
-                    putInt(ARG_COLUMN_COUNT, columnCount)
-                }
-            }
+        fun newInstance(call: Int): ItineraryListFragment {
+            val fragment = ItineraryListFragment()
+            val args = Bundle()
+            args.putInt("call", call)
+            fragment.setArguments(args)
+            return fragment
+        }
     }
+
 }

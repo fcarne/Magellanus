@@ -47,7 +47,7 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
 
-class MapFragment : Fragment() {
+class MapFragment : Fragment(){
 
     private val provider = FirebaseAuthenticationProvider
 
@@ -123,7 +123,7 @@ class MapFragment : Fragment() {
         map.visibility = View.VISIBLE
 
         if (provider.currentUser == null) {
-            navController.navigate(MapFragmentDirections.actionMapFragmentToLoginFragment())
+           // navController.navigate(MapFragmentDirections.actionMapFragmentToLoginFragment())
             return
         } else {
 
@@ -265,9 +265,8 @@ class MapFragment : Fragment() {
         Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_POIFragment)
     }
 
-    fun btnItinerari(view: View) {
-        Navigation.findNavController(view)
-            .navigate(R.id.action_mapFragment_to_itineraryListFragment)
+    fun btnItinerari(view : View){
+        Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_itineraryExplorerFragment)
 
     }
 
@@ -280,39 +279,30 @@ class MapFragment : Fragment() {
         val stringRequest = StringRequest(
             Request.Method.GET, url,
             Response.Listener<String> { response ->
-
-                var test = ""
                 val jsonObject = JSONTokener(response).nextValue() as JSONObject
 
                 val jsonArray = jsonObject.getJSONArray("features")
+                var pos = Marker(map)
+
                 for (i in 0 until jsonArray.length()) {
                     val risultato = jsonArray.getJSONObject(i)
                     var coords = risultato.getJSONObject("geometry").getJSONArray("coordinates")
-                    var lat = coords.getDouble(0)
-                    var long = coords.getDouble(1)
+                    var lat = coords.getDouble(1)
+                    var long = coords.getDouble(0)
                     var name = risultato.getJSONObject("properties").getString("name")
-                    test += "POI: " + name + " lat:" + lat.toString() + " Long:" + long.toString() + "\n"
+                    pos.position = GeoPoint(lat,long)
+                    pos.title = name
+                    map.overlays.add(pos)
                 }
-
-                Snackbar.make(
-                    requireActivity().findViewById(android.R.id.content),
-                    test,
-                    Snackbar.LENGTH_LONG
-                ).show()
             },
             Response.ErrorListener {
-                // text = "That didn't work!"
+               // text = "That didn't work!"
                 //todo iplementare l'errore
             })
-
 // Add the request to the RequestQueue.
         queue.add(stringRequest)
-
-
     }
-
-
-    //myLocationOverlay.disableFollowLocation()
+     //myLocationOverlay.disableFollowLocation()
     //myLocationOverlay.disableMyLocation()
     //this.mapController.animateTo(GeoPoint(52.50693,13.39748))
 
