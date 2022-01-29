@@ -66,7 +66,6 @@ class MainActivity : AppCompatActivity(), ToggleableDrawer {
             user = viewModel.currentUser
         }
         setSupportActionBar(binding.appBarMain.toolbar)
-
         drawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val navHostFragment =
