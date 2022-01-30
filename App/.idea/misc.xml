@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/drawable/ic_baseline_add_location_alt_24.xml" value="0.1" />
+        <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/drawable/ic_baseline_navigation_24.xml" value="0.1" />
+        <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/drawable/ic_baseline_place_24.xml" value="0.1" />
         <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/drawable/ic_menu_24dp.xml" value="0.10989583333333333" />
         <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/activity_main2.xml" value="0.2" />
@@ -10,8 +13,12 @@
         <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/content_main.xml" value="0.16666666666666666" />
         <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/fragment_gallery.xml" value="0.2" />
         <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/fragment_home.xml" value="0.2" />
+        <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/fragment_itinerary_explorer.xml" value="0.1" />
+        <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/fragment_itinerary_item.xml" value="0.33" />
+        <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/fragment_itinerary_list.xml" value="0.1" />
         <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/fragment_login.xml" value="0.25" />
-        <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/fragment_map.xml" value="0.2" />
+        <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/fragment_map.xml" value="0.22" />
+        <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/fragment_poi_item.xml" value="0.2" />
         <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/fragment_slideshow.xml" value="0.2" />
         <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/fragment_user_profile.xml" value="0.30409356725146197" />
         <entry key="..\:/Users/feder/Documents/Magellanus_Codice/Magellanus/App/app/src/main/res/layout/header_navigation_drawer.xml" value="0.2" />

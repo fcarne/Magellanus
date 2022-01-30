@@ -15,10 +15,10 @@ import java.io.File
 
 interface ItineraryAPI {
     @GET("{id}")
-    suspend fun get(@Path("id") id: String): Itinerary?
+    suspend fun get(@Path("id") id: String): Response<Itinerary?>
 
     @POST(".")
-    suspend fun create(@Body itinerary: Itinerary): Itinerary?
+    suspend fun create(@Body itinerary: Itinerary): Response<Itinerary?>
 
     @PUT("me/{id}")
     suspend fun updateMine(@Path("id") id: String, @Body itinerary: Itinerary): Response<Void>

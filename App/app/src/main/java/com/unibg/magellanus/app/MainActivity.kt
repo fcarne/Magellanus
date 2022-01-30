@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity(), ToggleableDrawer {
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.mapFragment, R.id.userProfileFragment, R.id.logoutItem
+                R.id.mapFragment, R.id.userProfileFragment, R.id.logoutItem, R.id.itineraryExplorerFragment
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)

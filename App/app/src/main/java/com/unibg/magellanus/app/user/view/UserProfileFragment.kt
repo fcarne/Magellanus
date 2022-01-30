@@ -175,8 +175,8 @@ class UserProfileFragment : Fragment(), SharedPreferences.OnSharedPreferenceChan
         }
     }
 
-    override fun provideSummary(preference: ListPreference?): CharSequence =
-        if (preference?.key == getString(R.string.dark_mode)) preference.entry
+    override fun provideSummary(preference: ListPreference): CharSequence? =
+        if (preference.key == getString(R.string.dark_mode)) preference.entry
         else "Unknown Preference"
 
 

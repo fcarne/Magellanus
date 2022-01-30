@@ -68,7 +68,7 @@ public class ItineraryMicroserviceIntegrationTest {
 		testItinerary.setName("test_name");
 		testItinerary.setCompletionDate(null);
 		
-		Set<POI> set = testItinerary.getPOISet();
+		Set<POI> set = testItinerary.getPoiSet();
 		set.add(new POI(41.158150, -75.379219));
 		set.add(new POI(51.917500, 0.333340));
 		set.add(new POI(53.224621, -4.197995));
@@ -176,7 +176,7 @@ public class ItineraryMicroserviceIntegrationTest {
 	@Test
 	@WithMockUser(username = TEST_USER_UID)
 	void update_ownerIsIssuer_returnsNoContent() throws Exception {
-		Set<POI> set = testItinerary.getPOISet();
+		Set<POI> set = testItinerary.getPoiSet();
 		POI poi = new POI(55.506920,9.728400);
 		set.add(poi);
 				
@@ -187,7 +187,7 @@ public class ItineraryMicroserviceIntegrationTest {
 				.andExpect(status().isNoContent())
 				.andExpect(jsonPath("$").doesNotExist());
 		
-		Set<POI> storedSet = repository.findById(testItinerary.getId()).get().getPOISet();
+		Set<POI> storedSet = repository.findById(testItinerary.getId()).get().getPoiSet();
 		assertTrue(storedSet.contains(poi));
 	}
 	

@@ -1,29 +1,18 @@
-import android.content.Context
+package com.unibg.magellanus.app.itinerary.view
+
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
-import com.unibg.magellanus.app.itinerary.view.ItineraryListFragment
+import androidx.lifecycle.Lifecycle
+import androidx.viewpager2.adapter.FragmentStateAdapter
 
-@Suppress("DEPRECATION")
-internal class `ExplorerAdapter`(
-    var context: Context,
+internal class ExplorerAdapter(
+    var totalTabs: Int,
     fm: FragmentManager,
-    var totalTabs: Int
-) :
-    FragmentPagerAdapter(fm) {
-    override fun getItem(position: Int): Fragment {
-        return when (position) {
-            0 -> {
-                ItineraryListFragment()
-            }
-            1 -> {
-                ItineraryListFragment()
-            }
-            else -> getItem(position)
-        }
-    }
-    override fun getCount(): Int {
-        return totalTabs
-    }
+    lifecycle: Lifecycle
+) : FragmentStateAdapter(fm, lifecycle) {
+    override fun createFragment(position: Int): Fragment =
+        ItineraryListFragment.newInstance(position)
+
+    override fun getItemCount(): Int = totalTabs
 }
 

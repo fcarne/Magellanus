@@ -1,17 +1,23 @@
 package com.unibg.magellanus.app.itinerary.view
 
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
-
-import com.unibg.magellanus.app.placeholder.PlaceholderContent.PlaceholderItem
+import androidx.recyclerview.widget.RecyclerView
 import com.unibg.magellanus.app.databinding.FragmentPoiItemBinding
-
+import com.unibg.magellanus.app.itinerary.model.POI
 
 class POIRecyclerViewAdapter(
-    private val values: List<com.unibg.magellanus.app.itinerary.model.POI>
+    private val locateClickListener: OnPOIItemClickListener
 ) : RecyclerView.Adapter<POIRecyclerViewAdapter.ViewHolder>() {
+
+    private var values = mutableListOf<POI>()
+
+    fun setPOIList(poiList: List<POI>) {
+        this.values = poiList.toMutableList()
+        notifyItemRangeChanged(0, poiList.size)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
@@ -26,22 +32,33 @@ class POIRecyclerViewAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = values[position]
-        holder.name.text = item.name
-        holder.latitude.text = item.latitude.toString()
-        holder.longitude.text = item.longitude.toString()
+        val poi = values[position]
+        holder.bind(poi, locateClickListener)
     }
 
     override fun getItemCount(): Int = values.size
 
-    inner class ViewHolder(binding: FragmentPoiItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(binding: FragmentPoiItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         val name: TextView = binding.name
-        val latitude: TextView = binding.latitude
-        val longitude: TextView = binding.longitude
+        private val address: TextView = binding.address
+        private val locateButton: ImageButton = binding.locateBtn
 
-        override fun toString(): String {
-            return super.toString() + " '" + name.text + "'"
+        fun bind(
+            poi: POI,
+            itemClickListener: OnPOIItemClickListener,
+        ) {
+            name.text = poi.name
+            address.text = poi.address?.formatted
+
+            locateButton.setOnClickListener {
+                itemClickListener.onClick(poi)
+            }
         }
+    }
+
+    fun interface OnPOIItemClickListener {
+        fun onClick(poi: POI)
     }
 
 }

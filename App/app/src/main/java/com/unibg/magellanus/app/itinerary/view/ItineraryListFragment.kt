@@ -1,78 +1,129 @@
 package com.unibg.magellanus.app.itinerary.view
 
+import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.unibg.magellanus.app.R
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
+import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.unibg.magellanus.app.common.observeOnce
+import com.unibg.magellanus.app.databinding.FragmentItineraryListBinding
 import com.unibg.magellanus.app.itinerary.model.Itinerary
-import com.unibg.magellanus.app.itinerary.model.POI
-import com.unibg.magellanus.app.placeholder.PlaceholderContent
-import java.sql.Date
+import com.unibg.magellanus.app.itinerary.model.ItineraryRepositoryImpl
+import com.unibg.magellanus.app.itinerary.model.network.GeocodingAPI
+import com.unibg.magellanus.app.itinerary.model.network.ItineraryAPI
+import com.unibg.magellanus.app.itinerary.viewmodel.ItineraryListViewModel
+import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
+import kotlin.properties.Delegates
 
-/**
- * A fragment representing a list of Items.
- */
 class ItineraryListFragment : Fragment() {
 
     private var columnCount = 1
-    private var call = 0
+    private var call by Delegates.notNull<Int>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    private val viewModel by viewModels<ItineraryListViewModel> {
+        val provider = FirebaseAuthenticationProvider
+        val cacheDir = requireContext().cacheDir
+        val api = ItineraryAPI.create(provider, cacheDir)
+        val geoApi = GeocodingAPI.create(cacheDir)
+        val repository = ItineraryRepositoryImpl(api, geoApi)
+
+        ItineraryListViewModel.Factory(repository)
+    }
+
+    private lateinit var navController: NavController
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        call = requireArguments().getInt(CALL)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_itinerary_list, container, false)
-
-        // Set the adapter
-        if (view is RecyclerView) {
-            with(view) {
-                layoutManager = when {
-                    columnCount <= 1 -> LinearLayoutManager(context)
-                    else -> GridLayoutManager(context, columnCount)
-                }
-
-                //Lista temporanea di test
-
-                //Separazione dei casi in cui sia to do oppure storico
-                if(call == 0)
-                {
-                    var effe = listOf<Itinerary>(
-                        Itinerary("01","Primo viaggio", "01/01/2001"),
-                        Itinerary("02","Secondo viaggio", "01/01/2002"),
-                        Itinerary("03","Terzo viaggio", "01/01/2003"),
-                    )
-                    adapter = ItineraryRecyclerViewAdapter(effe)
-                }else{
-                    var effe = listOf<Itinerary>(
-                        Itinerary("04","Gia fatto 1", "01/01/2001"),
-                        Itinerary("05","Gia fatto 2", "01/01/2002"),
-                        Itinerary("06","Gia fatto 3", "01/01/2003"),
-                    )
-                    adapter = ItineraryRecyclerViewAdapter(effe)
-                }
+    ): View {
+        val binding = FragmentItineraryListBinding.inflate(inflater, container, false)
+        with(binding.list) {
+            layoutManager = when {
+                columnCount <= 1 -> LinearLayoutManager(context)
+                else -> GridLayoutManager(context, columnCount)
             }
+
+            viewModel.itineraryList.observeOnce(viewLifecycleOwner) {
+                val itemClickListener =
+                    ItineraryRecyclerViewAdapter.OnItineraryItemClickListener { itinerary ->
+                        navController.navigate(
+                            ItineraryExplorerFragmentDirections.actionItineraryExplorerFragmentToMapFragment(itinerary.id)
+                        )
+                    }
+
+                val deleteClickListener =
+                    ItineraryRecyclerViewAdapter.OnItineraryItemClickListener { itinerary ->
+                        viewModel.deleteItinerary(itinerary)
+                    }
+
+                adapter =
+                    ItineraryRecyclerViewAdapter(itemClickListener, deleteClickListener).apply {
+                        setItineraries(it)
+                    }
+            }
+
+            viewModel.newItinerary.observe(viewLifecycleOwner) {
+                (adapter as ItineraryRecyclerViewAdapter).addItinerary(it)
+            }
+
+            viewModel.removedIndex.observe(viewLifecycleOwner) {
+                (adapter as ItineraryRecyclerViewAdapter).removeItinerary(it)
+            }
+
+            val completed = call == 1
+            viewModel.getItineraries(completed)
         }
-        return view
+
+        binding.createBtn.setOnClickListener {
+            val builder: AlertDialog.Builder = AlertDialog.Builder(requireContext())
+            builder.setTitle("Create new itinerary")
+
+            val input = EditText(requireContext()).apply {
+                hint = "Enter new itinerary name"
+                inputType = InputType.TYPE_CLASS_TEXT
+            }
+            builder.setView(input)
+
+            builder.setPositiveButton("OK") { _, _ ->
+                val name = input.text.toString()
+                val itinerary = Itinerary(name = name)
+                viewModel.createItinerary(itinerary)
+            }
+
+            builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+            builder.show()
+        }
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        navController = findNavController()
     }
 
     companion object {
         //Gestisco la chiamata per lo storico o la lista dei to do con la variabile call, 0=to do , 1=storico
+        private const val CALL = "call"
+
         @JvmStatic
-        fun newInstance(call: Int): ItineraryListFragment {
-            val fragment = ItineraryListFragment()
-            val args = Bundle()
-            args.putInt("call", call)
-            fragment.setArguments(args)
-            return fragment
+        fun newInstance(call: Int) = ItineraryListFragment().apply {
+            arguments = bundleOf(CALL to call)
         }
     }
 

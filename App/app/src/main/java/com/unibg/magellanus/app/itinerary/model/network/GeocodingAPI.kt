@@ -14,13 +14,15 @@ import retrofit2.http.Query
 import java.io.File
 import java.lang.reflect.Type
 
+data class SearchResponse(val features: List<POI>)
+
 interface GeocodingAPI {
 
     @GET("api")
-    suspend fun search(@Query("q") query: String, @Query("limit") limit: Int?): Iterable<POI>
+    suspend fun search(@Query("q") query: String, @Query("limit") limit: Int?): SearchResponse
 
     @GET("reverse")
-    suspend fun reverseSearch(@Query("lat") lat: Double, @Query("lon") lon: Double): POI
+    suspend fun reverseSearch(@Query("lat") lat: Double, @Query("lon") lon: Double): SearchResponse
 
     companion object {
         var BASE_URL = "https://photon.komoot.io/"
@@ -43,7 +45,7 @@ interface GeocodingAPI {
                 .build()
 
             val gson =
-                GsonBuilder().registerTypeAdapter(POI::class.java, OsmPOIDeserializer()).create()
+                GsonBuilder().registerTypeAdapter(POI::class.java, SearchPOIDeserializer()).create()
 
             val retrofit = Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create(gson))
@@ -55,19 +57,19 @@ interface GeocodingAPI {
     }
 }
 
-class OsmPOIDeserializer : JsonDeserializer<POI> {
+class SearchPOIDeserializer : JsonDeserializer<POI> {
     override fun deserialize(
         json: JsonElement?,
         typeOfT: Type?,
         context: JsonDeserializationContext?
     ): POI {
         val response = json!!.asJsonObject
+
         val properties = response.getAsJsonObject("properties")
         val address = Gson().fromJson(properties, Address::class.java)
-
-        val name = properties["name"].asString
+        val name = properties["name"]?.asString
         val coordinates = response.getAsJsonObject("geometry").getAsJsonArray("coordinates")
 
-        return POI(name, coordinates[0].asDouble, coordinates[1].asDouble, address)
+        return POI(name, coordinates[1].asDouble, coordinates[0].asDouble, address)
     }
 }

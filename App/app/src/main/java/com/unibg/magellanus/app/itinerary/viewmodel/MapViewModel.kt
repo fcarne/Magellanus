@@ -5,8 +5,9 @@ import com.unibg.magellanus.app.itinerary.model.Itinerary
 import com.unibg.magellanus.app.itinerary.model.ItineraryRepository
 import com.unibg.magellanus.app.itinerary.model.POI
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
-class MapViewModel(itinerary: Itinerary, private val repository: ItineraryRepository) :
+class MapViewModel(itineraryId: String, private val repository: ItineraryRepository) :
     ViewModel() {
 
     private val _currentItinerary: MutableLiveData<Itinerary> = MutableLiveData()
@@ -15,30 +16,42 @@ class MapViewModel(itinerary: Itinerary, private val repository: ItineraryReposi
 
     val poiSet: LiveData<Set<POI>> = _currentItinerary.map { it.poiSet.toSet() }
 
-    private val _currentSearch: MutableLiveData<Iterable<POI>> = MutableLiveData()
-    val currentSearch: LiveData<Iterable<POI>>
+    private val _currentSearch: MutableLiveData<MutableList<POI>> = MutableLiveData()
+    val currentSearch: LiveData<MutableList<POI>>
         get() = _currentSearch
 
     init {
         viewModelScope.launch {
-            var i = repository.get(itinerary.id!!)
-            if(i == null) i = repository.create(itinerary)
+            val itinerary = repository.get(itineraryId) ?: repository.create(
+                Itinerary(
+                    id = itineraryId,
+                    name = "Default Itinerary"
+                )
+            )!!
 
-            _currentItinerary.value = i!!
+            _currentItinerary.value = itinerary
         }
 
     }
 
     fun search(query: String) = viewModelScope.launch {
-        _currentSearch.value = repository.search(query)
+        _currentSearch.value = repository.search(query).toMutableList()
     }
 
     fun addPOI(poi: POI) {
         _currentItinerary.value!!.poiSet.add(poi)
+        val removed = _currentSearch.value?.remove(poi)
+        _currentItinerary.value = _currentItinerary.value
+        if(removed == true) _currentSearch.value = _currentSearch.value
     }
 
     fun removePOI(poi: POI) {
         _currentItinerary.value!!.poiSet.remove(poi)
+        _currentItinerary.value = _currentItinerary.value
+    }
+
+    fun searchPOI(lat: Double, lon: Double): POI? = runBlocking {
+        repository.getInfo(lat, lon)
     }
 
     suspend fun saveChanges() {
@@ -46,9 +59,9 @@ class MapViewModel(itinerary: Itinerary, private val repository: ItineraryReposi
         repository.update(itinerary)
     }
 
-    class Factory(val itinerary: Itinerary, private val repository: ItineraryRepository) :
+    class Factory(private val itineraryId: String, private val repository: ItineraryRepository) :
         ViewModelProvider.NewInstanceFactory() {
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            MapViewModel(itinerary, repository) as T
+            MapViewModel(itineraryId, repository) as T
     }
 }

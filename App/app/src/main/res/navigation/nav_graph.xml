@@ -18,9 +18,16 @@
         <action
             android:id="@+id/action_mapFragment_to_itineraryExplorerFragment"
             app:destination="@id/itineraryExplorerFragment" />
-        <action
-            android:id="@+id/action_mapFragment_to_itineraryListFragment"
-            app:destination="@id/itineraryListFragment" />
+        <argument
+            android:name="itinerary_id"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="coordinates"
+            app:argType="float[]"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
@@ -51,19 +58,21 @@
         android:id="@+id/POIListFragment"
         android:name="com.unibg.magellanus.app.itinerary.view.POIListFragment"
         android:label="POI List"
-        tools:layout="@layout/fragment_poi_list" />
+        tools:layout="@layout/fragment_poi_list" >
+        <argument
+            android:name="itinerary_id"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_POIListFragment_to_mapFragment"
+            app:destination="@id/mapFragment" />
+    </fragment>
     <fragment
         android:id="@+id/itineraryExplorerFragment"
         android:name="com.unibg.magellanus.app.itinerary.view.ItineraryExplorerFragment"
-        android:label="Itinerary Explorer" />
-
-    <fragment
-        android:id="@+id/itineraryListFragment"
-        android:name="com.unibg.magellanus.app.itinerary.view.ItineraryListFragment"
-        android:label="Itinerary List"
-        tools:layout="@layout/fragment_itinerary_list" >
+        android:label="Itinerary Explorer" >
         <action
-            android:id="@+id/action_itineraryListFragment_to_mapFragment"
+            android:id="@+id/action_itineraryExplorerFragment_to_mapFragment"
             app:destination="@id/mapFragment" />
     </fragment>
+
 </navigation>

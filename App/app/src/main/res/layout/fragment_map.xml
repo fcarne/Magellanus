@@ -25,41 +25,44 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="1.0">
 
             </org.osmdroid.views.MapView>
 
-            <Button
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/bntCentra"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:onClick="clickButton"
-                android:text="V"
+                android:src="@drawable/ic_baseline_my_location_24"
+                app:backgroundTint="@color/purple_500"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.97" />
+                app:tint="@color/white" />
 
-            <Button
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btnItinerari"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
-                android:text="i"
+                android:src="@drawable/ic_round_format_list_bulleted_24"
+                app:backgroundTint="@color/purple_500"
+                app:tint="@color/white"
                 app:layout_constraintBottom_toTopOf="@+id/bntCentra"
                 app:layout_constraintEnd_toEndOf="parent" />
 
-            <Button
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btnPOI"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
-                android:text="P"
+                android:src="@drawable/ic_baseline_not_listed_location_24"
+                app:backgroundTint="@color/purple_500"
+                app:tint="@color/white"
                 app:layout_constraintBottom_toTopOf="@+id/btnItinerari"
                 app:layout_constraintEnd_toEndOf="parent" />
 
@@ -76,7 +79,8 @@
                 android:theme="@style/Theme.Magellanus.SearchBar"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                android:focusable="true">
 
             </SearchView>
 

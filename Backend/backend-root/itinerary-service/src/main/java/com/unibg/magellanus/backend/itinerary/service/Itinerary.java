@@ -55,11 +55,11 @@ public class Itinerary {
 		this.completionDate = completionDate;
 	}
 
-	public Set<POI> getPOISet() {
+	public Set<POI> getPoiSet() {
 		return poiSet;
 	}
 
-	public void setPOISet(Set<POI> poiSet) {
+	public void setPoiSet(Set<POI> poiSet) {
 		this.poiSet = poiSet;
 	}
 
