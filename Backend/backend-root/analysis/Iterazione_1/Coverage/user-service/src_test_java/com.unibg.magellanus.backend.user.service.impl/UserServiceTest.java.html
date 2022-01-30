@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>UserServiceTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">user-service (25 gen 2022 21:17:02)</a> &gt; <a href="../../index.html" class="el_group">user-service</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.unibg.magellanus.backend.user.service.impl</a> &gt; <span class="el_source">UserServiceTest.java</span></div><h1>UserServiceTest.java</h1><pre class="source lang-java linenums">package com.unibg.magellanus.backend.user.service.impl;
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>UserServiceTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">user-service tests (31 gen 2022 00:26:11)</a> &gt; <a href="../../index.html" class="el_group">user-service</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.unibg.magellanus.backend.user.service.impl</a> &gt; <span class="el_source">UserServiceTest.java</span></div><h1>UserServiceTest.java</h1><pre class="source lang-java linenums">package com.unibg.magellanus.backend.user.service.impl;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -32,79 +32,86 @@ import com.unibg.magellanus.backend.user.service.UserRepository;
 
 	@InjectMocks
 	UserServiceImpl service;
+	
+	User buildUser() {
+<span class="fc" id="L37">		User user = new User();</span>
+<span class="fc" id="L38">		user.setUid(&quot;1&quot;);</span>
+<span class="fc" id="L39">		user.setEmail(&quot;test@test.com&quot;);</span>
+<span class="fc" id="L40">		return user;</span>
+	}
 
 	@BeforeEach
 	void setupUser() {
-<span class="fc" id="L38">		user = new User(&quot;1&quot;, &quot;test@test.com&quot;);</span>
-<span class="fc" id="L39">	}</span>
+<span class="fc" id="L45">		user = buildUser();</span>
+<span class="fc" id="L46">	}</span>
 
 	@Test
-	void checkIfExists_exists_returnsTrue() {
-<span class="fc" id="L43">		when(repository.findById(&quot;1&quot;)).thenReturn(Optional.of(user));</span>
+	void get_exists_returnsUser() {
+<span class="fc" id="L50">		when(repository.findById(&quot;1&quot;)).thenReturn(Optional.of(user));</span>
 
-<span class="fc" id="L45">		User exists = service.get(&quot;1&quot;);</span>
-<span class="fc" id="L46">		assertNotNull(exists);</span>
-<span class="fc" id="L47">	}</span>
+<span class="fc" id="L52">		User exists = service.get(&quot;1&quot;);</span>
+<span class="fc" id="L53">		assertNotNull(exists);</span>
+<span class="fc" id="L54">	}</span>
 
 	@Test
-	void checkIfExists_notExists_returnsFalse() {
-<span class="fc" id="L51">		when(repository.findById(&quot;2&quot;)).thenReturn(Optional.empty());</span>
-<span class="pc" id="L52">		assertThrows(NoSuchElementException.class, () -&gt;  service.get(&quot;2&quot;));</span>
-<span class="fc" id="L53">	}</span>
+	void get_notExists_throwsNoSuchElement() {
+<span class="fc" id="L58">		when(repository.findById(&quot;2&quot;)).thenReturn(Optional.empty());</span>
+<span class="pc" id="L59">		assertThrows(NoSuchElementException.class, () -&gt;  service.get(&quot;2&quot;));</span>
+<span class="fc" id="L60">	}</span>
 
 	@Test
 	void signUp_nonExistent_returnsUser() {
-<span class="fc" id="L57">		when(repository.findById(user.getUid())).thenReturn(Optional.empty());</span>
-<span class="fc" id="L58">		when(repository.save(user)).thenReturn(new User(user.getUid(), user.getEmail()));</span>
+<span class="fc" id="L64">		when(repository.findById(user.getUid())).thenReturn(Optional.empty());</span>
+<span class="fc" id="L65">		when(repository.save(user)).thenReturn(buildUser());</span>
 
-<span class="fc" id="L60">		User newUser = service.signUp(user);</span>
-<span class="fc" id="L61">		assertEquals(newUser, user);</span>
-<span class="fc" id="L62">	}</span>
+<span class="fc" id="L67">		User newUser = service.signUp(user);</span>
+<span class="fc" id="L68">		assertEquals(newUser, user);</span>
+<span class="fc" id="L69">	}</span>
 
 	@Test
 	void signUp_alreadyExistent_throwsIllegalArgument() {
-<span class="fc" id="L66">		when(repository.findById(user.getUid())).thenReturn(Optional.of(user));</span>
-<span class="pc" id="L67">		assertThrows(IllegalArgumentException.class, () -&gt; service.signUp(user));</span>
-<span class="fc" id="L68">	}</span>
+<span class="fc" id="L73">		when(repository.findById(user.getUid())).thenReturn(Optional.of(user));</span>
+<span class="pc" id="L74">		assertThrows(IllegalArgumentException.class, () -&gt; service.signUp(user));</span>
+<span class="fc" id="L75">	}</span>
 
 	@Test
-	void testUpdatePreferences() {
-<span class="fc" id="L72">		Map&lt;String, Object&gt; prefs = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L73">		prefs.put(&quot;A&quot;, 1);</span>
-<span class="fc" id="L74">		prefs.put(&quot;B&quot;, 1);</span>
+	void setPreferences_existent_updatesPreferences() {
+<span class="fc" id="L79">		Map&lt;String, Object&gt; prefs = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L80">		prefs.put(&quot;A&quot;, 1);</span>
+<span class="fc" id="L81">		prefs.put(&quot;B&quot;, 1);</span>
 		
-<span class="fc" id="L76">		when(repository.findById(user.getUid())).thenReturn(Optional.of(user));</span>
-<span class="fc" id="L77">		when(repository.save(user)).thenReturn(user);</span>
+<span class="fc" id="L83">		when(repository.findById(user.getUid())).thenReturn(Optional.of(user));</span>
+<span class="fc" id="L84">		when(repository.save(user)).thenReturn(user);</span>
 		
-<span class="fc" id="L79">		User newUser = service.updatePreferences(user.getUid(), prefs);</span>
-<span class="fc" id="L80">		assertThat(newUser.getPreferences(), is(prefs));</span>
+<span class="fc" id="L86">		User newUser = service.updatePreferences(user.getUid(), prefs);</span>
+<span class="fc" id="L87">		assertThat(newUser.getPreferences(), is(prefs));</span>
 		
-<span class="fc" id="L82">	}</span>
+<span class="fc" id="L89">	}</span>
 
 	@Test
 	void setPreferences_nonExistent_throwsNoSuchElement() {
-<span class="fc" id="L86">		when(repository.findById(user.getUid())).thenReturn(Optional.empty());</span>
-<span class="pc" id="L87">		assertThrows(NoSuchElementException.class, () -&gt; service.updatePreferences(user.getUid(), new HashMap&lt;&gt;()));</span>
-<span class="fc" id="L88">	}</span>
+<span class="fc" id="L93">		when(repository.findById(user.getUid())).thenReturn(Optional.empty());</span>
+<span class="pc" id="L94">		assertThrows(NoSuchElementException.class, () -&gt; service.updatePreferences(user.getUid(), new HashMap&lt;&gt;()));</span>
+<span class="fc" id="L95">	}</span>
 	
 	@Test
 	void getPreferences_existent_returnsPreferences() {
-<span class="fc" id="L92">		Map&lt;String, Object&gt; prefs = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L93">		prefs.put(&quot;A&quot;, 1);</span>
-<span class="fc" id="L94">		prefs.put(&quot;B&quot;, 1);</span>
-<span class="fc" id="L95">		user.setPreferences(prefs);</span>
-<span class="fc" id="L96">		when(repository.findById(user.getUid())).thenReturn(Optional.of(user));</span>
+<span class="fc" id="L99">		Map&lt;String, Object&gt; prefs = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L100">		prefs.put(&quot;A&quot;, 1);</span>
+<span class="fc" id="L101">		prefs.put(&quot;B&quot;, 1);</span>
+<span class="fc" id="L102">		user.setPreferences(prefs);</span>
+<span class="fc" id="L103">		when(repository.findById(user.getUid())).thenReturn(Optional.of(user));</span>
 
-<span class="fc" id="L98">		Map&lt;String, Object&gt; userPrefs = service.getPreferences(user.getUid());</span>
+<span class="fc" id="L105">		Map&lt;String, Object&gt; userPrefs = service.getPreferences(user.getUid());</span>
 
-<span class="fc" id="L100">		assertThat(userPrefs, is(prefs));</span>
-<span class="fc" id="L101">	}</span>
+<span class="fc" id="L107">		assertThat(userPrefs, is(prefs));</span>
+<span class="fc" id="L108">	}</span>
 
 	@Test
 	void getPreferences_nonExistent_throwsNoSuchElement() {
-<span class="fc" id="L105">		when(repository.findById(user.getUid())).thenReturn(Optional.empty());</span>
-<span class="pc" id="L106">		assertThrows(NoSuchElementException.class, () -&gt; service.getPreferences(user.getUid()));</span>
-<span class="fc" id="L107">	}</span>
+<span class="fc" id="L112">		when(repository.findById(user.getUid())).thenReturn(Optional.empty());</span>
+<span class="pc" id="L113">		assertThrows(NoSuchElementException.class, () -&gt; service.getPreferences(user.getUid()));</span>
+<span class="fc" id="L114">	}</span>
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>user-service (25 gen 2022 21:17:02)</div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>user-service tests (31 gen 2022 00:26:11)</div></body></html>

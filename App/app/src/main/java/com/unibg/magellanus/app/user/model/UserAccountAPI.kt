@@ -31,7 +31,7 @@ interface UserAccountAPI {
     data class User (val uid: String, val email: String)
 
     companion object {
-        var BASE_URL = "http://10.0.2.2:8080/api/users/"
+        private const val BASE_URL = "http://10.0.2.2:8080/api/users/"
         fun create(provider: AuthenticationProvider): UserAccountAPI {
             val authInterceptor = AuthInterceptor(provider)
             val httpInterceptor =

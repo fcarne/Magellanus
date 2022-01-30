@@ -56,7 +56,7 @@ class MapFragment : Fragment() {
         }
 
         val cacheDir = requireContext().cacheDir
-        val api = ItineraryAPI.create(provider, cacheDir)
+        val api = ItineraryAPI.create(provider)
         val geoApi = GeocodingAPI.create(cacheDir)
         val repository = ItineraryRepositoryImpl(api, geoApi)
 
@@ -168,7 +168,7 @@ class MapFragment : Fragment() {
                 setPersonIcon(arrowIcon)
             }
 
-            this.mapController.setZoom(18.0)
+            this.mapController.setZoom(19.0)
             val searchOverlay = FolderOverlay()
             val poiOverlay = FolderOverlay()
 

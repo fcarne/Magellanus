@@ -30,24 +30,15 @@ interface ItineraryAPI {
     suspend fun findMine(@Query("completed") completed: Boolean?): List<Itinerary>
 
     companion object {
-        var BASE_URL = "http://10.0.2.2:8080/api/itineraries/"
-        fun create(provider: AuthenticationProvider, cacheDir: File): ItineraryAPI {
+        private const val BASE_URL = "http://10.0.2.2:8080/api/itineraries/"
+        fun create(provider: AuthenticationProvider): ItineraryAPI {
             val authInterceptor = AuthInterceptor(provider)
             val httpInterceptor =
                 HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
-            val cacheInterceptor = CacheControlInterceptor()
-
-            //setup cache
-            val httpCacheDirectory = File(cacheDir, "itinerary-cache")
-            val cacheSize = (10 * 1024 * 1024).toLong() // 10 MiB
-
-            val cache = Cache(httpCacheDirectory, cacheSize)
 
             val client = OkHttpClient.Builder()
-                .addNetworkInterceptor(cacheInterceptor)
                 .addInterceptor(authInterceptor)
                 .addInterceptor(httpInterceptor)
-                .cache(cache)
                 .build()
 
             val retrofit = Retrofit.Builder()

@@ -15,7 +15,6 @@
 	<name>user-service</name>
 	<description>Backend User Service</description>
 	<properties>
-		<java.version>15</java.version>
 		<spring-cloud.version>2021.0.0</spring-cloud.version>
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>

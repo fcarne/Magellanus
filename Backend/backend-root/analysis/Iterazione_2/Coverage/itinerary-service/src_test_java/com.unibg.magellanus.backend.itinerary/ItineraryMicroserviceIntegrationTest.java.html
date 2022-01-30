@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ItineraryMicroserviceIntegrationTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">itinerary-service tests (31 gen 2022 00:32:48)</a> &gt; <a href="../../index.html" class="el_group">itinerary-service</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.unibg.magellanus.backend.itinerary</a> &gt; <span class="el_source">ItineraryMicroserviceIntegrationTest.java</span></div><h1>ItineraryMicroserviceIntegrationTest.java</h1><pre class="source lang-java linenums">package com.unibg.magellanus.backend.itinerary;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unibg.magellanus.backend.itinerary.service.Itinerary;
+import com.unibg.magellanus.backend.itinerary.service.ItineraryRepository;
+import com.unibg.magellanus.backend.itinerary.service.POI;
+
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+@ContextConfiguration
+@ActiveProfiles(profiles = { &quot;dev&quot;, &quot;test&quot; })
+<span class="fc" id="L48">public class ItineraryMicroserviceIntegrationTest {</span>
+
+	private static final String TEST_USER_UID = &quot;eXs3E6tEyrUTbz6LWqaspj5oCPW2&quot;;
+	private static Itinerary testItinerary;
+	private static List&lt;Itinerary&gt; testItineraryList;
+
+	@Autowired
+	MockMvc mockMvc;
+
+	@Autowired
+	ObjectMapper mapper;
+
+	@Autowired
+	ItineraryRepository repository;
+
+	@BeforeAll
+	public static void setup(@Autowired ItineraryRepository repository) {
+<span class="fc" id="L65">		testItinerary = new Itinerary();</span>
+<span class="fc" id="L66">		testItinerary.setId(&quot;TEST_ID&quot;);</span>
+<span class="fc" id="L67">		testItinerary.setOwner(TEST_USER_UID);</span>
+<span class="fc" id="L68">		testItinerary.setName(&quot;test_name&quot;);</span>
+<span class="fc" id="L69">		testItinerary.setCompletionDate(null);</span>
+		
+<span class="fc" id="L71">		Set&lt;POI&gt; set = testItinerary.getPoiSet();</span>
+<span class="fc" id="L72">		set.add(new POI(41.158150, -75.379219));</span>
+<span class="fc" id="L73">		set.add(new POI(51.917500, 0.333340));</span>
+<span class="fc" id="L74">		set.add(new POI(53.224621, -4.197995));</span>
+
+<span class="fc" id="L76">		Itinerary i1 = new Itinerary();</span>
+<span class="fc" id="L77">		i1.setId(&quot;1&quot;);</span>
+<span class="fc" id="L78">		i1.setCompletionDate(LocalDate.now());</span>
+<span class="fc" id="L79">		i1.setOwner(TEST_USER_UID);</span>
+
+<span class="fc" id="L81">		Itinerary i2 = new Itinerary();</span>
+<span class="fc" id="L82">		i2.setId(&quot;2&quot;);</span>
+<span class="fc" id="L83">		i2.setCompletionDate(LocalDate.now());</span>
+<span class="fc" id="L84">		i2.setOwner(TEST_USER_UID);</span>
+
+<span class="fc" id="L86">		Itinerary i3 = new Itinerary();</span>
+<span class="fc" id="L87">		i3.setId(&quot;3&quot;);</span>
+<span class="fc" id="L88">		i3.setCompletionDate(null);</span>
+<span class="fc" id="L89">		i3.setOwner(TEST_USER_UID);</span>
+
+<span class="fc" id="L91">		Itinerary i4 = new Itinerary();</span>
+<span class="fc" id="L92">		i4.setId(&quot;4&quot;);</span>
+<span class="fc" id="L93">		i4.setCompletionDate(LocalDate.now());</span>
+<span class="fc" id="L94">		i4.setOwner(&quot;not_owner&quot;);</span>
+
+<span class="fc" id="L96">		Itinerary i5 = new Itinerary();</span>
+<span class="fc" id="L97">		i5.setId(&quot;5&quot;);</span>
+<span class="fc" id="L98">		i5.setCompletionDate(null);</span>
+<span class="fc" id="L99">		i5.setOwner(&quot;not_owner&quot;);</span>
+		
+<span class="fc" id="L101">		Itinerary i6 = new Itinerary();</span>
+<span class="fc" id="L102">		i6.setId(&quot;6&quot;);</span>
+<span class="fc" id="L103">		i6.setCompletionDate(null);</span>
+<span class="fc" id="L104">		i6.setOwner(TEST_USER_UID);</span>
+
+<span class="fc" id="L106">		testItineraryList = List.of(i1, i2, i3, i4, i5, i6);</span>
+<span class="fc" id="L107">		repository.saveAll(testItineraryList);</span>
+<span class="fc" id="L108">	}</span>
+
+	@BeforeEach
+	public void setupEach() {
+<span class="fc" id="L112">		repository.save(testItinerary);</span>
+<span class="fc" id="L113">	}</span>
+
+	@AfterAll
+	public static void teardown(@Autowired ItineraryRepository repository) {
+<span class="fc" id="L117">		repository.deleteAll();</span>
+<span class="fc" id="L118">	}</span>
+
+	@Test
+	void get_nonAuth_returnsUnauthorized() throws Exception {
+<span class="fc" id="L122">		MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders</span>
+<span class="fc" id="L123">				.get(&quot;/api/itineraries/1&quot;)</span>
+<span class="fc" id="L124">				.contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L125">				.accept(MediaType.APPLICATION_JSON);</span>
+		
+<span class="fc" id="L127">		mockMvc.perform(mockRequest)</span>
+<span class="fc" id="L128">		       .andExpect(status().isUnauthorized());</span>
+
+<span class="fc" id="L130">	}</span>
+	
+	@Test
+	@WithMockUser(username = TEST_USER_UID)
+	void get_exists_returnsItinerary() throws Exception {
+		
+<span class="fc" id="L136">		MvcResult result = mockMvc.perform(</span>
+<span class="fc" id="L137">				MockMvcRequestBuilders.get(&quot;/api/itineraries/&quot; + testItinerary.getId())</span>
+<span class="fc" id="L138">				.contentType(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L139">				.andExpect(status().isOk())</span>
+<span class="fc" id="L140">				.andReturn();</span>
+		
+<span class="fc" id="L142">		String contentAsString = result.getResponse().getContentAsString();</span>
+<span class="fc" id="L143">		Itinerary response = mapper.readValue(contentAsString, Itinerary.class);</span>
+<span class="fc" id="L144">		assertEquals(testItinerary, response);</span>
+<span class="fc" id="L145">	}</span>
+
+	@Test
+	@WithMockUser(username = TEST_USER_UID)
+	void get_nonExistent_returnsNotFound() throws Exception {
+<span class="fc" id="L150">		mockMvc.perform(</span>
+<span class="fc" id="L151">				MockMvcRequestBuilders.get(&quot;/api/itineraries/NOT_PRESENT&quot;)</span>
+<span class="fc" id="L152">				.contentType(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L153">				.andExpect(status().isNotFound());</span>
+<span class="fc" id="L154">	}</span>
+
+	@Test
+	@WithMockUser(username = TEST_USER_UID)
+	void create_newItinerary_returnsCreatedItinerary() throws Exception {
+<span class="fc" id="L159">		Itinerary i = new Itinerary();</span>
+<span class="fc" id="L160">		i.setName(&quot;NEW_TEST&quot;);</span>
+		
+<span class="fc" id="L162">		MvcResult result = mockMvc.perform(</span>
+<span class="fc" id="L163">				MockMvcRequestBuilders.post(&quot;/api/itineraries/&quot;)</span>
+<span class="fc" id="L164">				.contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L165">				.content(this.mapper.writeValueAsString(i)))</span>
+<span class="fc" id="L166">				.andExpect(status().isOk()).andReturn();</span>
+		
+<span class="fc" id="L168">		String contentAsString = result.getResponse().getContentAsString();</span>
+<span class="fc" id="L169">		Itinerary response = mapper.readValue(contentAsString, Itinerary.class);</span>
+<span class="fc" id="L170">		assertNotNull(response.getId());</span>
+<span class="fc" id="L171">		assertEquals(TEST_USER_UID, response.getOwner());</span>
+		
+<span class="fc" id="L173">		repository.deleteById(response.getId());</span>
+<span class="fc" id="L174">	}</span>
+
+	@Test
+	@WithMockUser(username = TEST_USER_UID)
+	void update_ownerIsIssuer_returnsNoContent() throws Exception {
+<span class="fc" id="L179">		Set&lt;POI&gt; set = testItinerary.getPoiSet();</span>
+<span class="fc" id="L180">		POI poi = new POI(55.506920,9.728400);</span>
+<span class="fc" id="L181">		set.add(poi);</span>
+				
+<span class="fc" id="L183">		mockMvc.perform(</span>
+<span class="fc" id="L184">				MockMvcRequestBuilders.put(&quot;/api/itineraries/me/&quot; + testItinerary.getId())</span>
+<span class="fc" id="L185">				.contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L186">				.content(this.mapper.writeValueAsString(testItinerary)))</span>
+<span class="fc" id="L187">				.andExpect(status().isNoContent())</span>
+<span class="fc" id="L188">				.andExpect(jsonPath(&quot;$&quot;).doesNotExist());</span>
+		
+<span class="fc" id="L190">		Set&lt;POI&gt; storedSet = repository.findById(testItinerary.getId()).get().getPoiSet();</span>
+<span class="fc" id="L191">		assertTrue(storedSet.contains(poi));</span>
+<span class="fc" id="L192">	}</span>
+	
+	@Test
+	@WithMockUser(username = &quot;NOT_OWNER&quot;)
+	void update_ownerIsNotIssuer_returnsForbidden() throws Exception {
+<span class="fc" id="L197">		mockMvc.perform(</span>
+<span class="fc" id="L198">				MockMvcRequestBuilders.put(&quot;/api/itineraries/me/&quot; + testItinerary.getId())</span>
+<span class="fc" id="L199">				.contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L200">				.content(this.mapper.writeValueAsString(testItinerary)))</span>
+<span class="fc" id="L201">				.andExpect(status().isForbidden());</span>
+<span class="fc" id="L202">	}</span>
+	
+	@Test
+	@WithMockUser(username = TEST_USER_UID)
+	void delete_ownerIsIssuer_returnsNoContent() throws Exception {
+<span class="fc" id="L207">		mockMvc.perform(</span>
+<span class="fc" id="L208">				MockMvcRequestBuilders.delete(&quot;/api/itineraries/me/&quot; + testItinerary.getId())</span>
+<span class="fc" id="L209">				.contentType(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L210">				.andExpect(status().isNoContent())</span>
+<span class="fc" id="L211">				.andExpect(jsonPath(&quot;$&quot;).doesNotExist());</span>
+		
+<span class="fc" id="L213">		assertFalse(repository.existsById(testItinerary.getId()));</span>
+<span class="fc" id="L214">	}</span>
+	
+	@Test
+	@WithMockUser(username = &quot;NOT_OWNER&quot;)
+	void delete_ownerIsNotIssuer_returnsForbidden() throws Exception {
+<span class="fc" id="L219">		mockMvc.perform(</span>
+<span class="fc" id="L220">				MockMvcRequestBuilders.delete(&quot;/api/itineraries/me/&quot; + testItinerary.getId())</span>
+<span class="fc" id="L221">				.contentType(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L222">				.andExpect(status().isForbidden());</span>
+		
+<span class="fc" id="L224">		assertNotNull(repository.findById(testItinerary.getId()).get());</span>
+<span class="fc" id="L225">	}</span>
+	
+	@Test
+	@WithMockUser(username = TEST_USER_UID)
+	void findMine_completed_returnsNotNullCompletionDate() throws Exception {
+		
+<span class="fc" id="L231">		MvcResult result = mockMvc.perform(</span>
+<span class="fc" id="L232">				MockMvcRequestBuilders.get(&quot;/api/itineraries/me?completed=true&quot;)</span>
+<span class="fc" id="L233">				.contentType(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L234">				.andExpect(status().isOk())</span>
+<span class="fc" id="L235">				.andReturn();</span>
+		
+<span class="fc" id="L237">		String contentAsString = result.getResponse().getContentAsString();</span>
+<span class="fc" id="L238">		List&lt;Itinerary&gt; response = mapper.readValue(contentAsString, new TypeReference&lt;List&lt;Itinerary&gt;&gt;(){});</span>
+<span class="fc" id="L239">		assertEquals(2, response.size());</span>
+<span class="fc" id="L240">		assertThat( response, contains(</span>
+<span class="fc" id="L241">			    hasProperty(&quot;id&quot;, is(&quot;1&quot;)), </span>
+<span class="fc" id="L242">			    hasProperty(&quot;id&quot;, is(&quot;2&quot;))</span>
+			));
+<span class="fc" id="L244">		response.stream().map(it -&gt; it.getCompletionDate()).forEach(it -&gt; assertNotNull(it));</span>
+<span class="fc" id="L245">	}</span>
+	
+	@Test
+	@WithMockUser(username = TEST_USER_UID)
+	void findMine_notCompleted_returnsNullCompletionDate() throws Exception {
+		
+<span class="fc" id="L251">		MvcResult result = mockMvc.perform(</span>
+<span class="fc" id="L252">				MockMvcRequestBuilders.get(&quot;/api/itineraries/me?completed=false&quot;)</span>
+<span class="fc" id="L253">				.contentType(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L254">				.andExpect(status().isOk())</span>
+<span class="fc" id="L255">				.andReturn();</span>
+		
+<span class="fc" id="L257">		String contentAsString = result.getResponse().getContentAsString();</span>
+<span class="fc" id="L258">		List&lt;Itinerary&gt; response = mapper.readValue(contentAsString, new TypeReference&lt;List&lt;Itinerary&gt;&gt;(){});</span>
+<span class="fc" id="L259">		assertEquals(3, response.size());</span>
+<span class="fc" id="L260">		assertThat( response, contains( </span>
+<span class="fc" id="L261">			    hasProperty(&quot;id&quot;, is(&quot;3&quot;)),</span>
+<span class="fc" id="L262">			    hasProperty(&quot;id&quot;, is(&quot;6&quot;)),</span>
+<span class="fc" id="L263">			    hasProperty(&quot;id&quot;, is(testItinerary.getId()))</span>
+			));
+<span class="fc" id="L265">		response.stream().map(it -&gt; it.getCompletionDate()).forEach(it -&gt; assertNull(it));</span>
+<span class="fc" id="L266">	}</span>
+	
+	@Test
+	@WithMockUser(username = TEST_USER_UID)
+	void findMine_all_returnsAll() throws Exception {
+		
+<span class="fc" id="L272">		MvcResult result = mockMvc.perform(</span>
+<span class="fc" id="L273">				MockMvcRequestBuilders.get(&quot;/api/itineraries/me&quot;)</span>
+<span class="fc" id="L274">				.contentType(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L275">				.andExpect(status().isOk())</span>
+<span class="fc" id="L276">				.andReturn();</span>
+		
+<span class="fc" id="L278">		String contentAsString = result.getResponse().getContentAsString();</span>
+<span class="fc" id="L279">		List&lt;Itinerary&gt; response = mapper.readValue(contentAsString, new TypeReference&lt;List&lt;Itinerary&gt;&gt;(){});</span>
+<span class="fc" id="L280">		assertEquals(5, response.size());</span>
+<span class="fc" id="L281">		assertThat( response, contains(</span>
+<span class="fc" id="L282">			    hasProperty(&quot;id&quot;, is(&quot;1&quot;)),</span>
+<span class="fc" id="L283">			    hasProperty(&quot;id&quot;, is(&quot;2&quot;)),</span>
+<span class="fc" id="L284">			    hasProperty(&quot;id&quot;, is(&quot;3&quot;)),</span>
+<span class="fc" id="L285">			    hasProperty(&quot;id&quot;, is(&quot;6&quot;)),</span>
+<span class="fc" id="L286">			    hasProperty(&quot;id&quot;, is(testItinerary.getId()))</span>
+			));
+<span class="fc" id="L288">		response.stream().map(it -&gt; it.getOwner()).forEach(it -&gt; assertEquals(TEST_USER_UID, it));</span>
+<span class="fc" id="L289">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>itinerary-service tests (31 gen 2022 00:32:48)</div></body></html>

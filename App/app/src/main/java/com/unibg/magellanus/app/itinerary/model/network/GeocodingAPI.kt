@@ -25,7 +25,7 @@ interface GeocodingAPI {
     suspend fun reverseSearch(@Query("lat") lat: Double, @Query("lon") lon: Double): SearchResponse
 
     companion object {
-        var BASE_URL = "https://photon.komoot.io/"
+        private const val BASE_URL = "https://photon.komoot.io/"
         fun create(cacheDir: File): GeocodingAPI {
             val httpInterceptor =
                 HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }

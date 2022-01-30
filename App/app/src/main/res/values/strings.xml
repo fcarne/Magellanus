@@ -42,4 +42,7 @@
     <string name="create_new_itinerary">Create new itinerary</string>
     <string name="locate_poi">Locate POI</string>
     <string name="search_hint">Search...</string>
+    <string name="center_btn">Center to my location</string>
+    <string name="itinerary_btn">Open my itineraries</string>
+    <string name="poi_btn">Open POI list</string>
 </resources>

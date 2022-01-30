@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ItineraryServiceTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">itinerary-service tests (31 gen 2022 00:32:48)</a> &gt; <a href="../../index.html" class="el_group">itinerary-service</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.unibg.magellanus.backend.itinerary.service.impl</a> &gt; <span class="el_source">ItineraryServiceTest.java</span></div><h1>ItineraryServiceTest.java</h1><pre class="source lang-java linenums">package com.unibg.magellanus.backend.itinerary.service.impl;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.unibg.magellanus.backend.itinerary.service.Itinerary;
+import com.unibg.magellanus.backend.itinerary.service.ItineraryRepository;
+
+@ExtendWith(MockitoExtension.class)
+<span class="fc" id="L26">class ItineraryServiceTest {</span>
+
+	Itinerary testItinerary;
+
+	@Mock
+	ItineraryRepository repository;
+
+	@InjectMocks
+	ItineraryServiceImpl service;
+
+	Itinerary buildItinerary() {
+<span class="fc" id="L37">		Itinerary itinerary = new Itinerary();</span>
+<span class="fc" id="L38">		itinerary.setId(&quot;test_id&quot;);</span>
+<span class="fc" id="L39">		itinerary.setName(&quot;test_name&quot;);</span>
+<span class="fc" id="L40">		itinerary.setOwner(&quot;test_owner&quot;);</span>
+<span class="fc" id="L41">		return itinerary;</span>
+	}
+
+	@BeforeEach
+	void setupItinerary() {
+<span class="fc" id="L46">		testItinerary = buildItinerary();</span>
+<span class="fc" id="L47">	}</span>
+
+	@Test
+	void findById_exists_returnsItinerary() {
+<span class="fc" id="L51">		when(repository.findById(anyString())).thenReturn(Optional.of(testItinerary));</span>
+
+<span class="fc" id="L53">		Itinerary i = service.findById(testItinerary.getId());</span>
+<span class="fc" id="L54">		assertNotNull(i);</span>
+<span class="fc" id="L55">		assertEquals(testItinerary.getId(), i.getId());</span>
+<span class="fc" id="L56">	}</span>
+
+	@Test
+	void findById_notExists_throwsNoSuchElement() {
+<span class="fc" id="L60">		when(repository.findById(anyString())).thenReturn(Optional.empty());</span>
+<span class="pc" id="L61">		assertThrows(NoSuchElementException.class, () -&gt; service.findById(&quot;NOT_EXISTS&quot;));</span>
+<span class="fc" id="L62">	}</span>
+
+	@Test
+	void create_ok_returnsItinerary() {
+<span class="fc" id="L66">		when(repository.save(testItinerary)).thenReturn(buildItinerary());</span>
+
+<span class="fc" id="L68">		Itinerary i = service.create(testItinerary);</span>
+<span class="fc" id="L69">		assertEquals(testItinerary, i);</span>
+<span class="fc" id="L70">	}</span>
+
+	@Test
+	void update_ownerIsIssuer_returnsItinerary() {
+<span class="fc" id="L74">		when(repository.save(testItinerary)).thenReturn(testItinerary);</span>
+<span class="fc" id="L75">		testItinerary.setName(&quot;new_name&quot;);</span>
+<span class="fc" id="L76">		Itinerary i = service.update(testItinerary.getId(), testItinerary, testItinerary.getOwner());</span>
+<span class="fc" id="L77">		assertEquals(testItinerary.getId(), i.getId());</span>
+<span class="fc" id="L78">		assertEquals(testItinerary.getName(), i.getName());</span>
+<span class="fc" id="L79">	}</span>
+
+	@Test
+	void update_ownerIsNotIssuer_throwsIllegalState() {
+<span class="pc" id="L83">		assertThrows(IllegalStateException.class, () -&gt; service.update(testItinerary.getId(), testItinerary, &quot;not_owner&quot;));</span>
+<span class="fc" id="L84">	}</span>
+
+	@Test
+	void delete_ownerIsIssuer_returnsVoid() {
+<span class="fc" id="L88">		when(repository.findById(testItinerary.getId())).thenReturn(Optional.of(testItinerary));</span>
+<span class="fc" id="L89">		doNothing().when(repository).deleteById(anyString());</span>
+<span class="fc" id="L90">		service.delete(testItinerary.getId(), testItinerary.getOwner());</span>
+
+<span class="fc" id="L92">		verify(repository, times(1)).deleteById(anyString());</span>
+<span class="fc" id="L93">	}</span>
+
+	@Test
+	void delete_ownerIsNotIssuer_throwsIllegalState() {
+<span class="fc" id="L97">		when(repository.findById(testItinerary.getId())).thenReturn(Optional.of(testItinerary));</span>
+<span class="pc" id="L98">		assertThrows(IllegalStateException.class, () -&gt; service.delete(testItinerary.getId(), &quot;not_owner&quot;));</span>
+<span class="fc" id="L99">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>itinerary-service tests (31 gen 2022 00:32:48)</div></body></html>
