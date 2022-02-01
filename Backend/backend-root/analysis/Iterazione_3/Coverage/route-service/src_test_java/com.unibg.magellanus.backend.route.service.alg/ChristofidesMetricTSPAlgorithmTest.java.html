@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ChristofidesMetricTSPAlgorithmTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">route-service tests (1 feb 2022 23:02:51)</a> &gt; <a href="../../index.html" class="el_group">route-service</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.unibg.magellanus.backend.route.service.alg</a> &gt; <span class="el_source">ChristofidesMetricTSPAlgorithmTest.java</span></div><h1>ChristofidesMetricTSPAlgorithmTest.java</h1><pre class="source lang-java linenums">package com.unibg.magellanus.backend.route.service.alg;
+
+import static com.unibg.magellanus.backend.route.service.alg.TwoApproximateMetricTSPAlgorithmTest.assertHamiltonianAndGetWeight;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+
+import org.jgrapht.Graph;
+import org.jgrapht.Graphs;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DefaultUndirectedWeightedGraph;
+import org.junit.jupiter.api.Test;
+
+<span class="fc" id="L14">class ChristofidesMetricTSPAlgorithmTest {</span>
+
+	@Test
+	public void getTour_2V() {
+<span class="fc" id="L18">		int[][] edges = { { 1, 2, 5 } };</span>
+<span class="fc" id="L19">		getTourOnInstance(edges, 10);</span>
+<span class="fc" id="L20">	}</span>
+
+	@Test
+	public void getTour_3V() {
+<span class="fc" id="L24">		int[][] edges = { { 1, 2, 5 }, { 1, 3, 5 }, { 2, 3, 9 }, };</span>
+<span class="fc" id="L25">		getTourOnInstance(edges, 19);</span>
+<span class="fc" id="L26">	}</span>
+
+	@Test
+	public void getTour_4V() {
+<span class="fc" id="L30">		int[][] edges = new int[][] { { 1, 0, 2 }, { 2, 0, 5 }, { 2, 1, 6 }, { 3, 0, 2 }, { 3, 1, 4 }, { 3, 2, 5 } };</span>
+<span class="fc" id="L31">		getTourOnInstance(edges, 15);</span>
+<span class="fc" id="L32">	}</span>
+
+	@Test
+	public void getTour_5V() {
+<span class="fc" id="L36">		int[][] edges = new int[][] { { 1, 0, 8 }, { 2, 0, 4 }, { 2, 1, 4 }, { 3, 0, 5 }, { 3, 1, 8 }, { 3, 2, 6 },</span>
+				{ 4, 0, 7 }, { 4, 1, 7 }, { 4, 2, 5 }, { 4, 3, 6 } };
+<span class="fc" id="L38">		getTourOnInstance(edges, 26);</span>
+<span class="fc" id="L39">	}</span>
+
+	@Test
+	public void getTour_6V() {
+<span class="fc" id="L43">		int[][] edges = new int[][] { { 1, 0, 3 }, { 2, 0, 6 }, { 2, 1, 7 }, { 3, 0, 6 }, { 3, 1, 7 }, { 3, 2, 7 },</span>
+				{ 4, 0, 5 }, { 4, 1, 6 }, { 4, 2, 9 }, { 4, 3, 9 }, { 5, 0, 3 }, { 5, 1, 2 }, { 5, 2, 10 },
+				{ 5, 3, 10 }, { 5, 4, 9 } };
+<span class="fc" id="L46">		getTourOnInstance(edges, 33);</span>
+<span class="fc" id="L47">	}</span>
+
+	@Test
+	public void getTour_7V() {
+<span class="fc" id="L51">		int[][] edges = new int[][] { { 1, 0, 6 }, { 2, 0, 2 }, { 2, 1, 9 }, { 3, 0, 7 }, { 3, 1, 1 }, { 3, 2, 8 },</span>
+				{ 4, 0, 2 }, { 4, 1, 7 }, { 4, 2, 3 }, { 4, 3, 8 }, { 5, 0, 5 }, { 5, 1, 5 }, { 5, 2, 6 }, { 5, 3, 6 },
+				{ 5, 4, 3 }, { 6, 0, 4 }, { 6, 1, 5 }, { 6, 2, 5 }, { 6, 3, 6 }, { 6, 4, 2 }, { 6, 5, 5 } };
+<span class="fc" id="L54">		getTourOnInstance(edges, 24);</span>
+<span class="fc" id="L55">	}</span>
+
+	@Test
+	public void getTour_8V() {
+<span class="fc" id="L59">		int[][] edges = new int[][] { { 1, 0, 1 }, { 2, 0, 3 }, { 2, 1, 2 }, { 3, 0, 5 }, { 3, 1, 6 }, { 3, 2, 8 },</span>
+				{ 4, 0, 4 }, { 4, 1, 5 }, { 4, 2, 7 }, { 4, 3, 4 }, { 5, 0, 6 }, { 5, 1, 7 }, { 5, 2, 9 }, { 5, 3, 6 },
+				{ 5, 4, 8 }, { 6, 0, 6 }, { 6, 1, 7 }, { 6, 2, 9 }, { 6, 3, 6 }, { 6, 4, 8 }, { 6, 5, 9 }, { 7, 0, 4 },
+				{ 7, 1, 5 }, { 7, 2, 7 }, { 7, 3, 4 }, { 7, 4, 6 }, { 7, 5, 7 }, { 7, 6, 6 } };
+<span class="fc" id="L63">		getTourOnInstance(edges, 39);</span>
+<span class="fc" id="L64">	}</span>
+
+	@Test
+	public void getTour_9V() {
+<span class="fc" id="L68">		int[][] edges = new int[][] { { 1, 0, 5 }, { 2, 0, 4 }, { 2, 1, 5 }, { 3, 0, 3 }, { 3, 1, 7 }, { 3, 2, 6 },</span>
+				{ 4, 0, 5 }, { 4, 1, 7 }, { 4, 2, 6 }, { 4, 3, 5 }, { 5, 0, 5 }, { 5, 1, 8 }, { 5, 2, 7 }, { 5, 3, 6 },
+				{ 5, 4, 8 }, { 6, 0, 5 }, { 6, 1, 8 }, { 6, 2, 7 }, { 6, 3, 6 }, { 6, 4, 8 }, { 6, 5, 7 }, { 7, 0, 5 },
+				{ 7, 1, 7 }, { 7, 2, 6 }, { 7, 3, 5 }, { 7, 4, 7 }, { 7, 5, 6 }, { 7, 6, 8 }, { 8, 0, 5 }, { 8, 1, 6 },
+				{ 8, 2, 5 }, { 8, 3, 4 }, { 8, 4, 6 }, { 8, 5, 5 }, { 8, 6, 8 }, { 8, 7, 7 }, { 9, 0, 5 }, { 9, 1, 5 },
+				{ 9, 2, 4 }, { 9, 3, 3 }, { 9, 4, 5 }, { 9, 5, 4 }, { 9, 6, 8 }, { 9, 7, 7 }, { 9, 8, 6 } };
+<span class="fc" id="L74">		getTourOnInstance(edges, 52);</span>
+<span class="fc" id="L75">	}</span>
+
+	private void getTourOnInstance(int[][] edges, double optWeight) {
+<span class="fc" id="L78">		Graph&lt;Integer, DefaultEdge&gt; graph = constructGraph(edges);</span>
+
+<span class="fc" id="L80">		TSPAlgorithm algorithm = new ChristofidesMetricTSPAlgorithm();</span>
+<span class="fc" id="L81">		List&lt;Integer&gt; tour = algorithm.getTour(graph);</span>
+<span class="fc" id="L82">		double tourWeight = assertHamiltonianAndGetWeight(graph, tour);</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">		assertTrue(tourWeight &lt;= 1.5 * optWeight);</span>
+<span class="fc" id="L84">	}</span>
+
+	private Graph&lt;Integer, DefaultEdge&gt; constructGraph(int[][] edges) {
+<span class="fc" id="L87">		Graph&lt;Integer, DefaultEdge&gt; graph = new DefaultUndirectedWeightedGraph&lt;&gt;(DefaultEdge.class);</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">		for (int[] edge : edges) {</span>
+<span class="fc" id="L89">			DefaultEdge graphEdge = Graphs.addEdgeWithVertices(graph, edge[0], edge[1]);</span>
+<span class="fc" id="L90">			graph.setEdgeWeight(graphEdge, edge[2]);</span>
+		}
+
+<span class="fc" id="L93">		return graph;</span>
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>route-service tests (1 feb 2022 23:02:51)</div></body></html>

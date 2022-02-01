@@ -2,14 +2,13 @@ package com.unibg.magellanus.app.itinerary.view
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.unibg.magellanus.app.databinding.FragmentPoiItemBinding
 import com.unibg.magellanus.app.itinerary.model.POI
 
 class POIRecyclerViewAdapter(
-    private val locateClickListener: OnPOIItemClickListener
+    private val locateClickListener: OnPOIItemClickListener,
+    private val checkboxCheckedChangeListener: OnCheckboxCheckedChangeListener,
 ) : RecyclerView.Adapter<POIRecyclerViewAdapter.ViewHolder>() {
 
     private var values = mutableListOf<POI>()
@@ -33,32 +32,45 @@ class POIRecyclerViewAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val poi = values[position]
-        holder.bind(poi, locateClickListener)
+        holder.bind(poi, position, locateClickListener, checkboxCheckedChangeListener)
     }
 
     override fun getItemCount(): Int = values.size
 
     inner class ViewHolder(binding: FragmentPoiItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        val name: TextView = binding.name
-        private val address: TextView = binding.address
-        private val locateButton: ImageButton = binding.locateBtn
+        val name = binding.name
+        private val address = binding.address
+        private val locateButton = binding.locateBtn
+        private val selectedCheckBox = binding.selectCheckbox
 
         fun bind(
             poi: POI,
+            position: Int,
             itemClickListener: OnPOIItemClickListener,
+            checkboxCheckedChangeListener: OnCheckboxCheckedChangeListener,
         ) {
             name.text = poi.name
             address.text = poi.address?.formatted
+            selectedCheckBox.isChecked = poi.inRoute
 
             locateButton.setOnClickListener {
                 itemClickListener.onClick(poi)
+            }
+
+            selectedCheckBox.setOnCheckedChangeListener { _, isChecked ->
+                checkboxCheckedChangeListener.onCheckedChange(poi, isChecked)
+                this.bindingAdapter?.notifyItemChanged(position)
             }
         }
     }
 
     fun interface OnPOIItemClickListener {
         fun onClick(poi: POI)
+    }
+
+    fun interface OnCheckboxCheckedChangeListener {
+        fun onCheckedChange(poi: POI, isChecked: Boolean)
     }
 
 }

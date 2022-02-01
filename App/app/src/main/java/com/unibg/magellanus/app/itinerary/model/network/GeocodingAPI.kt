@@ -70,6 +70,6 @@ class SearchPOIDeserializer : JsonDeserializer<POI> {
         val name = properties["name"]?.asString
         val coordinates = response.getAsJsonObject("geometry").getAsJsonArray("coordinates")
 
-        return POI(name, coordinates[1].asDouble, coordinates[0].asDouble, address)
+        return POI(name, coordinates[1].asDouble, coordinates[0].asDouble, address = address)
     }
 }

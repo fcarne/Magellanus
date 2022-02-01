@@ -64,7 +64,7 @@ public class UserController implements UserAccountAPI {
 
 	@Override
 	@PatchMapping("me/preferences")
-	public ResponseEntity<Void> updateMinePreferences(@RequestBody Map<String, Object> preferences) {
+	public ResponseEntity<Void> updateMyPreferences(@RequestBody Map<String, Object> preferences) {
 		String uid = SecurityContextHolder.getContext().getAuthentication().getName();
 		Map<String, Object> sanitized = preferences.entrySet().stream().filter(t -> !t.getKey().contains("."))
 				.collect(Collectors.toMap(map -> map.getKey(), map -> map.getValue()));
@@ -78,7 +78,7 @@ public class UserController implements UserAccountAPI {
 
 	@Override
 	@GetMapping("me/preferences")
-	public Map<String, Object> getMinePreferences() {
+	public Map<String, Object> getMyPreferences() {
 		String uid = SecurityContextHolder.getContext().getAuthentication().getName();
 		try {
 			Map<String, Object> map = service.getPreferences(uid);

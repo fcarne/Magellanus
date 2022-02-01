@@ -32,9 +32,8 @@ class ItineraryListFragment : Fragment() {
 
     private val viewModel by viewModels<ItineraryListViewModel> {
         val provider = FirebaseAuthenticationProvider
-        val cacheDir = requireContext().cacheDir
         val api = ItineraryAPI.create(provider)
-        val geoApi = GeocodingAPI.create(cacheDir)
+        val geoApi = GeocodingAPI.create(requireContext().cacheDir)
         val repository = ItineraryRepositoryImpl(api, geoApi)
 
         ItineraryListViewModel.Factory(repository)

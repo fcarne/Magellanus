@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TwoApproximateMetricTSPAlgorithm.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">route-service tests (1 feb 2022 23:02:51)</a> &gt; <a href="../../index.html" class="el_group">route-service</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.unibg.magellanus.backend.route.service.alg</a> &gt; <span class="el_source">TwoApproximateMetricTSPAlgorithm.java</span></div><h1>TwoApproximateMetricTSPAlgorithm.java</h1><pre class="source lang-java linenums">package com.unibg.magellanus.backend.route.service.alg;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import org.jgrapht.Graph;
+import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm;
+import org.jgrapht.alg.spanning.PrimMinimumSpanningTree;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.traverse.DepthFirstIterator;
+import org.springframework.stereotype.Component;
+
+@Component
+<span class="fc" id="L18">public class TwoApproximateMetricTSPAlgorithm implements TSPAlgorithm {</span>
+
+	@Override
+	public &lt;V, E&gt; List&lt;V&gt; getTour(Graph&lt;V, E&gt; g) {
+
+		// We should check that G is a undirected complete graph which satisfies the
+		// triangle inequality. Since this is always the case, we skip this step
+
+<span class="fc" id="L26">		Set&lt;V&gt; vertices = g.vertexSet();</span>
+<span class="fc" id="L27">		int n = vertices.size();</span>
+
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">		if (n == 0)</span>
+<span class="nc" id="L30">			return new LinkedList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L32" title="All 2 branches covered.">		if (n == 1)</span>
+<span class="fc" id="L33">			return new LinkedList&lt;&gt;(vertices);</span>
+
+		// 1 - Create a minimum spanning tree T of G
+<span class="fc" id="L36">		Graph&lt;V, DefaultEdge&gt; t = new SimpleGraph&lt;&gt;(DefaultEdge.class);</span>
+<span class="fc" id="L37">		vertices.forEach(t::addVertex);</span>
+
+<span class="fc" id="L39">		SpanningTreeAlgorithm&lt;E&gt; spanningTreeAlgorithm = new PrimMinimumSpanningTree&lt;&gt;(g);</span>
+<span class="fc" id="L40">		spanningTreeAlgorithm.getSpanningTree().getEdges()</span>
+<span class="fc" id="L41">				.forEach(e -&gt; t.addEdge(g.getEdgeSource(e), g.getEdgeTarget(e)));</span>
+
+
+		/* 2 - Duplicate each edge in T a Eulerian graph E
+         * 3 - Form an Eulerian circuit in E
+		 * 4 - Make the circuit found in previous step into a Hamiltonian circuit by skipping repeated vertices (shortcutting)
+		 *
+		 * 
+		 * Steps from 2 to 4 can be summarized as follow:
+		 * Let H be the list of vertices, ordered according to when they are first visited in a preorder tree walk of T
+		 * H is a Hamiltonian circuit 
+		 */
+		
+<span class="fc" id="L54">		List&lt;V&gt; tour = new ArrayList&lt;&gt;(n + 1);</span>
+<span class="fc" id="L55">		V start = vertices.iterator().next();</span>
+<span class="fc" id="L56">		Iterator&lt;V&gt; dfsTraversal = new DepthFirstIterator&lt;&gt;(t, start);</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">		while (dfsTraversal.hasNext()) {</span>
+<span class="fc" id="L58">			V v = dfsTraversal.next();</span>
+<span class="fc" id="L59">			tour.add(v);</span>
+<span class="fc" id="L60">		}</span>
+
+		// Add starting node at the end
+<span class="fc" id="L63">		tour.add(tour.get(0));</span>
+<span class="fc" id="L64">		return tour;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>route-service tests (1 feb 2022 23:02:51)</div></body></html>

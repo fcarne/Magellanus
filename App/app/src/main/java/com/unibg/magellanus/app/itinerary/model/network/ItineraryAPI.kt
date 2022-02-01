@@ -1,17 +1,14 @@
 package com.unibg.magellanus.app.itinerary.model.network
 
 import com.unibg.magellanus.app.common.network.AuthInterceptor
-import com.unibg.magellanus.app.common.network.CacheControlInterceptor
 import com.unibg.magellanus.app.itinerary.model.Itinerary
 import com.unibg.magellanus.app.user.auth.AuthenticationProvider
-import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
-import java.io.File
 
 interface ItineraryAPI {
     @GET("{id}")

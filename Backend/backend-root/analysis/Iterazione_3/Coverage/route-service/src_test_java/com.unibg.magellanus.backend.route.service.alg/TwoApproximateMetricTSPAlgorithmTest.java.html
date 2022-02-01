@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TwoApproximateMetricTSPAlgorithmTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">route-service tests (1 feb 2022 23:02:51)</a> &gt; <a href="../../index.html" class="el_group">route-service</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.unibg.magellanus.backend.route.service.alg</a> &gt; <span class="el_source">TwoApproximateMetricTSPAlgorithmTest.java</span></div><h1>TwoApproximateMetricTSPAlgorithmTest.java</h1><pre class="source lang-java linenums">package com.unibg.magellanus.backend.route.service.alg;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import org.jgrapht.Graph;
+import org.jgrapht.Graphs;
+import org.jgrapht.alg.spanning.KruskalMinimumSpanningTree;
+import org.jgrapht.generate.CompleteGraphGenerator;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.graph.SimpleWeightedGraph;
+import org.jgrapht.util.SupplierUtil;
+import org.junit.jupiter.api.Test;
+
+<span class="fc" id="L23">class TwoApproximateMetricTSPAlgorithmTest {</span>
+
+	@Test
+	public void getTour_4Cities() {
+<span class="fc" id="L27">		SimpleWeightedGraph&lt;String, DefaultWeightedEdge&gt; g = new SimpleWeightedGraph&lt;&gt;(DefaultWeightedEdge.class);</span>
+
+<span class="fc" id="L29">		g.addVertex(&quot;A&quot;);</span>
+<span class="fc" id="L30">		g.addVertex(&quot;B&quot;);</span>
+<span class="fc" id="L31">		g.addVertex(&quot;C&quot;);</span>
+<span class="fc" id="L32">		g.addVertex(&quot;D&quot;);</span>
+
+<span class="fc" id="L34">		g.setEdgeWeight(g.addEdge(&quot;A&quot;, &quot;B&quot;), 20);</span>
+<span class="fc" id="L35">		g.setEdgeWeight(g.addEdge(&quot;A&quot;, &quot;C&quot;), 42);</span>
+<span class="fc" id="L36">		g.setEdgeWeight(g.addEdge(&quot;A&quot;, &quot;D&quot;), 35);</span>
+<span class="fc" id="L37">		g.setEdgeWeight(g.addEdge(&quot;B&quot;, &quot;C&quot;), 30);</span>
+<span class="fc" id="L38">		g.setEdgeWeight(g.addEdge(&quot;B&quot;, &quot;D&quot;), 34);</span>
+<span class="fc" id="L39">		g.setEdgeWeight(g.addEdge(&quot;C&quot;, &quot;D&quot;), 12);</span>
+
+<span class="fc" id="L41">		TSPAlgorithm algorithm = new TwoApproximateMetricTSPAlgorithm();</span>
+<span class="fc" id="L42">		List&lt;String&gt; tour = algorithm.getTour(g);</span>
+
+<span class="fc" id="L44">		double tourWeight = assertHamiltonianAndGetWeight(g, tour);</span>
+<span class="fc" id="L45">		double mstWeight = new KruskalMinimumSpanningTree&lt;&gt;(g).getSpanningTree().getWeight();</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">		assertTrue(2 * mstWeight &gt;= tourWeight);</span>
+<span class="fc" id="L47">	}</span>
+	
+	@Test
+	public void getTour_Star() {
+<span class="fc" id="L51">		SimpleWeightedGraph&lt;String, DefaultWeightedEdge&gt; g = new SimpleWeightedGraph&lt;&gt;(DefaultWeightedEdge.class);</span>
+		
+<span class="fc" id="L53">		g.addVertex(&quot;1&quot;);</span>
+<span class="fc" id="L54">		g.addVertex(&quot;2&quot;);</span>
+<span class="fc" id="L55">		g.addVertex(&quot;3&quot;);</span>
+<span class="fc" id="L56">		g.addVertex(&quot;4&quot;);</span>
+<span class="fc" id="L57">		g.addVertex(&quot;5&quot;);</span>
+<span class="fc" id="L58">		g.addVertex(&quot;6&quot;);</span>
+
+<span class="fc" id="L60">		g.setEdgeWeight(g.addEdge(&quot;1&quot;, &quot;2&quot;), 1);</span>
+<span class="fc" id="L61">		g.setEdgeWeight(g.addEdge(&quot;1&quot;, &quot;3&quot;), 1);</span>
+<span class="fc" id="L62">		g.setEdgeWeight(g.addEdge(&quot;1&quot;, &quot;4&quot;), 1);</span>
+<span class="fc" id="L63">		g.setEdgeWeight(g.addEdge(&quot;1&quot;, &quot;5&quot;), 2);</span>
+<span class="fc" id="L64">		g.setEdgeWeight(g.addEdge(&quot;1&quot;, &quot;6&quot;), 2);</span>
+
+<span class="fc" id="L66">		g.setEdgeWeight(g.addEdge(&quot;2&quot;, &quot;3&quot;), 2);</span>
+<span class="fc" id="L67">		g.setEdgeWeight(g.addEdge(&quot;2&quot;, &quot;4&quot;), 1);</span>
+<span class="fc" id="L68">		g.setEdgeWeight(g.addEdge(&quot;2&quot;, &quot;5&quot;), 1);</span>
+<span class="fc" id="L69">		g.setEdgeWeight(g.addEdge(&quot;2&quot;, &quot;6&quot;), 2);</span>
+
+<span class="fc" id="L71">		g.setEdgeWeight(g.addEdge(&quot;3&quot;, &quot;4&quot;), 1);</span>
+<span class="fc" id="L72">		g.setEdgeWeight(g.addEdge(&quot;3&quot;, &quot;5&quot;), 2);</span>
+<span class="fc" id="L73">		g.setEdgeWeight(g.addEdge(&quot;3&quot;, &quot;6&quot;), 1);</span>
+
+<span class="fc" id="L75">		g.setEdgeWeight(g.addEdge(&quot;4&quot;, &quot;5&quot;), 1);</span>
+<span class="fc" id="L76">		g.setEdgeWeight(g.addEdge(&quot;4&quot;, &quot;6&quot;), 1);</span>
+
+<span class="fc" id="L78">		g.setEdgeWeight(g.addEdge(&quot;5&quot;, &quot;6&quot;), 1);</span>
+
+<span class="fc" id="L80">		TSPAlgorithm algorithm = new TwoApproximateMetricTSPAlgorithm();</span>
+<span class="fc" id="L81">		List&lt;String&gt; tour = algorithm.getTour(g);</span>
+
+<span class="fc" id="L83">		double tourWeight = assertHamiltonianAndGetWeight(g, tour);</span>
+<span class="fc" id="L84">		double mstWeight = new KruskalMinimumSpanningTree&lt;&gt;(g).getSpanningTree().getWeight();</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">		assertTrue(2 * mstWeight &gt;= tourWeight);</span>
+<span class="fc" id="L86">	}</span>
+
+
+	@Test
+	public void getTour_Complete() {
+<span class="fc" id="L91">		final int maxSize = 100;</span>
+
+<span class="fc bfc" id="L93" title="All 2 branches covered.">		for (int i = 1; i &lt; maxSize; i++) {</span>
+<span class="fc" id="L94">			SimpleGraph&lt;Object, DefaultEdge&gt; g = new SimpleGraph&lt;&gt;(SupplierUtil.OBJECT_SUPPLIER,</span>
+					SupplierUtil.DEFAULT_EDGE_SUPPLIER, false);
+<span class="fc" id="L96">			CompleteGraphGenerator&lt;Object, DefaultEdge&gt; generator = new CompleteGraphGenerator&lt;&gt;(i);</span>
+<span class="fc" id="L97">			generator.generateGraph(g);</span>
+
+<span class="fc" id="L99">			TSPAlgorithm algorithm = new TwoApproximateMetricTSPAlgorithm();</span>
+<span class="fc" id="L100">			List&lt;Object&gt; tour = algorithm.getTour(g);</span>
+
+<span class="fc" id="L102">			double tourWeight = assertHamiltonianAndGetWeight(g, tour);</span>
+<span class="fc" id="L103">			double mstWeight = new KruskalMinimumSpanningTree&lt;&gt;(g).getSpanningTree().getWeight();</span>
+
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">			assertTrue(2 * mstWeight &gt;= tourWeight);</span>
+		}
+<span class="fc" id="L107">	}</span>
+
+	static &lt;V, E&gt; double assertHamiltonianAndGetWeight(Graph&lt;V, E&gt; g, List&lt;V&gt; tour) {
+<span class="fc bfc" id="L110" title="All 2 branches covered.">		if (tour.size() &lt;= 1)</span>
+<span class="fc" id="L111">			return 0.0;</span>
+
+<span class="fc" id="L113">		List&lt;E&gt; tourEdges = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L114">		double tourWeight = 0.0;</span>
+<span class="fc" id="L115">		V u = tour.get(0);</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">		for (V v : tour.subList(1, tour.size())) {</span>
+<span class="fc" id="L117">			E e = g.getEdge(u, v);</span>
+<span class="fc" id="L118">			tourEdges.add(e);</span>
+<span class="fc" id="L119">			tourWeight += g.getEdgeWeight(e);</span>
+<span class="fc" id="L120">			u = v;</span>
+<span class="fc" id="L121">		}</span>
+
+		// check tour length, beginning and end of the tour
+<span class="fc" id="L124">		assertEquals(tour.get(0), tour.get(tour.size() - 1));</span>
+<span class="fc" id="L125">		assertEquals(g.vertexSet().size(), tour.size() - 1);</span>
+<span class="fc" id="L126">		assertEquals(g.vertexSet().size(), tourEdges.size());</span>
+
+		// check tour with edges
+<span class="fc" id="L129">		double weight = 0.0;</span>
+<span class="fc" id="L130">		V v = tour.get(0);</span>
+<span class="fc" id="L131">		Set&lt;V&gt; visited = new HashSet&lt;&gt;();</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">		for (E e : tourEdges) {</span>
+<span class="fc" id="L133">			v = Graphs.getOppositeVertex(g, e, v);</span>
+<span class="fc" id="L134">			assertTrue(visited.add(v));</span>
+<span class="fc" id="L135">			weight += g.getEdgeWeight(e);</span>
+<span class="fc" id="L136">		}</span>
+<span class="fc" id="L137">		assertEquals(tourWeight, weight, 1e-9);</span>
+<span class="fc" id="L138">		assertEquals(visited.size(), g.vertexSet().size());</span>
+
+		// check tour with vertices
+<span class="fc" id="L141">		visited.clear();</span>
+<span class="fc" id="L142">		Iterator&lt;V&gt; it = tour.iterator();</span>
+<span class="fc" id="L143">		V start = it.next();</span>
+<span class="fc" id="L144">		visited.add(start);</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">		while (it.hasNext()) {</span>
+<span class="fc" id="L146">			v = it.next();</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">			if (!it.hasNext()) {</span>
+<span class="fc" id="L148">				assertTrue(v.equals(start));</span>
+			} else {
+<span class="fc" id="L150">				assertTrue(visited.add(v));</span>
+			}
+		}
+<span class="fc" id="L153">		assertEquals(visited.size(), g.vertexSet().size());</span>
+
+<span class="fc" id="L155">		return tourWeight;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>route-service tests (1 feb 2022 23:02:51)</div></body></html>

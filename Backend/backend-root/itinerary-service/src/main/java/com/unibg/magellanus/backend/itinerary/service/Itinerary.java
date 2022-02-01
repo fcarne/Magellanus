@@ -8,7 +8,7 @@ import java.util.Set;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
+@Document("itineraries")
 public class Itinerary {
 
 	@Id

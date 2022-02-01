@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>OSRMMatrixTemplate.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">route-service tests (1 feb 2022 23:02:51)</a> &gt; <a href="../../index.html" class="el_group">route-service</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.unibg.magellanus.backend.route.service.distance</a> &gt; <span class="el_source">OSRMMatrixTemplate.java</span></div><h1>OSRMMatrixTemplate.java</h1><pre class="source lang-java linenums">package com.unibg.magellanus.backend.route.service.distance;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.unibg.magellanus.backend.route.service.Coordinates;
+
+@Service
+public class OSRMMatrixTemplate implements MatrixAPI {
+
+	RestTemplate restTemplate;
+
+	public OSRMMatrixTemplate(RestTemplate restTemplate) {
+<span class="fc" id="L16">		super();</span>
+<span class="fc" id="L17">		this.restTemplate = restTemplate;</span>
+<span class="fc" id="L18">	}</span>
+
+	@Override
+	public MatrixResponse getDistances(List&lt;Coordinates&gt; coordinates) {
+<span class="fc" id="L22">		StringBuilder stringBuilder = new StringBuilder();</span>
+<span class="fc" id="L23">		coordinates.stream().forEachOrdered(it -&gt; {</span>
+<span class="fc" id="L24">			stringBuilder.append(it.getLon()).append(&quot;,&quot;).append(it.getLat()).append(&quot;;&quot;);</span>
+<span class="fc" id="L25">		});</span>
+<span class="fc" id="L26">		stringBuilder.setLength(stringBuilder.length() - 1);</span>
+<span class="fc" id="L27">		return restTemplate.getForObject(</span>
+<span class="fc" id="L28">				&quot;http://router.project-osrm.org/table/v1/foot/&quot; + stringBuilder.toString() + &quot;?annotations=distance&quot;,</span>
+<span class="fc" id="L29">				MatrixResponse.class);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>route-service tests (1 feb 2022 23:02:51)</div></body></html>

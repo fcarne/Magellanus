@@ -7,6 +7,7 @@ data class POI(
     var name: String? = null,
     val lat: Double,
     val lon: Double,
+    var inRoute: Boolean = false,
     @Transient var address: Address? = null
 ) {
     override fun hashCode() = Objects.hash(lat, lon)

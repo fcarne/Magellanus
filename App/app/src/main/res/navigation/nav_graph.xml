@@ -65,6 +65,9 @@
         <action
             android:id="@+id/action_POIListFragment_to_mapFragment"
             app:destination="@id/mapFragment" />
+        <action
+            android:id="@+id/action_POIListFragment_to_routedPOIListFragment"
+            app:destination="@id/routedPOIListFragment" />
     </fragment>
     <fragment
         android:id="@+id/itineraryExplorerFragment"
@@ -73,6 +76,20 @@
         <action
             android:id="@+id/action_itineraryExplorerFragment_to_mapFragment"
             app:destination="@id/mapFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/routedPOIListFragment"
+        android:name="com.unibg.magellanus.app.route.view.RoutedPOIListFragment"
+        android:label="Route Editing">
+        <argument
+            android:name="itinerary_id"
+            app:argType="string" />
+        <argument
+            android:name="coordinates"
+            app:argType="com.unibg.magellanus.app.route.model.Coordinates[]" />
+        <argument
+            android:name="names"
+            app:argType="string[]" />
     </fragment>
 
 </navigation>

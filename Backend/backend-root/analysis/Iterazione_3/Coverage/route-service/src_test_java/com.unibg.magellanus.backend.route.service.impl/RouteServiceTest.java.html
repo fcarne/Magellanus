@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>RouteServiceTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">route-service tests (1 feb 2022 23:02:51)</a> &gt; <a href="../../index.html" class="el_group">route-service</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.unibg.magellanus.backend.route.service.impl</a> &gt; <span class="el_source">RouteServiceTest.java</span></div><h1>RouteServiceTest.java</h1><pre class="source lang-java linenums">package com.unibg.magellanus.backend.route.service.impl;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.unibg.magellanus.backend.route.service.Coordinates;
+import com.unibg.magellanus.backend.route.service.Route;
+import com.unibg.magellanus.backend.route.service.RouteRepository;
+import com.unibg.magellanus.backend.route.service.RoutedPOI;
+import com.unibg.magellanus.backend.route.service.alg.TSPAlgorithm;
+import com.unibg.magellanus.backend.route.service.distance.MatrixAPI;
+
+@ExtendWith(MockitoExtension.class)
+<span class="fc" id="L35">class RouteServiceTest {</span>
+
+	Route testRoute;
+
+	@Mock
+	RouteRepository repository;
+
+	@Mock
+	MatrixAPI matrixAPI;
+	
+	@Spy
+<span class="fc" id="L46">	List&lt;TSPAlgorithm&gt; algorithms = new ArrayList&lt;TSPAlgorithm&gt;();	</span>
+	
+	@InjectMocks
+	RouteServiceImpl service;
+
+	@BeforeEach
+	public void init() {
+<span class="fc" id="L53">	    MockitoAnnotations.openMocks(this);</span>
+<span class="fc" id="L54">	}</span>
+	
+	Route buildRoute() {
+<span class="fc" id="L57">		Route route = new Route();</span>
+<span class="fc" id="L58">		route.setId(&quot;test_id&quot;);</span>
+<span class="fc" id="L59">		route.setOwner(&quot;test_owner&quot;);</span>
+<span class="fc" id="L60">		route.setItineraryId(&quot;test_itinerary_id&quot;);</span>
+		
+<span class="fc" id="L62">		RoutedPOI poi = new RoutedPOI();</span>
+<span class="fc" id="L63">		poi.setCoordinates(new Coordinates(0,0));</span>
+		
+<span class="fc" id="L65">		route.getRoute().add(poi);</span>
+<span class="fc" id="L66">		return route;</span>
+	}
+
+	@BeforeEach
+	void setupRoute() {
+<span class="fc" id="L71">		testRoute = buildRoute();</span>
+<span class="fc" id="L72">	}</span>
+
+	@Test
+	void findById_exists_returnsRoute() {
+<span class="fc" id="L76">		when(repository.findById(anyString())).thenReturn(Optional.of(testRoute));</span>
+
+<span class="fc" id="L78">		Route r = service.findById(testRoute.getId());</span>
+<span class="fc" id="L79">		assertNotNull(r);</span>
+<span class="fc" id="L80">		assertEquals(testRoute.getId(), r.getId());</span>
+<span class="fc" id="L81">	}</span>
+
+	@Test
+	void findById_notExists_throwsNoSuchElement() {
+<span class="fc" id="L85">		when(repository.findById(anyString())).thenReturn(Optional.empty());</span>
+<span class="pc" id="L86">		assertThrows(NoSuchElementException.class, () -&gt; service.findById(&quot;NOT_EXISTS&quot;));</span>
+<span class="fc" id="L87">	}</span>
+
+	@Test
+	void findByItineraryId_exists_returnsRoute() {
+<span class="fc" id="L91">		when(repository.findByItineraryId(anyString())).thenReturn(List.of(testRoute));</span>
+
+<span class="fc" id="L93">		Route r = service.findByItineraryId(testRoute.getItineraryId());</span>
+<span class="fc" id="L94">		assertNotNull(r);</span>
+<span class="fc" id="L95">		assertEquals(testRoute.getId(), r.getId());</span>
+<span class="fc" id="L96">	}</span>
+
+	@Test
+	void findByItineraryId_notExists_throwsNoSuchElement() {
+<span class="fc" id="L100">		when(repository.findByItineraryId(anyString())).thenReturn(new LinkedList&lt;&gt;());</span>
+<span class="pc" id="L101">		assertThrows(NoSuchElementException.class, () -&gt; service.findByItineraryId(&quot;NOT_EXISTS&quot;));</span>
+<span class="fc" id="L102">	}</span>
+	
+	@Test
+	void create_itineraryExists_returnsRoute() {
+<span class="fc" id="L106">		when(repository.save(testRoute)).thenReturn(buildRoute());</span>
+		
+<span class="fc" id="L108">		Route r = service.create(testRoute);</span>
+<span class="fc" id="L109">		assertEquals(testRoute, r);</span>
+<span class="fc" id="L110">	}</span>
+
+	@Test
+	void update_ownerIsIssuer_returnsItinerary() {
+<span class="fc" id="L114">		when(repository.save(testRoute)).thenReturn(testRoute);</span>
+<span class="fc" id="L115">		testRoute.setOwner(&quot;new_owner&quot;);</span>
+<span class="fc" id="L116">		Route r = service.update(testRoute.getId(), testRoute, testRoute.getOwner());</span>
+<span class="fc" id="L117">		assertEquals(testRoute.getId(), r.getId());</span>
+<span class="fc" id="L118">		assertEquals(testRoute.getOwner(), r.getOwner());</span>
+<span class="fc" id="L119">	}</span>
+
+	@Test
+	void update_ownerIsNotIssuer_throwsIllegalState() {
+<span class="pc" id="L123">		assertThrows(IllegalStateException.class, () -&gt; service.update(testRoute.getId(), testRoute, &quot;not_owner&quot;));</span>
+<span class="fc" id="L124">	}</span>
+
+	@Test
+	void delete_ownerIsIssuer_returnsVoid() {
+<span class="fc" id="L128">		when(repository.findById(testRoute.getId())).thenReturn(Optional.of(testRoute));</span>
+<span class="fc" id="L129">		doNothing().when(repository).deleteById(anyString());</span>
+<span class="fc" id="L130">		service.delete(testRoute.getId(), testRoute.getOwner());</span>
+
+<span class="fc" id="L132">		verify(repository, times(1)).deleteById(anyString());</span>
+<span class="fc" id="L133">	}</span>
+
+	@Test
+	void delete_ownerIsNotIssuer_throwsIllegalState() {
+<span class="fc" id="L137">		when(repository.findById(testRoute.getId())).thenReturn(Optional.of(testRoute));</span>
+<span class="pc" id="L138">		assertThrows(IllegalStateException.class, () -&gt; service.delete(testRoute.getId(), &quot;not_owner&quot;));</span>
+<span class="fc" id="L139">	}</span>
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>route-service tests (1 feb 2022 23:02:51)</div></body></html>

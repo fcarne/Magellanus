@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>RouteController.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">route-service tests (1 feb 2022 23:02:51)</a> &gt; <a href="../../index.html" class="el_group">route-service</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.unibg.magellanus.backend.route.service.impl</a> &gt; <span class="el_source">RouteController.java</span></div><h1>RouteController.java</h1><pre class="source lang-java linenums">package com.unibg.magellanus.backend.route.service.impl;
+
+import java.util.NoSuchElementException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.unibg.magellanus.backend.route.service.Route;
+import com.unibg.magellanus.backend.route.service.RouteAPI;
+import com.unibg.magellanus.backend.route.service.RouteService;
+
+@RestController
+@RequestMapping(&quot;/api/routes&quot;)
+public class RouteController implements RouteAPI {
+
+	RouteService service;
+
+	@Autowired
+<span class="fc" id="L30">	public RouteController(RouteService service) {</span>
+<span class="fc" id="L31">		this.service = service;</span>
+<span class="fc" id="L32">	}</span>
+
+	@Override
+	@GetMapping(&quot;{id}&quot;)
+	public Route get(@PathVariable String id) {
+		try {
+<span class="fc" id="L38">			return service.findById(id);</span>
+<span class="fc" id="L39">		} catch (NoSuchElementException e) {</span>
+<span class="fc" id="L40">			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());</span>
+		}
+	}
+
+	@Override
+	@GetMapping(&quot;itinerary/{id}&quot;)
+	public Route getByItinerary(@PathVariable String id) {
+		try {
+<span class="fc" id="L48">			return service.findByItineraryId(id);</span>
+<span class="fc" id="L49">		} catch (NoSuchElementException e) {</span>
+<span class="fc" id="L50">			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());</span>
+		}
+	}
+
+	
+	@Override
+	@PostMapping
+	public Route create(@RequestBody Route route) {
+<span class="fc" id="L58">		route.setOwner(getAuthenticatedUid());</span>
+<span class="fc" id="L59">		return service.create(route);</span>
+	}
+
+	@Override
+	@PutMapping(&quot;me/{id}&quot;)
+	public ResponseEntity&lt;Void&gt; updateMine(@PathVariable String id, @RequestBody Route route) {
+		try {
+<span class="fc" id="L66">			service.update(id, route, getAuthenticatedUid());</span>
+<span class="fc" id="L67">			return ResponseEntity.noContent().build();</span>
+<span class="fc" id="L68">		} catch (IllegalStateException e) {</span>
+<span class="fc" id="L69">			throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());</span>
+		}
+	}
+
+	@Override
+	@DeleteMapping(&quot;me/{id}&quot;)
+	public ResponseEntity&lt;Void&gt; deleteMine(@PathVariable String id) {
+		try {
+<span class="fc" id="L77">			service.delete(id, getAuthenticatedUid());</span>
+<span class="fc" id="L78">			return ResponseEntity.noContent().build();</span>
+<span class="fc" id="L79">		} catch (IllegalStateException e) {</span>
+<span class="fc" id="L80">			throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());</span>
+		}
+	}
+
+	@Override
+	@PostMapping(&quot;auto&quot;)
+	public Route autoGenerate(@RequestBody Route route) {
+<span class="fc" id="L87">		route.setOwner(getAuthenticatedUid());</span>
+<span class="fc" id="L88">		return service.autoGenerate(route);</span>
+	}
+
+	private String getAuthenticatedUid() {
+<span class="fc" id="L92">		return SecurityContextHolder.getContext().getAuthentication().getName();</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>route-service tests (1 feb 2022 23:02:51)</div></body></html>

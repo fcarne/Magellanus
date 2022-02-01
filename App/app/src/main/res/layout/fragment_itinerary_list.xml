@@ -12,8 +12,6 @@
             android:name="com.unibg.magellanus.app.ItineraryListFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
             app:layoutManager="LinearLayoutManager"
             tools:context=".itinerary.view.ItineraryListFragment"
             tools:listitem="@layout/fragment_itinerary_item" />

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>RouteServiceImpl.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">route-service tests (1 feb 2022 23:02:51)</a> &gt; <a href="../../index.html" class="el_group">route-service</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.unibg.magellanus.backend.route.service.impl</a> &gt; <span class="el_source">RouteServiceImpl.java</span></div><h1>RouteServiceImpl.java</h1><pre class="source lang-java linenums">package com.unibg.magellanus.backend.route.service.impl;
+
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.SimpleWeightedGraph;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.unibg.magellanus.backend.route.service.Coordinates;
+import com.unibg.magellanus.backend.route.service.Route;
+import com.unibg.magellanus.backend.route.service.RouteRepository;
+import com.unibg.magellanus.backend.route.service.RouteService;
+import com.unibg.magellanus.backend.route.service.RoutedPOI;
+import com.unibg.magellanus.backend.route.service.alg.ChristofidesMetricTSPAlgorithm;
+import com.unibg.magellanus.backend.route.service.alg.TSPAlgorithm;
+import com.unibg.magellanus.backend.route.service.alg.TwoApproximateMetricTSPAlgorithm;
+import com.unibg.magellanus.backend.route.service.distance.MatrixAPI;
+
+@Service
+public class RouteServiceImpl implements RouteService {
+
+	RouteRepository repository;
+	MatrixAPI matrixAPI;
+	Map&lt;Class&lt;?&gt;, TSPAlgorithm&gt; algorithms;
+
+	@Autowired
+<span class="fc" id="L33">	public RouteServiceImpl(RouteRepository repository, MatrixAPI matrixAPI, List&lt;TSPAlgorithm&gt; algorithms) {</span>
+<span class="fc" id="L34">		this.repository = repository;</span>
+<span class="fc" id="L35">		this.matrixAPI = matrixAPI;</span>
+<span class="fc" id="L36">		this.algorithms = algorithms.stream().collect(Collectors.toMap(TSPAlgorithm::getClass, Function.identity()));</span>
+<span class="fc" id="L37">	}</span>
+
+	@Override
+	public Route findById(String id) throws NoSuchElementException {
+<span class="fc" id="L41">		return repository.findById(id).orElseThrow(() -&gt; new NoSuchElementException(&quot;Requested route not found&quot;));</span>
+	}
+	
+
+	@Override
+	public Route findByItineraryId(String id) throws NoSuchElementException {
+<span class="fc" id="L47">		Route r = repository.findByItineraryId(id).iterator().next();</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">		if(r == null) throw new NoSuchElementException(&quot;Requested route not found&quot;);</span>
+<span class="fc" id="L49">		else return r;</span>
+	}
+
+	@Override
+	public Route create(Route route) {
+<span class="fc" id="L54">		return repository.save(route);</span>
+	}
+
+	@Override
+	public Route update(String id, Route route, String issuer) throws IllegalStateException {
+<span class="fc bfc" id="L59" title="All 2 branches covered.">		if (!route.getOwner().equals(issuer))</span>
+<span class="fc" id="L60">			throw new IllegalStateException(&quot;Issuer is not the owner of the route&quot;);</span>
+<span class="fc" id="L61">		route.setId(id);</span>
+<span class="fc" id="L62">		return repository.save(route);</span>
+	}
+
+	@Override
+	public void delete(String id, String issuer) throws IllegalStateException {
+<span class="fc" id="L67">		repository.findById(id).ifPresent(i -&gt; {</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">			if (!i.getOwner().equals(issuer))</span>
+<span class="fc" id="L69">				throw new IllegalStateException(&quot;Issuer is not the owner of the itinerary&quot;);</span>
+<span class="fc" id="L70">			repository.deleteById(id);</span>
+<span class="fc" id="L71">		});</span>
+<span class="fc" id="L72">	}</span>
+
+	@Override
+	public Route autoGenerate(Route route) {
+<span class="fc" id="L76">		List&lt;RoutedPOI&gt; pois = route.getRoute();</span>
+<span class="fc" id="L77">		List&lt;Coordinates&gt; coordinates = pois.stream().map(RoutedPOI::getCoordinates).collect(Collectors.toList());</span>
+<span class="fc" id="L78">		double[][] distances = matrixAPI.getDistances(coordinates).getDistances();</span>
+
+<span class="fc" id="L80">		Graph&lt;RoutedPOI, DefaultWeightedEdge&gt; graph = new SimpleWeightedGraph&lt;&gt;(DefaultWeightedEdge.class);</span>
+<span class="fc" id="L81">		pois.stream().forEachOrdered(u -&gt; {</span>
+<span class="fc" id="L82">			int i = pois.indexOf(u);</span>
+<span class="fc" id="L83">			graph.addVertex(u);</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">			for (int j = 0; j &lt; i; j++) {</span>
+<span class="fc" id="L85">				DefaultWeightedEdge edge = graph.addEdge(u, pois.get(j));</span>
+<span class="fc" id="L86">				graph.setEdgeWeight(edge, Math.min(distances[i][j], distances[j][i]));</span>
+			}
+<span class="fc" id="L88">		});</span>
+
+		TSPAlgorithm algorithm;
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">		if (pois.size() &lt;= 15)</span>
+<span class="fc" id="L92">			algorithm = algorithms.get(ChristofidesMetricTSPAlgorithm.class);</span>
+		else
+<span class="nc" id="L94">			algorithm = algorithms.get(TwoApproximateMetricTSPAlgorithm.class);</span>
+
+<span class="fc" id="L96">		List&lt;RoutedPOI&gt; opt = algorithm.getTour(graph);</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">		for (int k = 0; k &lt; opt.size() - 1; k++) {</span>
+<span class="fc" id="L98">			int i = pois.indexOf(opt.get(k));</span>
+<span class="fc" id="L99">			int j = pois.indexOf(opt.get(k + 1));</span>
+<span class="fc" id="L100">			opt.get(k).setDistance(distances[i][j]);</span>
+		}
+<span class="fc" id="L102">		opt.remove(opt.size()-1);</span>
+<span class="fc" id="L103">		route.setRoute(opt);</span>
+<span class="fc" id="L104">		return create(route);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>route-service tests (1 feb 2022 23:02:51)</div></body></html>

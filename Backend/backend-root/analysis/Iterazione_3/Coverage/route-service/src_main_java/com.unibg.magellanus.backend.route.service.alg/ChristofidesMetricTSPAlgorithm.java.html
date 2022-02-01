@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ChristofidesMetricTSPAlgorithm.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">route-service tests (1 feb 2022 23:02:51)</a> &gt; <a href="../../index.html" class="el_group">route-service</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.unibg.magellanus.backend.route.service.alg</a> &gt; <span class="el_source">ChristofidesMetricTSPAlgorithm.java</span></div><h1>ChristofidesMetricTSPAlgorithm.java</h1><pre class="source lang-java linenums">package com.unibg.magellanus.backend.route.service.alg;
+
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.jgrapht.Graph;
+import org.jgrapht.alg.cycle.HierholzerEulerianCycle;
+import org.jgrapht.alg.interfaces.EulerianCycleAlgorithm;
+import org.jgrapht.alg.interfaces.MatchingAlgorithm;
+import org.jgrapht.alg.interfaces.MatchingAlgorithm.Matching;
+import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm;
+import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm.SpanningTree;
+import org.jgrapht.alg.matching.blossom.v5.KolmogorovWeightedPerfectMatching;
+import org.jgrapht.alg.spanning.KruskalMinimumSpanningTree;
+import org.jgrapht.graph.AsSubgraph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.Multigraph;
+import org.springframework.stereotype.Component;
+
+@Component
+<span class="fc" id="L24">public class ChristofidesMetricTSPAlgorithm implements TSPAlgorithm {</span>
+
+	@Override
+	public &lt;V, E&gt; List&lt;V&gt; getTour(Graph&lt;V, E&gt; g) {
+		
+		// We should check that G is a undirected complete graph which satisfies the
+		// triangle inequality. Since this is always the case, we skip this step
+		
+<span class="fc" id="L32">		Set&lt;V&gt; vertices = g.vertexSet();</span>
+<span class="fc" id="L33">		int n = vertices.size();</span>
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">		if (n == 0)</span>
+<span class="nc" id="L35">            return new LinkedList&lt;&gt;();</span>
+		
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">		if(n == 1)</span>
+<span class="nc" id="L38">			return new LinkedList&lt;&gt;(vertices);</span>
+		
+        // 1 - Create a minimum spanning tree T of G
+<span class="fc" id="L41">        SpanningTreeAlgorithm&lt;E&gt; spanningTreeAlgorithm = new KruskalMinimumSpanningTree&lt;&gt;(g);</span>
+<span class="fc" id="L42">        SpanningTree&lt;E&gt; t = spanningTreeAlgorithm.getSpanningTree();</span>
+        
+        // Add edges to a graph because SpanningTree only has edges
+<span class="fc" id="L45">        Graph&lt;V, DefaultEdge&gt; h = new Multigraph&lt;&gt;(null, DefaultEdge::new, false);</span>
+<span class="fc" id="L46">        g.vertexSet().forEach(h::addVertex);</span>
+<span class="fc" id="L47">        t.getEdges().forEach(e -&gt; h.addEdge(g.getEdgeSource(e), g.getEdgeTarget(e)));</span>
+
+        // 2 - Let O be the set of vertices with odd degree in T (odd checking using last bit)
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        Set&lt;V&gt; o = h.vertexSet().stream().filter(v -&gt; (h.edgesOf(v).size() &amp; 1) == 1).collect(Collectors.toSet());</span>
+        
+        // 3 - Find a minimum-weight perfect matching M in the induced subgraph given by the vertices from O.
+<span class="fc" id="L53">        Graph&lt;V, E&gt; subgraph = new AsSubgraph&lt;&gt;(g, o);</span>
+<span class="fc" id="L54">        MatchingAlgorithm&lt;V, E&gt; matchingAlgorithm = new KolmogorovWeightedPerfectMatching&lt;&gt;(subgraph);</span>
+<span class="fc" id="L55">        Matching&lt;V,E&gt; m = matchingAlgorithm.getMatching();</span>
+        
+        // 4 - Combine the edges of M and T to form a connected multigraph H in which each vertex has even degree
+<span class="fc" id="L58">        m.getEdges().forEach(e -&gt; h.addEdge(g.getEdgeSource(e), g.getEdgeTarget(e)));</span>
+
+        // 5 - Form an Eulerian circuit in H
+<span class="fc" id="L61">        EulerianCycleAlgorithm&lt;V, DefaultEdge&gt; eulerianCycleAlgorithm = new HierholzerEulerianCycle&lt;&gt;();</span>
+<span class="fc" id="L62">        List&lt;V&gt; cycle = eulerianCycleAlgorithm.getEulerianCycle(h).getVertexList();</span>
+
+        // 6 - Make the circuit found in previous step into a Hamiltonian circuit by skipping repeated vertices (shortcutting)
+<span class="fc" id="L65">        int actualSize = (int) (n * 4.0/3.0) + 1; // big enough to avoid re-hashing</span>
+<span class="fc" id="L66">        Set&lt;V&gt; visited = new HashSet&lt;&gt;(actualSize);</span>
+<span class="fc" id="L67">        List&lt;V&gt; tour = cycle.stream().filter(visited::add).collect(Collectors.toList());</span>
+        
+		// Add starting node at the end
+<span class="fc" id="L70">		tour.add(tour.get(0));</span>
+<span class="fc" id="L71">        return tour;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>route-service tests (1 feb 2022 23:02:51)</div></body></html>

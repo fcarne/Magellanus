@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>RoutedPOI.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">route-service tests (1 feb 2022 23:02:51)</a> &gt; <a href="../../index.html" class="el_group">route-service</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.unibg.magellanus.backend.route.service</a> &gt; <span class="el_source">RoutedPOI.java</span></div><h1>RoutedPOI.java</h1><pre class="source lang-java linenums">package com.unibg.magellanus.backend.route.service;
+
+import java.util.Objects;
+
+public class RoutedPOI {
+	private Coordinates coordinates;
+	private String name;
+	private double distance;
+
+<span class="fc" id="L10">	public RoutedPOI() {</span>
+<span class="fc" id="L11">	}</span>
+
+<span class="fc" id="L13">	public RoutedPOI(double lat, double lon) {</span>
+<span class="fc" id="L14">		this.coordinates = new Coordinates(lat, lon);</span>
+<span class="fc" id="L15">	}</span>
+	
+	
+	public Coordinates getCoordinates() {
+<span class="fc" id="L19">		return coordinates;</span>
+	}
+
+	public void setCoordinates(Coordinates coordinates) {
+<span class="fc" id="L23">		this.coordinates = coordinates;</span>
+<span class="fc" id="L24">	}</span>
+
+	public String getName() {
+<span class="fc" id="L27">		return name;</span>
+	}
+
+	public void setName(String name) {
+<span class="fc" id="L31">		this.name = name;</span>
+<span class="fc" id="L32">	}</span>
+
+	public double getDistance() {
+<span class="fc" id="L35">		return distance;</span>
+	}
+
+	public void setDistance(double distance) {
+<span class="fc" id="L39">		this.distance = distance;</span>
+<span class="fc" id="L40">	}</span>
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L44">		return Objects.hash(coordinates);</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="fc bfc" id="L49" title="All 2 branches covered.">		if (this == obj)</span>
+<span class="fc" id="L50">			return true;</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L52">			return false;</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L54">			return false;</span>
+<span class="fc" id="L55">		RoutedPOI other = (RoutedPOI) obj;</span>
+<span class="fc" id="L56">		return Objects.equals(coordinates, other.coordinates);</span>
+	}
+
+	
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>route-service tests (1 feb 2022 23:02:51)</div></body></html>

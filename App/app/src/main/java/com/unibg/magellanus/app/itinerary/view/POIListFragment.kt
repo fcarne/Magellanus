@@ -4,21 +4,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.unibg.magellanus.app.R
 import com.unibg.magellanus.app.common.observeOnce
+import com.unibg.magellanus.app.databinding.FragmentPoiListBinding
 import com.unibg.magellanus.app.itinerary.model.ItineraryRepositoryImpl
 import com.unibg.magellanus.app.itinerary.model.network.GeocodingAPI
 import com.unibg.magellanus.app.itinerary.model.network.ItineraryAPI
 import com.unibg.magellanus.app.itinerary.viewmodel.POIListViewModel
 import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
+import kotlinx.coroutines.launch
 
 class POIListFragment : Fragment() {
 
@@ -44,40 +47,74 @@ class POIListFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_poi_list, container, false)
+    ): View {
+        val binding = FragmentPoiListBinding.inflate(inflater, container, false)
 
         // Set the adapter
-        if (view is RecyclerView) {
-            with(view) {
-                layoutManager = when {
-                    columnCount <= 1 -> LinearLayoutManager(context)
-                    else -> GridLayoutManager(context, columnCount)
-                }
+        with(binding.list) {
+
+            layoutManager = when {
+                columnCount <= 1 -> LinearLayoutManager(context)
+                else -> GridLayoutManager(context, columnCount)
+            }
 
 
-                viewModel.poiList.observeOnce(viewLifecycleOwner) {
-                    val locateClickListener =
-                        POIRecyclerViewAdapter.OnPOIItemClickListener { poi ->
-                            navController.navigate(
-                                POIListFragmentDirections.actionPOIListFragmentToMapFragment(
-                                    itineraryId,
-                                    floatArrayOf(poi.lat.toFloat(), poi.lon.toFloat())
-                                )
+            viewModel.poiList.observeOnce(viewLifecycleOwner) {
+                val locateClickListener =
+                    POIRecyclerViewAdapter.OnPOIItemClickListener { poi ->
+                        navController.navigate(
+                            POIListFragmentDirections.actionPOIListFragmentToMapFragment(
+                                itineraryId,
+                                floatArrayOf(poi.lat.toFloat(), poi.lon.toFloat())
                             )
-                        }
-
-                    adapter = POIRecyclerViewAdapter(locateClickListener).apply {
-                        setPOIList(it)
+                        )
                     }
+
+                val checkboxCheckedChangeListener =
+                    POIRecyclerViewAdapter.OnCheckboxCheckedChangeListener { poi, isChecked ->
+                        viewModel.selectPOI(poi, isChecked)
+                    }
+
+                adapter = POIRecyclerViewAdapter(
+                    locateClickListener,
+                    checkboxCheckedChangeListener
+                ).apply {
+                    setPOIList(it)
                 }
             }
         }
-        return view
+
+        binding.createBtn.setOnClickListener {
+            val (coordinates, names) = viewModel.getSelectedPOI()
+
+            coordinates.forEach { println(it) }
+
+            if (coordinates.size < 3) {
+                Toast.makeText(requireContext(), R.string.no_coordinates_message, Toast.LENGTH_LONG)
+                    .show()
+            } else {
+                navController.navigate(
+                    POIListFragmentDirections.actionPOIListFragmentToRoutedPOIListFragment(
+                        itineraryId,
+                        coordinates.toTypedArray(),
+                        names.toTypedArray()
+                    )
+                )
+            }
+        }
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = findNavController()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        requireActivity().lifecycleScope.launch {
+            viewModel.saveChanges()
+        }
     }
 }

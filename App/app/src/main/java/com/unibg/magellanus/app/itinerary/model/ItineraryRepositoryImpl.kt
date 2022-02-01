@@ -9,21 +9,21 @@ class ItineraryRepositoryImpl(
 ) : ItineraryRepository {
     override suspend fun get(id: String): Itinerary? {
         val response = itineraryAPI.get(id)
-        return if(response.isSuccessful)
+        return if (response.isSuccessful)
             response.body()
         else null
     }
 
     override suspend fun getAllInfo(id: String): Itinerary? {
         return get(id)?.let {
-            val set = it.poiSet.map { poi -> getInfo(poi) }.toHashSet()
+            val set = it.poiSet.map { poi -> getInfo(poi).copy(inRoute = poi.inRoute) }.toHashSet()
             it.copy(poiSet = set)
         }
     }
 
     override suspend fun create(itinerary: Itinerary): Itinerary? {
         val response = itineraryAPI.create(itinerary)
-        return if(response.isSuccessful)
+        return if (response.isSuccessful)
             response.body()
         else null
     }

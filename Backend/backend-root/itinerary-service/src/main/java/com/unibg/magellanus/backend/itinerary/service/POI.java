@@ -5,13 +5,15 @@ import java.util.Objects;
 public class POI {
 	private double lat;
 	private double lon;
-
+	private boolean inRoute;
+	
 	public POI() {
 	}
 
 	public POI(double lat, double lon) {
 		this.lat = lat;
 		this.lon = lon;
+		this.setInRoute(false);
 	}
 
 	public double getLat() {
@@ -28,6 +30,14 @@ public class POI {
 
 	public void setLon(double lon) {
 		this.lon = lon;
+	}
+
+	public boolean isInRoute() {
+		return inRoute;
+	}
+
+	public void setInRoute(boolean inRoute) {
+		this.inRoute = inRoute;
 	}
 
 	@Override

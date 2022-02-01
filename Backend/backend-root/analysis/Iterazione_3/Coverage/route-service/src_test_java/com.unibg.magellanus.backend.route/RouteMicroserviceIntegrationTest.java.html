@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>RouteMicroserviceIntegrationTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">route-service tests (1 feb 2022 23:02:51)</a> &gt; <a href="../../index.html" class="el_group">route-service</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.unibg.magellanus.backend.route</a> &gt; <span class="el_source">RouteMicroserviceIntegrationTest.java</span></div><h1>RouteMicroserviceIntegrationTest.java</h1><pre class="source lang-java linenums">package com.unibg.magellanus.backend.route;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.List;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unibg.magellanus.backend.route.service.Route;
+import com.unibg.magellanus.backend.route.service.RouteRepository;
+import com.unibg.magellanus.backend.route.service.RoutedPOI;
+
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+@ContextConfiguration
+@ActiveProfiles(profiles = { &quot;dev&quot;, &quot;test&quot; })
+<span class="fc" id="L40">public class RouteMicroserviceIntegrationTest {</span>
+
+	private static final String TEST_USER_UID = &quot;eXs3E6tEyrUTbz6LWqaspj5oCPW2&quot;;
+	private static Route testRoute;
+	
+	@Autowired
+	MockMvc mockMvc;
+
+	@Autowired
+	ObjectMapper mapper;
+
+	@Autowired
+	RouteRepository repository;
+		
+	@BeforeAll
+	public static void setup(@Autowired RouteRepository repository) {
+<span class="fc" id="L56">		testRoute = new Route();</span>
+<span class="fc" id="L57">		testRoute.setId(&quot;TEST_ID&quot;);</span>
+<span class="fc" id="L58">		testRoute.setItineraryId(&quot;test_itineray_id&quot;);</span>
+<span class="fc" id="L59">		testRoute.setOwner(TEST_USER_UID);</span>
+		
+<span class="fc" id="L61">		List&lt;RoutedPOI&gt; list = testRoute.getRoute();</span>
+<span class="fc" id="L62">		list.add(new RoutedPOI(41.158150, -75.379219));</span>
+<span class="fc" id="L63">		list.add(new RoutedPOI(51.917500, 0.333340));</span>
+<span class="fc" id="L64">		list.add(new RoutedPOI(53.224621, -4.197995));</span>
+<span class="fc" id="L65">	}</span>
+
+	@BeforeEach
+	public void setupEach() {
+<span class="fc" id="L69">		repository.save(testRoute);</span>
+<span class="fc" id="L70">	}</span>
+
+	@AfterAll
+	public static void teardown(@Autowired RouteRepository repository) {
+<span class="fc" id="L74">		repository.deleteAll();</span>
+<span class="fc" id="L75">	}</span>
+
+	@Test
+	void get_nonAuth_returnsUnauthorized() throws Exception {
+<span class="fc" id="L79">		MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders</span>
+<span class="fc" id="L80">				.get(&quot;/api/routes/1&quot;)</span>
+<span class="fc" id="L81">				.contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L82">				.accept(MediaType.APPLICATION_JSON);</span>
+		
+<span class="fc" id="L84">		mockMvc.perform(mockRequest)</span>
+<span class="fc" id="L85">		       .andExpect(status().isUnauthorized());</span>
+
+<span class="fc" id="L87">	}</span>
+	
+	@Test
+	@WithMockUser(username = TEST_USER_UID)
+	void get_exists_returnsItinerary() throws Exception {
+		
+<span class="fc" id="L93">		MvcResult result = mockMvc.perform(</span>
+<span class="fc" id="L94">				MockMvcRequestBuilders.get(&quot;/api/routes/&quot; + testRoute.getId())</span>
+<span class="fc" id="L95">				.contentType(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L96">				.andExpect(status().isOk())</span>
+<span class="fc" id="L97">				.andReturn();</span>
+		
+<span class="fc" id="L99">		String contentAsString = result.getResponse().getContentAsString();</span>
+<span class="fc" id="L100">		Route response = mapper.readValue(contentAsString, Route.class);</span>
+<span class="fc" id="L101">		assertEquals(testRoute, response);</span>
+<span class="fc" id="L102">	}</span>
+
+	@Test
+	@WithMockUser(username = TEST_USER_UID)
+	void get_nonExistent_returnsNotFound() throws Exception {
+<span class="fc" id="L107">		mockMvc.perform(</span>
+<span class="fc" id="L108">				MockMvcRequestBuilders.get(&quot;/api/routes/NOT_PRESENT&quot;)</span>
+<span class="fc" id="L109">				.contentType(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L110">				.andExpect(status().isNotFound());</span>
+<span class="fc" id="L111">	}</span>
+
+	@Test
+	@WithMockUser(username = TEST_USER_UID)
+	void getByItinerary_exists_returnsItinerary() throws Exception {
+		
+<span class="fc" id="L117">		MvcResult result = mockMvc.perform(</span>
+<span class="fc" id="L118">				MockMvcRequestBuilders.get(&quot;/api/routes/itinerary/&quot; + testRoute.getItineraryId())</span>
+<span class="fc" id="L119">				.contentType(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L120">				.andExpect(status().isOk())</span>
+<span class="fc" id="L121">				.andReturn();</span>
+		
+<span class="fc" id="L123">		String contentAsString = result.getResponse().getContentAsString();</span>
+<span class="fc" id="L124">		Route response = mapper.readValue(contentAsString, Route.class);</span>
+<span class="fc" id="L125">		assertEquals(testRoute, response);</span>
+<span class="fc" id="L126">	}</span>
+
+	@Test
+	@WithMockUser(username = TEST_USER_UID)
+	void getByItinerary_nonExistent_returnsNotFound() throws Exception {
+<span class="fc" id="L131">		mockMvc.perform(</span>
+<span class="fc" id="L132">				MockMvcRequestBuilders.get(&quot;/api/routes/itinerary/NOT_PRESENT&quot;)</span>
+<span class="fc" id="L133">				.contentType(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L134">				.andExpect(status().isNotFound());</span>
+<span class="fc" id="L135">	}</span>
+
+	
+	@Test
+	@WithMockUser(username = TEST_USER_UID)
+	void create_itineraryExists_returnsCreatedRoute() throws Exception {		
+<span class="fc" id="L141">		Route r = new Route();</span>
+<span class="fc" id="L142">		r.setItineraryId(&quot;test_itinerary_id&quot;);</span>
+		
+<span class="fc" id="L144">		MvcResult result = mockMvc.perform(</span>
+<span class="fc" id="L145">				MockMvcRequestBuilders.post(&quot;/api/routes/&quot;)</span>
+<span class="fc" id="L146">				.contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L147">				.content(this.mapper.writeValueAsString(r)))</span>
+<span class="fc" id="L148">				.andExpect(status().isOk()).andReturn();</span>
+		
+<span class="fc" id="L150">		String contentAsString = result.getResponse().getContentAsString();</span>
+<span class="fc" id="L151">		Route response = mapper.readValue(contentAsString, Route.class);</span>
+		
+		//mockServer.verify();
+<span class="fc" id="L154">		assertNotNull(response.getId());</span>
+<span class="fc" id="L155">		assertEquals(TEST_USER_UID, response.getOwner());</span>
+<span class="fc" id="L156">		repository.deleteById(response.getId());</span>
+<span class="fc" id="L157">	}</span>
+
+	@Test
+	@WithMockUser(username = TEST_USER_UID)
+	void update_ownerIsIssuer_returnsNoContent() throws Exception {
+<span class="fc" id="L162">		List&lt;RoutedPOI&gt; list = testRoute.getRoute();</span>
+<span class="fc" id="L163">		RoutedPOI poi = new RoutedPOI(55.506920,9.728400);</span>
+<span class="fc" id="L164">		list.add(poi);</span>
+				
+<span class="fc" id="L166">		mockMvc.perform(</span>
+<span class="fc" id="L167">				MockMvcRequestBuilders.put(&quot;/api/routes/me/&quot; + testRoute.getId())</span>
+<span class="fc" id="L168">				.contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L169">				.content(this.mapper.writeValueAsString(testRoute)))</span>
+<span class="fc" id="L170">				.andExpect(status().isNoContent())</span>
+<span class="fc" id="L171">				.andExpect(jsonPath(&quot;$&quot;).doesNotExist());</span>
+		
+<span class="fc" id="L173">		List&lt;RoutedPOI&gt; storedRoute = repository.findById(testRoute.getId()).get().getRoute();</span>
+<span class="fc" id="L174">		assertTrue(storedRoute.contains(poi));</span>
+<span class="fc" id="L175">	}</span>
+	
+	@Test
+	@WithMockUser(username = &quot;NOT_OWNER&quot;)
+	void update_ownerIsNotIssuer_returnsForbidden() throws Exception {
+<span class="fc" id="L180">		mockMvc.perform(</span>
+<span class="fc" id="L181">				MockMvcRequestBuilders.put(&quot;/api/routes/me/&quot; + testRoute.getId())</span>
+<span class="fc" id="L182">				.contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L183">				.content(this.mapper.writeValueAsString(testRoute)))</span>
+<span class="fc" id="L184">				.andExpect(status().isForbidden());</span>
+<span class="fc" id="L185">	}</span>
+	
+	@Test
+	@WithMockUser(username = TEST_USER_UID)
+	void delete_ownerIsIssuer_returnsNoContent() throws Exception {
+<span class="fc" id="L190">		mockMvc.perform(</span>
+<span class="fc" id="L191">				MockMvcRequestBuilders.delete(&quot;/api/routes/me/&quot; + testRoute.getId())</span>
+<span class="fc" id="L192">				.contentType(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L193">				.andExpect(status().isNoContent())</span>
+<span class="fc" id="L194">				.andExpect(jsonPath(&quot;$&quot;).doesNotExist());</span>
+		
+<span class="fc" id="L196">		assertFalse(repository.existsById(testRoute.getId()));</span>
+<span class="fc" id="L197">	}</span>
+	
+	@Test
+	@WithMockUser(username = &quot;NOT_OWNER&quot;)
+	void delete_ownerIsNotIssuer_returnsForbidden() throws Exception {
+<span class="fc" id="L202">		mockMvc.perform(</span>
+<span class="fc" id="L203">				MockMvcRequestBuilders.delete(&quot;/api/routes/me/&quot; + testRoute.getId())</span>
+<span class="fc" id="L204">				.contentType(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L205">				.andExpect(status().isForbidden());</span>
+		
+<span class="fc" id="L207">		assertNotNull(repository.findById(testRoute.getId()).get());</span>
+<span class="fc" id="L208">	}</span>
+	
+	@Test
+	@WithMockUser(username = TEST_USER_UID)
+	void autoGenerate_itineraryExists_returnsCreatedRoute() throws Exception {
+<span class="fc" id="L213">		Route r = new Route();</span>
+<span class="fc" id="L214">		r.setItineraryId(&quot;test_itinerary_id&quot;);</span>
+		
+<span class="fc" id="L216">		List&lt;RoutedPOI&gt; list = r.getRoute();</span>
+<span class="fc" id="L217">		list.add(new RoutedPOI(41.158150, -75.379219));</span>
+<span class="fc" id="L218">		list.add(new RoutedPOI(51.917500, 0.333340));</span>
+<span class="fc" id="L219">		list.add(new RoutedPOI(53.224621, -4.197995));</span>
+		
+<span class="fc" id="L221">		MvcResult result = mockMvc.perform(</span>
+<span class="fc" id="L222">				MockMvcRequestBuilders.post(&quot;/api/routes/auto&quot;)</span>
+<span class="fc" id="L223">				.contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L224">				.content(this.mapper.writeValueAsString(r)))</span>
+<span class="fc" id="L225">				.andExpect(status().isOk()).andReturn();</span>
+		
+<span class="fc" id="L227">		String contentAsString = result.getResponse().getContentAsString();</span>
+<span class="fc" id="L228">		Route response = mapper.readValue(contentAsString, Route.class);</span>
+		
+<span class="fc" id="L230">		assertNotNull(response.getId());</span>
+<span class="fc" id="L231">		assertEquals(TEST_USER_UID, response.getOwner());</span>
+<span class="fc" id="L232">		repository.deleteById(response.getId());</span>
+<span class="fc" id="L233">	}</span>
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span>route-service tests (1 feb 2022 23:02:51)</div></body></html>
