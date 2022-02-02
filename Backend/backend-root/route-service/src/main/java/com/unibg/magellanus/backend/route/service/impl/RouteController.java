@@ -20,8 +20,11 @@ import com.unibg.magellanus.backend.route.service.Route;
 import com.unibg.magellanus.backend.route.service.RouteAPI;
 import com.unibg.magellanus.backend.route.service.RouteService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
-@RequestMapping("/api/routes")
+@RequestMapping("/")
+@SecurityRequirement(name = "bearer-key")
 public class RouteController implements RouteAPI {
 
 	RouteService service;
@@ -51,7 +54,6 @@ public class RouteController implements RouteAPI {
 		}
 	}
 
-	
 	@Override
 	@PostMapping
 	public Route create(@RequestBody Route route) {

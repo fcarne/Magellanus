@@ -14,11 +14,10 @@ public class UserServiceSecurityConfig extends WebSecurityConfigurerAdapter {
 		.formLogin().disable()
 		.httpBasic().disable()
 		.authorizeRequests()
-		.antMatchers(HttpMethod.POST, "/api/users/").permitAll()
-		.antMatchers(HttpMethod.GET, "/api/users/*").permitAll()
-		.antMatchers(HttpMethod.HEAD, "/api/users/*").permitAll()
-		.antMatchers("/api/users/**").authenticated()
-		.anyRequest().permitAll()
+		.antMatchers(HttpMethod.POST, "/").permitAll()
+		.antMatchers(HttpMethod.HEAD, "/*").permitAll()
+		.mvcMatchers(HttpMethod.GET, "/v3/api-docs").permitAll()
+		.anyRequest().authenticated()
 		.and().oauth2ResourceServer().jwt();
 	}
 }

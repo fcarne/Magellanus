@@ -21,8 +21,11 @@ import com.unibg.magellanus.backend.itinerary.service.Itinerary;
 import com.unibg.magellanus.backend.itinerary.service.ItineraryAPI;
 import com.unibg.magellanus.backend.itinerary.service.ItineraryService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
-@RequestMapping("/api/itineraries")
+@RequestMapping("/")
+@SecurityRequirement(name = "bearer-key")
 public class ItineraryController implements ItineraryAPI {
 
 	ItineraryService service;

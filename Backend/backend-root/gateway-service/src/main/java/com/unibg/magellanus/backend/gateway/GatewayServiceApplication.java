@@ -1,11 +1,17 @@
 package com.unibg.magellanus.backend.gateway;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springdoc.core.GroupedOpenApi;
+import org.springdoc.core.SwaggerUiConfigParameters;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.gateway.route.RouteLocator;
-import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
+import org.springframework.cloud.gateway.route.RouteDefinition;
+import org.springframework.cloud.gateway.route.RouteDefinitionLocator;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 
 @SpringBootApplication
 @EnableEurekaClient
@@ -16,14 +22,18 @@ public class GatewayServiceApplication {
 	}
 	
 	@Bean
-    public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
-        return builder.routes()
-                .route(r -> r.path("/api/users/**")
-                        .uri("lb://USER-SERVICE"))
-                .route(r -> r.path("/api/itineraries/**")
-                        .uri("lb://ITINERARY-SERVICE"))
-                .route(r -> r.path("/api/routes/**")
-                        .uri("lb://ROUTE-SERVICE"))
-                .build();
-    }
+	@Lazy(false)
+	public List<GroupedOpenApi> apis(SwaggerUiConfigParameters swaggerUiConfigParameters, RouteDefinitionLocator locator) {
+		List<GroupedOpenApi> groups = new ArrayList<>();
+		List<RouteDefinition> definitions = locator.getRouteDefinitions().collectList().block();
+		for (RouteDefinition definition : definitions) {
+			System.out.println("id: " + definition.getId()+ "  "+definition.getUri().toString());
+		}
+		definitions.stream().filter(routeDefinition -> routeDefinition.getId().matches(".*-service")).forEach(routeDefinition -> {
+			String name = routeDefinition.getId();
+			swaggerUiConfigParameters.addGroup(name);
+			GroupedOpenApi.builder().pathsToMatch("/" + name + "/**").group(name).build();
+		});
+		return groups;
+	}
 }

@@ -79,7 +79,7 @@ public class UserMicroserviceIntegrationTest {
 	@Test
 	void checkIfExists_exists_returnsOk() throws Exception {	
 		mockMvc.perform(MockMvcRequestBuilders
-	            .head("/api/users/" + testUser.getUid())
+	            .head("/" + testUser.getUid())
 	            .contentType(MediaType.APPLICATION_JSON))
 	            .andExpect(status().isOk())
 	            .andExpect(jsonPath("$").doesNotExist());
@@ -88,7 +88,7 @@ public class UserMicroserviceIntegrationTest {
 	@Test
 	void checkIfExists_nonExistent_returnsNotFound() throws Exception {
 		mockMvc.perform(MockMvcRequestBuilders
-	            .head("/api/users/NOT_PRESENT")
+	            .head("/NOT_PRESENT")
 	            .contentType(MediaType.APPLICATION_JSON))
 	            .andExpect(status().isNotFound())
 	            .andExpect(jsonPath("$").doesNotExist());
@@ -102,7 +102,7 @@ public class UserMicroserviceIntegrationTest {
 		repository.delete(user);
 
 		MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
-				.post("/api/users/")
+				.post("/")
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
 				.content(this.mapper.writeValueAsString(user));
@@ -117,7 +117,7 @@ public class UserMicroserviceIntegrationTest {
 	@Test
 	void signUp_alreadySignedUser_returnsUnprocessable() throws Exception {
 		MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
-				.post("/api/users/")
+				.post("/")
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
 				.content(this.mapper.writeValueAsString(testUser));
@@ -129,7 +129,7 @@ public class UserMicroserviceIntegrationTest {
 	@Test
 	void delete_nonAuth_returnsUnauthorized() throws Exception {
 		MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
-				.delete("/api/users/me")
+				.delete("/me")
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON);
 		
@@ -141,7 +141,7 @@ public class UserMicroserviceIntegrationTest {
 	@WithMockUser(username = TEST_USER_UID)
 	void delete_ownAccount_returnsNoContent() throws Exception {
 		MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
-				.delete("/api/users/me")
+				.delete("/me")
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON);
 
@@ -156,7 +156,7 @@ public class UserMicroserviceIntegrationTest {
 	@WithMockUser(username = TEST_USER_UID)
 	void getPreferences_existent_returnsPrefs() throws Exception {
 		MvcResult result = mockMvc.perform(MockMvcRequestBuilders
-				.get("/api/users/me/preferences")
+				.get("/me/preferences")
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk()).andReturn();
 		
@@ -173,7 +173,7 @@ public class UserMicroserviceIntegrationTest {
 		prefs.put("pref_b", "B");
 		
 		MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
-			.patch("/api/users/me/preferences")
+			.patch("/me/preferences")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(this.mapper.writeValueAsString(prefs));
 		

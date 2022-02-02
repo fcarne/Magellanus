@@ -22,8 +22,11 @@ import com.unibg.magellanus.backend.user.service.User;
 import com.unibg.magellanus.backend.user.service.UserAccountAPI;
 import com.unibg.magellanus.backend.user.service.UserService;
 
-@RestController()
-@RequestMapping("/api/users")
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
+@RestController
+@RequestMapping("/")
+@SecurityRequirement(name = "bearer-key")
 public class UserController implements UserAccountAPI {
 
 	UserService service;

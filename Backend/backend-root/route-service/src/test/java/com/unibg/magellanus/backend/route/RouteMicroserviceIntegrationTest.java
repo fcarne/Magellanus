@@ -77,7 +77,7 @@ public class RouteMicroserviceIntegrationTest {
 	@Test
 	void get_nonAuth_returnsUnauthorized() throws Exception {
 		MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
-				.get("/api/routes/1")
+				.get("/1")
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON);
 		
@@ -91,7 +91,7 @@ public class RouteMicroserviceIntegrationTest {
 	void get_exists_returnsItinerary() throws Exception {
 		
 		MvcResult result = mockMvc.perform(
-				MockMvcRequestBuilders.get("/api/routes/" + testRoute.getId())
+				MockMvcRequestBuilders.get("/" + testRoute.getId())
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andReturn();
@@ -105,7 +105,7 @@ public class RouteMicroserviceIntegrationTest {
 	@WithMockUser(username = TEST_USER_UID)
 	void get_nonExistent_returnsNotFound() throws Exception {
 		mockMvc.perform(
-				MockMvcRequestBuilders.get("/api/routes/NOT_PRESENT")
+				MockMvcRequestBuilders.get("/NOT_PRESENT")
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isNotFound());
 	}
@@ -115,7 +115,7 @@ public class RouteMicroserviceIntegrationTest {
 	void getByItinerary_exists_returnsItinerary() throws Exception {
 		
 		MvcResult result = mockMvc.perform(
-				MockMvcRequestBuilders.get("/api/routes/itinerary/" + testRoute.getItineraryId())
+				MockMvcRequestBuilders.get("/itinerary/" + testRoute.getItineraryId())
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andReturn();
@@ -129,7 +129,7 @@ public class RouteMicroserviceIntegrationTest {
 	@WithMockUser(username = TEST_USER_UID)
 	void getByItinerary_nonExistent_returnsNotFound() throws Exception {
 		mockMvc.perform(
-				MockMvcRequestBuilders.get("/api/routes/itinerary/NOT_PRESENT")
+				MockMvcRequestBuilders.get("/itinerary/NOT_PRESENT")
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isNotFound());
 	}
@@ -142,7 +142,7 @@ public class RouteMicroserviceIntegrationTest {
 		r.setItineraryId("test_itinerary_id");
 		
 		MvcResult result = mockMvc.perform(
-				MockMvcRequestBuilders.post("/api/routes/")
+				MockMvcRequestBuilders.post("/")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(this.mapper.writeValueAsString(r)))
 				.andExpect(status().isOk()).andReturn();
@@ -164,7 +164,7 @@ public class RouteMicroserviceIntegrationTest {
 		list.add(poi);
 				
 		mockMvc.perform(
-				MockMvcRequestBuilders.put("/api/routes/me/" + testRoute.getId())
+				MockMvcRequestBuilders.put("/me/" + testRoute.getId())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(this.mapper.writeValueAsString(testRoute)))
 				.andExpect(status().isNoContent())
@@ -178,7 +178,7 @@ public class RouteMicroserviceIntegrationTest {
 	@WithMockUser(username = "NOT_OWNER")
 	void update_ownerIsNotIssuer_returnsForbidden() throws Exception {
 		mockMvc.perform(
-				MockMvcRequestBuilders.put("/api/routes/me/" + testRoute.getId())
+				MockMvcRequestBuilders.put("/me/" + testRoute.getId())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(this.mapper.writeValueAsString(testRoute)))
 				.andExpect(status().isForbidden());
@@ -188,7 +188,7 @@ public class RouteMicroserviceIntegrationTest {
 	@WithMockUser(username = TEST_USER_UID)
 	void delete_ownerIsIssuer_returnsNoContent() throws Exception {
 		mockMvc.perform(
-				MockMvcRequestBuilders.delete("/api/routes/me/" + testRoute.getId())
+				MockMvcRequestBuilders.delete("/me/" + testRoute.getId())
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isNoContent())
 				.andExpect(jsonPath("$").doesNotExist());
@@ -200,7 +200,7 @@ public class RouteMicroserviceIntegrationTest {
 	@WithMockUser(username = "NOT_OWNER")
 	void delete_ownerIsNotIssuer_returnsForbidden() throws Exception {
 		mockMvc.perform(
-				MockMvcRequestBuilders.delete("/api/routes/me/" + testRoute.getId())
+				MockMvcRequestBuilders.delete("/me/" + testRoute.getId())
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isForbidden());
 		
@@ -219,7 +219,7 @@ public class RouteMicroserviceIntegrationTest {
 		list.add(new RoutedPOI(53.224621, -4.197995));
 		
 		MvcResult result = mockMvc.perform(
-				MockMvcRequestBuilders.post("/api/routes/auto")
+				MockMvcRequestBuilders.post("/auto")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(this.mapper.writeValueAsString(r)))
 				.andExpect(status().isOk()).andReturn();

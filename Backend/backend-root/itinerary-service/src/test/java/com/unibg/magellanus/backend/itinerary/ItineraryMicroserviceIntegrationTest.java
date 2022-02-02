@@ -120,7 +120,7 @@ public class ItineraryMicroserviceIntegrationTest {
 	@Test
 	void get_nonAuth_returnsUnauthorized() throws Exception {
 		MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
-				.get("/api/itineraries/1")
+				.get("/1")
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON);
 		
@@ -134,7 +134,7 @@ public class ItineraryMicroserviceIntegrationTest {
 	void get_exists_returnsItinerary() throws Exception {
 		
 		MvcResult result = mockMvc.perform(
-				MockMvcRequestBuilders.get("/api/itineraries/" + testItinerary.getId())
+				MockMvcRequestBuilders.get("/" + testItinerary.getId())
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andReturn();
@@ -148,7 +148,7 @@ public class ItineraryMicroserviceIntegrationTest {
 	@WithMockUser(username = TEST_USER_UID)
 	void get_nonExistent_returnsNotFound() throws Exception {
 		mockMvc.perform(
-				MockMvcRequestBuilders.get("/api/itineraries/NOT_PRESENT")
+				MockMvcRequestBuilders.get("/NOT_PRESENT")
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isNotFound());
 	}
@@ -160,7 +160,7 @@ public class ItineraryMicroserviceIntegrationTest {
 		i.setName("NEW_TEST");
 		
 		MvcResult result = mockMvc.perform(
-				MockMvcRequestBuilders.post("/api/itineraries/")
+				MockMvcRequestBuilders.post("/")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(this.mapper.writeValueAsString(i)))
 				.andExpect(status().isOk()).andReturn();
@@ -181,7 +181,7 @@ public class ItineraryMicroserviceIntegrationTest {
 		set.add(poi);
 				
 		mockMvc.perform(
-				MockMvcRequestBuilders.put("/api/itineraries/me/" + testItinerary.getId())
+				MockMvcRequestBuilders.put("/me/" + testItinerary.getId())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(this.mapper.writeValueAsString(testItinerary)))
 				.andExpect(status().isNoContent())
@@ -195,7 +195,7 @@ public class ItineraryMicroserviceIntegrationTest {
 	@WithMockUser(username = "NOT_OWNER")
 	void update_ownerIsNotIssuer_returnsForbidden() throws Exception {
 		mockMvc.perform(
-				MockMvcRequestBuilders.put("/api/itineraries/me/" + testItinerary.getId())
+				MockMvcRequestBuilders.put("/me/" + testItinerary.getId())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(this.mapper.writeValueAsString(testItinerary)))
 				.andExpect(status().isForbidden());
@@ -205,7 +205,7 @@ public class ItineraryMicroserviceIntegrationTest {
 	@WithMockUser(username = TEST_USER_UID)
 	void delete_ownerIsIssuer_returnsNoContent() throws Exception {
 		mockMvc.perform(
-				MockMvcRequestBuilders.delete("/api/itineraries/me/" + testItinerary.getId())
+				MockMvcRequestBuilders.delete("/me/" + testItinerary.getId())
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isNoContent())
 				.andExpect(jsonPath("$").doesNotExist());
@@ -217,7 +217,7 @@ public class ItineraryMicroserviceIntegrationTest {
 	@WithMockUser(username = "NOT_OWNER")
 	void delete_ownerIsNotIssuer_returnsForbidden() throws Exception {
 		mockMvc.perform(
-				MockMvcRequestBuilders.delete("/api/itineraries/me/" + testItinerary.getId())
+				MockMvcRequestBuilders.delete("/me/" + testItinerary.getId())
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isForbidden());
 		
@@ -229,7 +229,7 @@ public class ItineraryMicroserviceIntegrationTest {
 	void findMine_completed_returnsNotNullCompletionDate() throws Exception {
 		
 		MvcResult result = mockMvc.perform(
-				MockMvcRequestBuilders.get("/api/itineraries/me?completed=true")
+				MockMvcRequestBuilders.get("/me?completed=true")
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andReturn();
@@ -249,7 +249,7 @@ public class ItineraryMicroserviceIntegrationTest {
 	void findMine_notCompleted_returnsNullCompletionDate() throws Exception {
 		
 		MvcResult result = mockMvc.perform(
-				MockMvcRequestBuilders.get("/api/itineraries/me?completed=false")
+				MockMvcRequestBuilders.get("/me?completed=false")
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andReturn();
@@ -270,7 +270,7 @@ public class ItineraryMicroserviceIntegrationTest {
 	void findMine_all_returnsAll() throws Exception {
 		
 		MvcResult result = mockMvc.perform(
-				MockMvcRequestBuilders.get("/api/itineraries/me")
+				MockMvcRequestBuilders.get("/me")
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andReturn();

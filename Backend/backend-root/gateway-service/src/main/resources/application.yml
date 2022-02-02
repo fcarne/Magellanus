@@ -4,21 +4,54 @@ eureka:
   client:
     serviceUrl:
       defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka}
-logging:
-  level:
-    '[org.springframework.core.codec.StringDecoder]': TRACE
-    reactor:
-      netty: INFO
-    org:
-      springframework:
-        cloud:
-          gateway: TRACE
+  instance:
+    prefer-ip-address: true
+
 spring:
-  cloud:
-    gateway:
-      httpclient:
-        wiretap: true
-      httpserver:
-        wiretap: true
   application:
     name: gateway-service
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - RewritePath=/api/users/(?<path>.*), /$\{path}
+        - id: itinerary-service
+          uri: lb://itinerary-service
+          predicates:
+            - Path=/api/itineraries/**
+          filters:
+            - RewritePath=/api/itineraries/(?<path>.*), /$\{path}
+        - id: route-service
+          uri: lb://route-service
+          predicates:
+            - Path=/api/routes/**
+          filters:
+            - RewritePath=/api/routes/(?<path>.*), /$\{path}
+        - id: openapi
+          uri: http://localhost:${server.port}
+          predicates:
+            - Path=/v3/api-docs/**
+          filters:
+            - RewritePath=/v3/api-docs/(?<path>.*), /api/$\{path}/v3/api-docs
+
+springdoc:
+  swagger-ui:
+    use-root-path: true
+    urls:
+      - name: User API
+        url: /v3/api-docs/users
+      - name: Itinerary API
+        url: /v3/api-docs/itineraries
+      - name: Route API
+        url: /v3/api-docs/routes
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} ${LOG_LEVEL_PATTERN:-%5p} %m%n"
