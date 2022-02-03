@@ -41,8 +41,8 @@ public class TwoApproximateMetricTSPAlgorithm implements TSPAlgorithm {
 				.forEach(e -> t.addEdge(g.getEdgeSource(e), g.getEdgeTarget(e)));
 
 
-		/* 2 - Duplicate each edge in T a Eulerian graph E
-         * 3 - Form an Eulerian circuit in E
+		/* 2 - Duplicate each edge in T to obatin a Eulerian graph E
+         * 3 - Form a Eulerian circuit in E
 		 * 4 - Make the circuit found in previous step into a Hamiltonian circuit by skipping repeated vertices (shortcutting)
 		 *
 		 * 

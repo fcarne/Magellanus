@@ -57,7 +57,7 @@ public class ChristofidesMetricTSPAlgorithm implements TSPAlgorithm {
         // 4 - Combine the edges of M and T to form a connected multigraph H in which each vertex has even degree
         m.getEdges().forEach(e -> h.addEdge(g.getEdgeSource(e), g.getEdgeTarget(e)));
 
-        // 5 - Form an Eulerian circuit in H
+        // 5 - Form a Eulerian circuit in H
         EulerianCycleAlgorithm<V, DefaultEdge> eulerianCycleAlgorithm = new HierholzerEulerianCycle<>();
         List<V> cycle = eulerianCycleAlgorithm.getEulerianCycle(h).getVertexList();
 
