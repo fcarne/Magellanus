@@ -1,5 +1,3 @@
 # Magellanus
 
-~~Salve, adesso faro' una modifica permanente!~~
-
-Ma molto molto molto permanente
+University Project consisting of a microservices-oriented backend (managed by Docker) and an Android app following Android Developers architecture recommendations
