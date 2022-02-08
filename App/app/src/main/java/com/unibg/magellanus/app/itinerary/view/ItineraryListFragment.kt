@@ -22,7 +22,7 @@ import com.unibg.magellanus.app.itinerary.model.ItineraryRepositoryImpl
 import com.unibg.magellanus.app.itinerary.model.network.GeocodingAPI
 import com.unibg.magellanus.app.itinerary.model.network.ItineraryAPI
 import com.unibg.magellanus.app.itinerary.viewmodel.ItineraryListViewModel
-import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
+import com.unibg.magellanus.app.auth.impl.FirebaseAuthenticationProvider
 import kotlin.properties.Delegates
 
 class ItineraryListFragment : Fragment() {
@@ -31,7 +31,7 @@ class ItineraryListFragment : Fragment() {
     private var call by Delegates.notNull<Int>()
 
     private val viewModel by viewModels<ItineraryListViewModel> {
-        val provider = FirebaseAuthenticationProvider
+        val provider = FirebaseAuthenticationProvider()
         val api = ItineraryAPI.create(provider)
         val geoApi = GeocodingAPI.create(requireContext().cacheDir)
         val repository = ItineraryRepositoryImpl(api, geoApi)

@@ -7,7 +7,7 @@ import com.unibg.magellanus.app.itinerary.model.POI
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-class MapViewModel(itineraryId: String, private val repository: ItineraryRepository) :
+class MapViewModel(private val repository: ItineraryRepository) :
     ViewModel() {
 
     private val _currentItinerary: MutableLiveData<Itinerary> = MutableLiveData()
@@ -20,18 +20,15 @@ class MapViewModel(itineraryId: String, private val repository: ItineraryReposit
     val currentSearch: LiveData<MutableList<POI>>
         get() = _currentSearch
 
-    init {
-        viewModelScope.launch {
-            val itinerary = repository.get(itineraryId) ?: repository.create(
-                Itinerary(
-                    id = itineraryId,
-                    name = "Default Itinerary"
-                )
-            )!!
+    fun load(itineraryId: String) = viewModelScope.launch {
+        val itinerary = repository.get(itineraryId) ?: repository.create(
+            Itinerary(
+                id = itineraryId,
+                name = "Default Itinerary"
+            )
+        )!!
 
-            _currentItinerary.value = itinerary
-        }
-
+        _currentItinerary.value = itinerary
     }
 
     fun search(query: String) = viewModelScope.launch {
@@ -42,7 +39,7 @@ class MapViewModel(itineraryId: String, private val repository: ItineraryReposit
         _currentItinerary.value!!.poiSet.add(poi)
         val removed = _currentSearch.value?.remove(poi)
         _currentItinerary.value = _currentItinerary.value
-        if(removed == true) _currentSearch.value = _currentSearch.value
+        if (removed == true) _currentSearch.value = _currentSearch.value
     }
 
     fun removePOI(poi: POI) {
@@ -59,9 +56,9 @@ class MapViewModel(itineraryId: String, private val repository: ItineraryReposit
         repository.update(itinerary)
     }
 
-    class Factory(private val itineraryId: String, private val repository: ItineraryRepository) :
+    class Factory(private val repository: ItineraryRepository) :
         ViewModelProvider.NewInstanceFactory() {
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            MapViewModel(itineraryId, repository) as T
+            MapViewModel(repository) as T
     }
 }

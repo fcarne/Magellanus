@@ -20,7 +20,7 @@ import com.unibg.magellanus.app.itinerary.model.ItineraryRepositoryImpl
 import com.unibg.magellanus.app.itinerary.model.network.GeocodingAPI
 import com.unibg.magellanus.app.itinerary.model.network.ItineraryAPI
 import com.unibg.magellanus.app.itinerary.viewmodel.POIListViewModel
-import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
+import com.unibg.magellanus.app.auth.impl.FirebaseAuthenticationProvider
 import kotlinx.coroutines.launch
 
 class POIListFragment : Fragment() {
@@ -30,15 +30,13 @@ class POIListFragment : Fragment() {
     private lateinit var itineraryId: String
 
     private val viewModel by viewModels<POIListViewModel> {
-        itineraryId = args.itineraryId
-
-        val provider = FirebaseAuthenticationProvider
+        val provider = FirebaseAuthenticationProvider()
         val cacheDir = requireContext().cacheDir
         val api = ItineraryAPI.create(provider)
         val geoApi = GeocodingAPI.create(cacheDir)
         val repository = ItineraryRepositoryImpl(api, geoApi)
 
-        POIListViewModel.Factory(itineraryId, repository)
+        POIListViewModel.Factory(repository)
     }
 
     private lateinit var navController: NavController
@@ -82,6 +80,9 @@ class POIListFragment : Fragment() {
                     setPOIList(it)
                 }
             }
+
+            itineraryId = args.itineraryId
+            viewModel.load(itineraryId)
         }
 
         binding.createBtn.setOnClickListener {

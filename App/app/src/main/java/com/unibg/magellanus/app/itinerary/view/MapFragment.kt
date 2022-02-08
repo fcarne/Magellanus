@@ -27,7 +27,8 @@ import com.unibg.magellanus.app.itinerary.model.POI
 import com.unibg.magellanus.app.itinerary.model.network.GeocodingAPI
 import com.unibg.magellanus.app.itinerary.model.network.ItineraryAPI
 import com.unibg.magellanus.app.itinerary.viewmodel.MapViewModel
-import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
+import com.unibg.magellanus.app.auth.AuthenticationProvider
+import com.unibg.magellanus.app.auth.impl.FirebaseAuthenticationProvider
 import kotlinx.coroutines.launch
 import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
@@ -41,26 +42,20 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
-
 class MapFragment : Fragment() {
 
-    private val provider = FirebaseAuthenticationProvider
+    private lateinit var provider: AuthenticationProvider
 
     private lateinit var itineraryId: String
     private var startingCoordinates: GeoPoint? = null
 
     private val viewModel by viewModels<MapViewModel> {
-        itineraryId = args.itineraryId ?: provider.currentUser!!.uid
-        startingCoordinates = args.coordinates?.let {
-            GeoPoint(it[0].toDouble(), it[1].toDouble())
-        }
-
         val cacheDir = requireContext().cacheDir
         val api = ItineraryAPI.create(provider)
         val geoApi = GeocodingAPI.create(cacheDir)
         val repository = ItineraryRepositoryImpl(api, geoApi)
 
-        MapViewModel.Factory(itineraryId, repository)
+        MapViewModel.Factory(repository)
     }
 
     private lateinit var navController: NavController
@@ -110,6 +105,7 @@ class MapFragment : Fragment() {
         map.setMultiTouchControls(true)
         map.visibility = View.VISIBLE
 
+        provider = FirebaseAuthenticationProvider()
         if (provider.currentUser == null) {
             navController.navigate(MapFragmentDirections.actionMapFragmentToLoginFragment())
             return
@@ -178,7 +174,6 @@ class MapFragment : Fragment() {
                 add(poiOverlay)
             }
 
-
             val eventsReceiver = object : MapEventsReceiver {
                 override fun singleTapConfirmedHelper(p: GeoPoint): Boolean {
                     return false
@@ -199,6 +194,10 @@ class MapFragment : Fragment() {
             map.overlays.add(eventOverlay)
 
             map.invalidate()
+
+            startingCoordinates = args.coordinates?.let {
+                GeoPoint(it[0].toDouble(), it[1].toDouble())
+            }
 
             startingCoordinates?.also {
                 mapController.animateTo(it)
@@ -245,6 +244,9 @@ class MapFragment : Fragment() {
 
                 mapController.animateTo((searchOverlay.items[0] as Marker).position)
             }
+
+            itineraryId = args.itineraryId ?: provider.currentUser!!.uid
+            viewModel.load(itineraryId)
         }
 
 

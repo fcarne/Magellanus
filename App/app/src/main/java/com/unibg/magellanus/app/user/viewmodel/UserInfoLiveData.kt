@@ -1,8 +1,8 @@
 package com.unibg.magellanus.app.user.viewmodel
 
 import androidx.lifecycle.LiveData
-import com.unibg.magellanus.app.user.auth.AuthenticationProvider
-import com.unibg.magellanus.app.user.auth.UserInfo
+import com.unibg.magellanus.app.auth.AuthenticationProvider
+import com.unibg.magellanus.app.auth.UserInfo
 
 class UserInfoLiveData(private val provider: AuthenticationProvider) : LiveData<UserInfo?>() {
     private val authStateListener: AuthenticationProvider.AuthStateListener =

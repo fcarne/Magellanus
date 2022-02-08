@@ -5,11 +5,10 @@ import com.unibg.magellanus.app.route.model.Route
 import com.unibg.magellanus.app.route.model.RouteRepository
 import com.unibg.magellanus.app.route.model.RoutedPOI
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.net.SocketTimeoutException
 import kotlin.math.*
 
-class RoutedPOIListViewModel(itineraryId: String, private val repository: RouteRepository) :
+class RoutedPOIListViewModel(private val repository: RouteRepository) :
     ViewModel() {
 
     private val _currentRoute: MutableLiveData<Route> = MutableLiveData()
@@ -31,31 +30,24 @@ class RoutedPOIListViewModel(itineraryId: String, private val repository: RouteR
     val updated: LiveData<Boolean>
         get() = _updated
 
-    init {
-        runBlocking {
-            val route = repository.getByItinerary(itineraryId) ?: repository.create(
-                Route(
-                    itineraryId = itineraryId
-                )
-            )!!
-            _currentRoute.value = route
-        }
-    }
-
-    fun updateRoute(new: List<RoutedPOI>) {
-        val updated = _currentRoute.value!!.route.filter { it in new }.toMutableList()
-        updated.addAll(new.filter { it !in updated })
-
+    fun updateRoute(itineraryId: String, currentPOIs: List<RoutedPOI>) =
         viewModelScope.launch {
-            if (_currentRoute.value!!.route != updated) {
+            val route = repository.getByItinerary(itineraryId)
+                ?: repository.create(Route(itineraryId = itineraryId))!!
+
+            val updated = route.route.filter { it in currentPOIs }.toMutableList()
+            updated.addAll(currentPOIs.filter { it !in updated })
+
+            if (route.route != updated) {
                 val distances = repository.getDistance(updated)
                 updated.forEachIndexed { i, poi ->
                     poi.distance = distances[i][i + 1 % updated.size]
                 }
-                _currentRoute.value!!.route = updated
+                route.route = updated
             }
+
+            _currentRoute.value = route
         }
-    }
 
     fun removePOI(routedPOI: RoutedPOI) {
         _currentRoute.value!!.route.apply {
@@ -95,7 +87,9 @@ class RoutedPOIListViewModel(itineraryId: String, private val repository: RouteR
     }
 
     fun autogenerate() = viewModelScope.launch {
-        _currentRoute.value = _currentRoute.value?.let { repository.autoGenerate(it) }
+        repository.autoGenerate(_currentRoute.value!!)?.also {
+            _currentRoute.value = it
+        }
     }
 
     suspend fun saveChanges() {
@@ -129,9 +123,9 @@ class RoutedPOIListViewModel(itineraryId: String, private val repository: RouteR
         return earthRadius * c
     }
 
-    class Factory(private val itineraryId: String, private val repository: RouteRepository) :
+    class Factory(private val repository: RouteRepository) :
         ViewModelProvider.NewInstanceFactory() {
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            RoutedPOIListViewModel(itineraryId, repository) as T
+            RoutedPOIListViewModel(repository) as T
     }
 }

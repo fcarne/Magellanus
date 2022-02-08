@@ -22,7 +22,7 @@ import com.unibg.magellanus.app.route.model.RoutedPOI
 import com.unibg.magellanus.app.route.model.network.MatrixAPI
 import com.unibg.magellanus.app.route.model.network.RouteAPI
 import com.unibg.magellanus.app.route.viewmodel.RoutedPOIListViewModel
-import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
+import com.unibg.magellanus.app.auth.impl.FirebaseAuthenticationProvider
 import kotlinx.coroutines.launch
 
 class RoutedPOIListFragment : Fragment() {
@@ -41,12 +41,12 @@ class RoutedPOIListFragment : Fragment() {
         for (i in coordinates.indices)
             current.add(RoutedPOI(name = names[i], coordinates = coordinates[i]))
 
-        val provider = FirebaseAuthenticationProvider
+        val provider = FirebaseAuthenticationProvider()
         val api = RouteAPI.create(provider)
         val matrixAPI = MatrixAPI.create(requireContext().cacheDir)
         val repository = RouteRepositoryImpl(api, matrixAPI)
 
-        RoutedPOIListViewModel.Factory(itineraryId, repository)
+        RoutedPOIListViewModel.Factory(repository)
     }
 
     private lateinit var navController: NavController
@@ -148,7 +148,7 @@ class RoutedPOIListFragment : Fragment() {
                 viewModel.removedIndex.value?.let { removed -> adapter?.notifyItemChanged(removed - 1) }
             }
 
-            viewModel.updateRoute(current)
+            viewModel.updateRoute(itineraryId, current)
         }
 
         binding.autogenerateBtn.setOnClickListener {

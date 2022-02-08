@@ -1,4 +1,4 @@
-package com.unibg.magellanus.app.user.auth
+package com.unibg.magellanus.app.auth
 
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthCredential

@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: mongodb+srv://admin:admin@cluster-magellanus.huxjl.mongodb.net/magellanus_pac_2021
+      uri: mongodb+srv://user-service:user-service-pw@cluster-magellanus.huxjl.mongodb.net/magellanus_pac_2021
       database: magellanus_pac_2021
   security:
     oauth2:

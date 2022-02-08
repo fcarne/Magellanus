@@ -1,13 +1,13 @@
-package com.unibg.magellanus.app.user.auth.impl
+package com.unibg.magellanus.app.auth.impl
 
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
-import com.unibg.magellanus.app.user.auth.AuthenticationProvider
-import com.unibg.magellanus.app.user.auth.UserInfo
+import com.unibg.magellanus.app.auth.AuthenticationProvider
+import com.unibg.magellanus.app.auth.UserInfo
 import java.util.*
 
-object FirebaseAuthenticationProvider : AuthenticationProvider {
+class FirebaseAuthenticationProvider: AuthenticationProvider {
 
     private val instance: FirebaseAuth = FirebaseAuth.getInstance()
     private val listeners: MutableMap<AuthenticationProvider.AuthStateListener,FirebaseAuth.AuthStateListener>

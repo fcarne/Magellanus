@@ -1,10 +1,10 @@
-package com.unibg.magellanus.app.user.auth.impl
+package com.unibg.magellanus.app.auth.impl
 
 import android.net.Uri
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseUser
-import com.unibg.magellanus.app.user.auth.UserInfo
+import com.unibg.magellanus.app.auth.UserInfo
 
 
 class FirebaseUserInfo(private val user: FirebaseUser) : UserInfo {

@@ -19,13 +19,13 @@ import com.google.android.material.snackbar.Snackbar
 import com.unibg.magellanus.app.R
 import com.unibg.magellanus.app.ToggleableDrawer
 import com.unibg.magellanus.app.databinding.FragmentLoginBinding
-import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
+import com.unibg.magellanus.app.auth.impl.FirebaseAuthenticationProvider
 import com.unibg.magellanus.app.user.model.UserAccountAPI
 import com.unibg.magellanus.app.user.viewmodel.LoginViewModel
 
 class LoginFragment : Fragment() {
     private val viewModel by viewModels<LoginViewModel> {
-        val provider = FirebaseAuthenticationProvider
+        val provider = FirebaseAuthenticationProvider()
         LoginViewModel.Factory(provider, UserAccountAPI.create(provider))
     }
 

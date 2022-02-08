@@ -17,7 +17,7 @@ import com.firebase.ui.auth.AuthUI
 import com.google.android.material.navigation.NavigationView
 import com.unibg.magellanus.app.databinding.ActivityMainBinding
 import com.unibg.magellanus.app.databinding.HeaderUserProfileBinding
-import com.unibg.magellanus.app.user.auth.impl.FirebaseAuthenticationProvider
+import com.unibg.magellanus.app.auth.impl.FirebaseAuthenticationProvider
 import com.unibg.magellanus.app.user.model.UserAccountAPI
 import com.unibg.magellanus.app.user.viewmodel.LoginViewModel
 
@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity(), ToggleableDrawer {
     private lateinit var binding: ActivityMainBinding
 
     private val viewModel by viewModels<LoginViewModel> {
-        val provider = FirebaseAuthenticationProvider
+        val provider = FirebaseAuthenticationProvider()
         LoginViewModel.Factory(provider, UserAccountAPI.create(provider))
     }
 

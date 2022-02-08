@@ -1,7 +1,7 @@
 package com.unibg.magellanus.app.user.model
 
 import com.unibg.magellanus.app.common.network.AuthInterceptor
-import com.unibg.magellanus.app.user.auth.AuthenticationProvider
+import com.unibg.magellanus.app.auth.AuthenticationProvider
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response

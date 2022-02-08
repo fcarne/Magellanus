@@ -1,6 +1,6 @@
 package com.unibg.magellanus.app.common.network
 
-import com.unibg.magellanus.app.user.auth.AuthenticationProvider
+import com.unibg.magellanus.app.auth.AuthenticationProvider
 import okhttp3.Interceptor
 import okhttp3.Response
 

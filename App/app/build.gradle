@@ -5,10 +5,8 @@ plugins {
     id 'com.google.gms.google-services'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.6.10'
     id 'kotlin-parcelize'
+    id 'kotlin-kapt'
 }
-
-apply plugin: 'kotlin-kapt'
-
 android {
     compileSdk 31
 

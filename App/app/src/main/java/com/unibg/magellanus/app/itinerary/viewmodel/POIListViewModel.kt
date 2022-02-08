@@ -7,7 +7,7 @@ import com.unibg.magellanus.app.itinerary.model.POI
 import com.unibg.magellanus.app.route.model.Coordinates
 import kotlinx.coroutines.launch
 
-class POIListViewModel(itineraryId: String, private val repository: ItineraryRepository) :
+class POIListViewModel(private val repository: ItineraryRepository) :
     ViewModel() {
 
     private val _currentItinerary: MutableLiveData<Itinerary> = MutableLiveData()
@@ -16,11 +16,9 @@ class POIListViewModel(itineraryId: String, private val repository: ItineraryRep
 
     val poiList: LiveData<List<POI>> = _currentItinerary.map { it.poiSet.toList() }
 
-    init {
-        viewModelScope.launch {
-            val itinerary = repository.getAllInfo(itineraryId)!!
-            _currentItinerary.value = itinerary
-        }
+    fun load(itineraryId: String) = viewModelScope.launch {
+        val itinerary = repository.getAllInfo(itineraryId)!!
+        _currentItinerary.value = itinerary
     }
 
     fun selectPOI(poi: POI, isChecked: Boolean) {
@@ -41,9 +39,9 @@ class POIListViewModel(itineraryId: String, private val repository: ItineraryRep
         repository.update(itinerary)
     }
 
-    class Factory(private val itineraryId: String, private val repository: ItineraryRepository) :
+    class Factory(private val repository: ItineraryRepository) :
         ViewModelProvider.NewInstanceFactory() {
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            POIListViewModel(itineraryId, repository) as T
+            POIListViewModel(repository) as T
     }
 }

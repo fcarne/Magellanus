@@ -1,0 +1,39 @@
+version: '3.9'
+services:
+  discovery-service:
+    image: fcarne/magellanus_discovery-service:1.0.1
+    ports:
+      - 8761:8761
+  user-service:
+    image: fcarne/magellanus_user-service:1.0.1
+    environment:
+      - JAVA_OPTS=
+        -DEUREKA_SERVER=http://discovery-service:8761/eureka
+    depends_on:
+      - discovery-service
+  itinerary-service:
+    image: fcarne/magellanus_itinerary-service:1.0.1
+    environment:
+      - JAVA_OPTS=
+        -DEUREKA_SERVER=http://discovery-service:8761/eureka
+    depends_on:
+      - discovery-service
+  route-service:
+    image: fcarne/magellanus_route-service:1.0.1
+    environment:
+      - JAVA_OPTS=
+        -DEUREKA_SERVER=http://discovery-service:8761/eureka
+    depends_on:
+      - discovery-service
+  gateway-service:
+    image: fcarne/magellanus_gateway-service:1.0.1
+    environment:
+      - JAVA_OPTS=
+        -DEUREKA_SERVER=http://discovery-service:8761/eureka
+    depends_on:
+      - discovery-service 
+      - user-service
+      - itinerary-service
+      - route-service
+    ports:
+      - 8080:8080
