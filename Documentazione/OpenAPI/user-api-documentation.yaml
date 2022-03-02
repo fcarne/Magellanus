@@ -1,0 +1,107 @@
+openapi: 3.0.1
+info:
+  title: User API
+  description: Documentation User API v1.0
+  version: v1.0
+servers:
+- url: http://localhost:8081
+  description: Generated server url
+paths:
+  /:
+    post:
+      tags:
+      - user-controller
+      operationId: signUp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        "200":
+          description: OK
+      security:
+      - bearer-key: []
+  /me/preferences:
+    get:
+      tags:
+      - user-controller
+      operationId: getMyPreferences
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+      security:
+      - bearer-key: []
+    patch:
+      tags:
+      - user-controller
+      operationId: updateMyPreferences
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: object
+        required: true
+      responses:
+        "200":
+          description: OK
+      security:
+      - bearer-key: []
+  /{uid}:
+    get:
+      tags:
+      - user-controller
+      operationId: getUser
+      parameters:
+      - name: uid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/User'
+      security:
+      - bearer-key: []
+  /me:
+    delete:
+      tags:
+      - user-controller
+      operationId: deleteMe
+      responses:
+        "200":
+          description: OK
+      security:
+      - bearer-key: []
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        uid:
+          type: string
+        email:
+          type: string
+        preferences:
+          type: object
+          additionalProperties:
+            type: object
+  securitySchemes:
+    bearer-key:
+      type: http
+      in: header
+      scheme: bearer
+      bearerFormat: JWT

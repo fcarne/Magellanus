@@ -58,6 +58,7 @@ class POIListFragment : Fragment() {
 
 
             viewModel.poiList.observeOnce(viewLifecycleOwner) {
+                // setta i listener per gli item delle recycler view
                 val locateClickListener =
                     POIRecyclerViewAdapter.OnPOIItemClickListener { poi ->
                         navController.navigate(
@@ -73,6 +74,7 @@ class POIListFragment : Fragment() {
                         viewModel.selectPOI(poi, isChecked)
                     }
 
+                // popola la recycler view
                 adapter = POIRecyclerViewAdapter(
                     locateClickListener,
                     checkboxCheckedChangeListener
@@ -87,8 +89,6 @@ class POIListFragment : Fragment() {
 
         binding.createBtn.setOnClickListener {
             val (coordinates, names) = viewModel.getSelectedPOI()
-
-            coordinates.forEach { println(it) }
 
             if (coordinates.size < 3) {
                 Toast.makeText(requireContext(), R.string.no_coordinates_message, Toast.LENGTH_LONG)

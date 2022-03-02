@@ -26,6 +26,7 @@ class ItineraryExplorerFragment : Fragment() {
         val adapter = ExplorerAdapter(tabTitles.size, requireActivity().supportFragmentManager, lifecycle)
         binding.viewPager.adapter = adapter
 
+        // setta il gestore dei tab
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = tabTitles[position]
         }.attach()

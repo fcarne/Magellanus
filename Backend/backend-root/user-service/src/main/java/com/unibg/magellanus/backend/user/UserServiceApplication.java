@@ -10,6 +10,14 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 
+/**
+ * Microservizio relativo alla gestione degli utenti. Offre funzionalità di
+ * creazione, update e rimozione degli utenti.
+ * 
+ * @since 0.1
+ *
+ */
+
 @SpringBootApplication
 @EnableEurekaClient
 @OpenAPIDefinition(info = @Info(title = "User API", version = "v1.0", description = "Documentation User API v1.0"))

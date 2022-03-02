@@ -27,7 +27,9 @@ class LoginViewModel(
     fun signIn() = viewModelScope.launch {
         currentUser.value!!.let { user ->
             val exists = api.checkIfExists(user.uid).isSuccessful
+            // AuthUI non può distinguere tra registrazione e login, dobbiamo controllare noi
             if (!exists) {
+                // registrazione
                 val response = api.signUp(UserAccountAPI.User(user.uid, user.email!!))
                 if (response.isSuccessful)
                     _successfullySigned.value = true
@@ -38,6 +40,7 @@ class LoginViewModel(
                     _errorMessage.value = response.errorBody().toString()
                 }
             } else
+                // login
                 _successfullySigned.value = true
         }
     }

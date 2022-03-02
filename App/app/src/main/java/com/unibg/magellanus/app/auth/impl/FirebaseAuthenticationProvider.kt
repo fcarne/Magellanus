@@ -7,6 +7,7 @@ import com.unibg.magellanus.app.auth.AuthenticationProvider
 import com.unibg.magellanus.app.auth.UserInfo
 import java.util.*
 
+// wrapper per la classe FirebaseAuth
 class FirebaseAuthenticationProvider: AuthenticationProvider {
 
     private val instance: FirebaseAuth = FirebaseAuth.getInstance()

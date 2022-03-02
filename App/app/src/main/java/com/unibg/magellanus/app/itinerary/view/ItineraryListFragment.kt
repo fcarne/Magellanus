@@ -58,6 +58,8 @@ class ItineraryListFragment : Fragment() {
             }
 
             viewModel.itineraryList.observeOnce(viewLifecycleOwner) {
+
+                // setta i listener degli item della recycler view
                 val itemClickListener =
                     ItineraryRecyclerViewAdapter.OnItineraryItemClickListener { itinerary ->
                         navController.navigate(
@@ -70,6 +72,7 @@ class ItineraryListFragment : Fragment() {
                         viewModel.deleteItinerary(itinerary)
                     }
 
+                // popola la recycler view
                 adapter =
                     ItineraryRecyclerViewAdapter(itemClickListener, deleteClickListener).apply {
                         setItineraries(it)
@@ -89,6 +92,8 @@ class ItineraryListFragment : Fragment() {
         }
 
         binding.createBtn.setOnClickListener {
+
+            // crea il dialog per la creazione di un nuovo itinerario
             val builder: AlertDialog.Builder = AlertDialog.Builder(requireContext())
             builder.setTitle("Create new itinerary")
 

@@ -42,6 +42,7 @@ class RouteRepositoryImpl(private val routeAPI: RouteAPI, private val matrixAPI:
     }
 
     override suspend fun getDistance(list: List<RoutedPOI>): List<List<Double>> {
+        // crea l'url a cui far richiesta per matrixAPI
         val coordinates =
             list.joinToString(";") { poi -> poi.coordinates.let { "${it.lon},${it.lat}" } }
         return matrixAPI.getDistances(coordinates).distances

@@ -52,6 +52,7 @@ class RoutedPOIListFragment : Fragment() {
     private lateinit var navController: NavController
     private val args: RoutedPOIListFragmentArgs by navArgs()
 
+    // helper per le funzioni di drag e swipe della recycler view
     private val itemTouchHelper by lazy {
         val simpleItemTouchCallback =
             object : ItemTouchHelper.SimpleCallback(UP or DOWN or START or END, 0) {
@@ -111,11 +112,13 @@ class RoutedPOIListFragment : Fragment() {
             itemTouchHelper.attachToRecyclerView(this)
 
             viewModel.poiRoute.observeOnce(viewLifecycleOwner) {
+                // setta i listener degli item
                 val deleteClickListener =
-                    RoutedPOIRecyclerViewAdapter.OnItineraryItemClickListener { poi ->
+                    RoutedPOIRecyclerViewAdapter.OnRoutedPOIItemClickListener { poi ->
                         viewModel.removePOI(poi)
                     }
 
+                // popola la recycler view
                 adapter =
                     RoutedPOIRecyclerViewAdapter(deleteClickListener).apply {
                         setRoute(it)

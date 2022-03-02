@@ -77,6 +77,7 @@ class ItineraryRecyclerViewAdapter(
         }
     }
 
+    // listener per il click di una componente di un item
     fun interface OnItineraryItemClickListener {
         fun onClick(itinerary: Itinerary)
     }

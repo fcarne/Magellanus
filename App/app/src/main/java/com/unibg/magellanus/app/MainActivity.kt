@@ -23,6 +23,7 @@ import com.unibg.magellanus.app.user.viewmodel.LoginViewModel
 
 
 interface ToggleableDrawer {
+    // blocca l'apertura del drawer (per il login)
     fun setDrawerEnabled(enabled: Boolean)
 }
 
@@ -61,6 +62,7 @@ class MainActivity : AppCompatActivity(), ToggleableDrawer {
             true
         )
 
+        // setta il navigation drawer
         navBinding.apply {
             lifecycleOwner = this@MainActivity
             user = viewModel.currentUser
@@ -71,6 +73,7 @@ class MainActivity : AppCompatActivity(), ToggleableDrawer {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
         val navController: NavController = navHostFragment.navController
+
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
@@ -78,9 +81,11 @@ class MainActivity : AppCompatActivity(), ToggleableDrawer {
                 R.id.mapFragment, R.id.userProfileFragment, R.id.logoutItem, R.id.itineraryExplorerFragment
             ), drawerLayout
         )
+
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
+        // setta il listener per il menu del drawer
         navView.setNavigationItemSelectedListener { menuItem ->
             val id = menuItem.itemId
             if (id == R.id.logoutItem) {

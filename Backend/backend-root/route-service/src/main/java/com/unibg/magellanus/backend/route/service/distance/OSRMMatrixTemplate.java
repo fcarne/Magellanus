@@ -20,10 +20,13 @@ public class OSRMMatrixTemplate implements MatrixAPI {
 	@Override
 	public MatrixResponse getDistances(List<Coordinates> coordinates) {
 		StringBuilder stringBuilder = new StringBuilder();
+
+		// costruisce l'url secondo le specifiche di OSMR
 		coordinates.stream().forEachOrdered(it -> {
 			stringBuilder.append(it.getLon()).append(",").append(it.getLat()).append(";");
 		});
 		stringBuilder.setLength(stringBuilder.length() - 1);
+		// effettua la chiamata http
 		return restTemplate.getForObject(
 				"http://router.project-osrm.org/table/v1/foot/" + stringBuilder.toString() + "?annotations=distance",
 				MatrixResponse.class);

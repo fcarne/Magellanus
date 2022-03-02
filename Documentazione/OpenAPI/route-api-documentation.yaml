@@ -1,0 +1,166 @@
+openapi: 3.0.1
+info:
+  title: Route API
+  description: Documentation Route API v1.0
+  version: v1.0
+servers:
+- url: http://localhost:8083
+  description: Generated server url
+paths:
+  /me/{id}:
+    put:
+      tags:
+      - route-controller
+      operationId: updateMine
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Route'
+        required: true
+      responses:
+        "200":
+          description: OK
+      security:
+      - bearer-key: []
+    delete:
+      tags:
+      - route-controller
+      operationId: deleteMine
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+      security:
+      - bearer-key: []
+  /auto:
+    post:
+      tags:
+      - route-controller
+      operationId: autoGenerate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Route'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Route'
+      security:
+      - bearer-key: []
+  /:
+    post:
+      tags:
+      - route-controller
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Route'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Route'
+      security:
+      - bearer-key: []
+  /{id}:
+    get:
+      tags:
+      - route-controller
+      operationId: get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Route'
+      security:
+      - bearer-key: []
+  /itinerary/{id}:
+    get:
+      tags:
+      - route-controller
+      operationId: getByItinerary
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Route'
+      security:
+      - bearer-key: []
+components:
+  schemas:
+    Coordinates:
+      type: object
+      properties:
+        lat:
+          type: number
+          format: double
+        lon:
+          type: number
+          format: double
+    Route:
+      type: object
+      properties:
+        id:
+          type: string
+        owner:
+          type: string
+        itineraryId:
+          type: string
+        route:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutedPOI'
+    RoutedPOI:
+      type: object
+      properties:
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+        name:
+          type: string
+        distance:
+          type: number
+          format: double
+  securitySchemes:
+    bearer-key:
+      type: http
+      in: header
+      scheme: bearer
+      bearerFormat: JWT

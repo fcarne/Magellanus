@@ -52,6 +52,7 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // disabilita il drawer
         (requireActivity() as ToggleableDrawer).setDrawerEnabled(false)
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
@@ -74,13 +75,16 @@ class LoginFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        // riabilita il drawer
         (requireActivity() as ToggleableDrawer).setDrawerEnabled(true)
     }
 
+    // i metodi seguenti sono simili al sample proposto da FirebaseAuth UI
     private fun launchSignInFlow() {
         signIn.launch(getSignInIntent())
     }
 
+    // crea l'intent per il login
     private fun getSignInIntent(): Intent {
         val providers = arrayListOf(
             AuthUI.IdpConfig.EmailBuilder().build(),
@@ -91,6 +95,7 @@ class LoginFragment : Fragment() {
             .build()
     }
 
+    // eseguito quando AuthUI restituisce il controllo all'app
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         if (result.resultCode == RESULT_OK) viewModel.signIn()
         else {

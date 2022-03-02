@@ -14,6 +14,7 @@ class AuthInterceptor(private val provider: AuthenticationProvider) : Intercepto
         var request = chain.request()
         val builder = request.newBuilder()
 
+        // aggiunge se necessario l'header di autenticazione alla richiesta
         request = if (request.headers[CUSTOM_HEADER] != null) {
             builder.removeHeader(CUSTOM_HEADER)
         } else {

@@ -21,6 +21,7 @@ class MapViewModel(private val repository: ItineraryRepository) :
         get() = _currentSearch
 
     fun load(itineraryId: String) = viewModelScope.launch {
+        // se l'id passato non esiste, allora crea un itinerario corrispondente
         val itinerary = repository.get(itineraryId) ?: repository.create(
             Itinerary(
                 id = itineraryId,
@@ -38,7 +39,7 @@ class MapViewModel(private val repository: ItineraryRepository) :
     fun addPOI(poi: POI) {
         _currentItinerary.value!!.poiSet.add(poi)
         val removed = _currentSearch.value?.remove(poi)
-        _currentItinerary.value = _currentItinerary.value
+        _currentItinerary.value = _currentItinerary.value // triggera l'observer
         if (removed == true) _currentSearch.value = _currentSearch.value
     }
 

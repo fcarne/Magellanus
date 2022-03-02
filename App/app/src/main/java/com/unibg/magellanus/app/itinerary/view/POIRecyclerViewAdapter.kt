@@ -65,10 +65,12 @@ class POIRecyclerViewAdapter(
         }
     }
 
+    // custom click listener
     fun interface OnPOIItemClickListener {
         fun onClick(poi: POI)
     }
 
+    // custom checkbox checked listener
     fun interface OnCheckboxCheckedChangeListener {
         fun onCheckedChange(poi: POI, isChecked: Boolean)
     }

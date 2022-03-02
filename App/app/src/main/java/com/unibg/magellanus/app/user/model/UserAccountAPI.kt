@@ -28,17 +28,20 @@ interface UserAccountAPI {
     @GET("me/preferences")
     suspend fun getPreferences(): Map<String, Any>?
 
-    data class User (val uid: String, val email: String)
+    data class User(val uid: String, val email: String)
 
     companion object {
         private const val BASE_URL = "http://10.0.2.2:8080/api/users/"
+
         fun create(provider: AuthenticationProvider): UserAccountAPI {
             val authInterceptor = AuthInterceptor(provider)
             val httpInterceptor =
                 HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
 
-            val client = OkHttpClient.Builder().addInterceptor(authInterceptor)
+            val client = OkHttpClient.Builder()
+                .addInterceptor(authInterceptor)
                 .addInterceptor(httpInterceptor).build()
+
             val retrofit = Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())
                 .baseUrl(BASE_URL)

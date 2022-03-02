@@ -11,7 +11,7 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 class RoutedPOIRecyclerViewAdapter(
-    private val deleteClickListener: OnItineraryItemClickListener
+    private val deleteClickListener: OnRoutedPOIItemClickListener
 ) : RecyclerView.Adapter<RoutedPOIRecyclerViewAdapter.ViewHolder>() {
 
     private var values = mutableListOf<RoutedPOI>()
@@ -24,6 +24,7 @@ class RoutedPOIRecyclerViewAdapter(
     fun moveRoutedPOI(from: Int, to: Int) {
         val poi = values[from]
         values.removeAt(from)
+        // calcola l'indice corretto nel quale inserire il poi spostato
         if (to < from) {
             values.add(to, poi)
         } else {
@@ -68,7 +69,7 @@ class RoutedPOIRecyclerViewAdapter(
 
         fun bind(
             routedPOI: RoutedPOI,
-            deleteClickListener: OnItineraryItemClickListener
+            deleteClickListener: OnRoutedPOIItemClickListener
         ) {
             name.text = routedPOI.name
             distance.text =
@@ -79,7 +80,8 @@ class RoutedPOIRecyclerViewAdapter(
         }
     }
 
-    fun interface OnItineraryItemClickListener {
+    // custom click listener
+    fun interface OnRoutedPOIItemClickListener {
         fun onClick(routedPOI: RoutedPOI)
     }
 

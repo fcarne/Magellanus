@@ -60,6 +60,7 @@ public class UserController implements UserAccountAPI {
 	@Override
 	@DeleteMapping("me")
 	public ResponseEntity<Void> deleteMe() {
+		// recupera l'id dello user (che si è autenticato)
 		String uid = SecurityContextHolder.getContext().getAuthentication().getName();
 		service.delete(uid);
 		return ResponseEntity.noContent().build();
@@ -69,6 +70,9 @@ public class UserController implements UserAccountAPI {
 	@PatchMapping("me/preferences")
 	public ResponseEntity<Void> updateMyPreferences(@RequestBody Map<String, Object> preferences) {
 		String uid = SecurityContextHolder.getContext().getAuthentication().getName();
+
+		// rimuove da preferences alcune entry che non si vogliono memorizzare nel
+		// database
 		Map<String, Object> sanitized = preferences.entrySet().stream().filter(t -> !t.getKey().contains("."))
 				.collect(Collectors.toMap(map -> map.getKey(), map -> map.getValue()));
 		try {

@@ -77,6 +77,7 @@ class MapFragment : Fragment() {
         binding.btnPOI.setOnClickListener { btnPOI() }
         binding.btnItinerari.setOnClickListener { btnItinerari() }
 
+        // searchBar listener
         binding.searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(s: String): Boolean {
                 if (s.length > 2)
@@ -96,6 +97,7 @@ class MapFragment : Fragment() {
         setHasOptionsMenu(true)
         navController = findNavController()
 
+        // inizializzazione osmdroid - come da sample sulla pagina di osmdroid
         val ctx = requireActivity().applicationContext
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))
         Configuration.getInstance().userAgentValue = BuildConfig.APPLICATION_ID
@@ -105,6 +107,7 @@ class MapFragment : Fragment() {
         map.setMultiTouchControls(true)
         map.visibility = View.VISIBLE
 
+        // controlla che l'utente sia loggato
         provider = FirebaseAuthenticationProvider()
         if (provider.currentUser == null) {
             navController.navigate(MapFragmentDirections.actionMapFragmentToLoginFragment())
@@ -156,6 +159,7 @@ class MapFragment : Fragment() {
                 ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_navigation_24)
                     ?.toBitmap()
 
+            // location overlay
             myLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), map).apply {
                 enableMyLocation()
                 enableFollowLocation()
@@ -165,6 +169,7 @@ class MapFragment : Fragment() {
             }
 
             this.mapController.setZoom(19.0)
+            // overlay per i poi cercati e i poi salvati
             val searchOverlay = FolderOverlay()
             val poiOverlay = FolderOverlay()
 
@@ -174,6 +179,7 @@ class MapFragment : Fragment() {
                 add(poiOverlay)
             }
 
+            // listener per long click
             val eventsReceiver = object : MapEventsReceiver {
                 override fun singleTapConfirmedHelper(p: GeoPoint): Boolean {
                     return false
@@ -203,6 +209,7 @@ class MapFragment : Fragment() {
                 mapController.animateTo(it)
             }
 
+            // marca i poi presenti nell'itinerario
             viewModel.poiSet.observe(viewLifecycleOwner) {
                 poiOverlay.items.clear()
                 it.forEach { poi ->
@@ -223,6 +230,7 @@ class MapFragment : Fragment() {
                 }
             }
 
+            // marca i poi restituiti dalla ricerca
             viewModel.currentSearch.observe(viewLifecycleOwner) {
                 searchOverlay.items.clear()
                 it?.forEach { poi ->

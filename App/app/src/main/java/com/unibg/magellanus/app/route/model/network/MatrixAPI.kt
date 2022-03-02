@@ -32,6 +32,7 @@ interface MatrixAPI {
 
             val cache = Cache(httpCacheDirectory, cacheSize)
 
+            // timeout più lunghi perchè a volte si blocca OSMR
             val client = OkHttpClient.Builder()
                 .addNetworkInterceptor(cacheInterceptor)
                 .addInterceptor(httpInterceptor)

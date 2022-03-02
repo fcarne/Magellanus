@@ -32,16 +32,21 @@ class RoutedPOIListViewModel(private val repository: RouteRepository) :
 
     fun updateRoute(itineraryId: String, currentPOIs: List<RoutedPOI>) =
         viewModelScope.launch {
+            // se per l'id passato non esiste nessuna route, la crea
             val route = repository.getByItinerary(itineraryId)
                 ?: repository.create(Route(itineraryId = itineraryId))!!
 
+            // aggiorna i poi presenti nella route
+            // rimuove i poi che non sono più tra quelli selezionati dall'utente
             val updated = route.route.filter { it in currentPOIs }.toMutableList()
+            // aggiunge quelli nuovi
             updated.addAll(currentPOIs.filter { it !in updated })
 
+            // se necessario ricalcola le distanze
             if (route.route != updated) {
                 val distances = repository.getDistance(updated)
                 updated.forEachIndexed { i, poi ->
-                    poi.distance = distances[i][i + 1 % updated.size]
+                    poi.distance = distances[i][(i + 1) % updated.size]
                 }
                 route.route = updated
             }
@@ -54,6 +59,7 @@ class RoutedPOIListViewModel(private val repository: RouteRepository) :
             val index = indexOf(routedPOI)
             if (index > 0) {
                 removeAt(index)
+                // aggiorna la distanza del poi precedente a quello rimosso
                 viewModelScope.launch {
                     updateDistance(index - 1, this@apply)
                     _currentRoute.value = _currentRoute.value
@@ -66,6 +72,7 @@ class RoutedPOIListViewModel(private val repository: RouteRepository) :
 
     fun moveRoutedPOI(from: Int, to: Int) {
         _currentRoute.value!!.route.apply {
+            // sposta il poi nella nuova posizione
             val poi = removeAt(from)
             val toAdjusted = if (to < from)
                 to
@@ -73,7 +80,7 @@ class RoutedPOIListViewModel(private val repository: RouteRepository) :
                 to - 1
             add(toAdjusted, poi)
 
-            println("from: $from - to: $to - adjusted: $toAdjusted")
+            // aggiorna le distanze dei poi per i quali è cambiato il successivo
             viewModelScope.launch {
                 updateDistance(from - 1, this@apply)
                 updateDistance(toAdjusted - 1, this@apply)
@@ -105,11 +112,13 @@ class RoutedPOIListViewModel(private val repository: RouteRepository) :
         from.distance = try {
             repository.getDistance(listOf(from, to))[0][1]
         } catch (e: SocketTimeoutException) {
+            // se OSMR impiega troppo a rispondere allora usa Haversine
             calculateDistance(from, to)
         }
     }
 
     private fun calculateDistance(from: RoutedPOI, to: RoutedPOI): Double {
+        // formula di Haversine per calcolare la distanza (approssimata) tra due punti
         val earthRadius = 6371000.0 //meters
 
         val dLat = Math.toRadians(to.coordinates.lat - from.coordinates.lat)

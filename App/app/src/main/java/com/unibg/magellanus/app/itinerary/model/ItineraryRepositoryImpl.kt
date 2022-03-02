@@ -16,6 +16,7 @@ class ItineraryRepositoryImpl(
 
     override suspend fun getAllInfo(id: String): Itinerary? {
         return get(id)?.let {
+            // copia il poiSet ma aggiunge le info provenienti da Photon
             val set = it.poiSet.map { poi -> getInfo(poi).copy(inRoute = poi.inRoute) }.toHashSet()
             it.copy(poiSet = set)
         }

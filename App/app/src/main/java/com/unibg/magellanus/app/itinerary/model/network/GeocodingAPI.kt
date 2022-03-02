@@ -56,7 +56,7 @@ interface GeocodingAPI {
         }
     }
 }
-
+// custom deserializer - Photon restituisce un json "piatto"
 class SearchPOIDeserializer : JsonDeserializer<POI> {
     override fun deserialize(
         json: JsonElement?,
@@ -66,6 +66,7 @@ class SearchPOIDeserializer : JsonDeserializer<POI> {
         val response = json!!.asJsonObject
 
         val properties = response.getAsJsonObject("properties")
+        // usa il default deserializer
         val address = Gson().fromJson(properties, Address::class.java)
         val name = properties["name"]?.asString
         val coordinates = response.getAsJsonObject("geometry").getAsJsonArray("coordinates")

@@ -6,7 +6,7 @@ import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseUser
 import com.unibg.magellanus.app.auth.UserInfo
 
-
+// wrapper per la classe FirebaseUser
 class FirebaseUserInfo(private val user: FirebaseUser) : UserInfo {
     override val uid
         get() = user.uid

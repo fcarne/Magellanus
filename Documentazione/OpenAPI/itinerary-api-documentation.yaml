@@ -1,0 +1,142 @@
+openapi: 3.0.1
+info:
+  title: Itinerary API
+  description: Documentation Itinerary API v1.0
+  version: v1.0
+servers:
+- url: http://localhost:8082
+  description: Generated server url
+paths:
+  /me/{id}:
+    put:
+      tags:
+      - itinerary-controller
+      operationId: updateMine
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Itinerary'
+        required: true
+      responses:
+        "200":
+          description: OK
+      security:
+      - bearer-key: []
+    delete:
+      tags:
+      - itinerary-controller
+      operationId: deleteMine
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+      security:
+      - bearer-key: []
+  /:
+    post:
+      tags:
+      - itinerary-controller
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Itinerary'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Itinerary'
+      security:
+      - bearer-key: []
+  /{id}:
+    get:
+      tags:
+      - itinerary-controller
+      operationId: get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Itinerary'
+      security:
+      - bearer-key: []
+  /me:
+    get:
+      tags:
+      - itinerary-controller
+      operationId: findMine
+      parameters:
+      - name: completed
+        in: query
+        required: false
+        schema:
+          type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+      security:
+      - bearer-key: []
+components:
+  schemas:
+    Itinerary:
+      type: object
+      properties:
+        id:
+          type: string
+        owner:
+          type: string
+        name:
+          type: string
+        completionDate:
+          type: string
+          format: date
+        poiSet:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/POI'
+    POI:
+      type: object
+      properties:
+        lat:
+          type: number
+          format: double
+        lon:
+          type: number
+          format: double
+        inRoute:
+          type: boolean
+  securitySchemes:
+    bearer-key:
+      type: http
+      in: header
+      scheme: bearer
+      bearerFormat: JWT

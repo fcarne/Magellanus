@@ -13,6 +13,7 @@ class CacheControlInterceptor : Interceptor {
             .maxAge(1, TimeUnit.DAYS)
             .build()
 
+        // aggiunge gli header per il caching della risposta http
         return response.newBuilder()
             .removeHeader("Pragma")
             .removeHeader("Cache-Control")

@@ -47,7 +47,8 @@ class UserProfileFragment : Fragment(), SharedPreferences.OnSharedPreferenceChan
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requireActivity().supportFragmentManager.beginTransaction()
-            .replace(R.id.user_profile_settings, SettingsFragment()).commit()
+            .replace(R.id.user_profile_settings, SettingsFragment())
+            .commit() // inserisce la schermata dei settings
     }
 
     override fun onCreateView(
@@ -86,6 +87,7 @@ class UserProfileFragment : Fragment(), SharedPreferences.OnSharedPreferenceChan
 
         viewModel.syncedPreferences.observe(viewLifecycleOwner) {
             val shouldSync = it?.get(syncPrefs) as Boolean?
+            // legge e sincronizza le preferenze
             if (shouldSync == true) {
                 it?.map { (key, value) ->
                     {
@@ -104,21 +106,22 @@ class UserProfileFragment : Fragment(), SharedPreferences.OnSharedPreferenceChan
         viewModel.getPreferences()
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-           val isSyncing = prefs.getBoolean(syncPrefs, false)
-           val preferences = if (isSyncing) {
-               getImportantPreferences(prefs)
-           } else if (!isSyncing && wasSyncing) {
-               emptyMap<String, Any>()
-           } else null
+            val isSyncing = prefs.getBoolean(syncPrefs, false)
+            val preferences = if (isSyncing) {
+                getImportantPreferences(prefs)
+            } else if (!isSyncing && wasSyncing) {
+                emptyMap<String, Any>()
+            } else null
 
-           requireActivity().lifecycleScope.launch {
-               preferences?.let {
-                   viewModel.savePreferences(it)
-               }
-           }
+            // sincronizza le preferenze
+            requireActivity().lifecycleScope.launch {
+                preferences?.let {
+                    viewModel.savePreferences(it)
+                }
+            }
 
-           navController.popBackStack()
-       }
+            navController.popBackStack()
+        }
     }
 
 
@@ -128,6 +131,7 @@ class UserProfileFragment : Fragment(), SharedPreferences.OnSharedPreferenceChan
             .unregisterOnSharedPreferenceChangeListener(this)
     }
 
+    // costruisce la mappa contenente le preferenze
     private fun getImportantPreferences(prefs: SharedPreferences): Map<String, Any?> {
         val darkMode = resources.getResourceEntryName(R.id.dark_mode_pref)
         return buildMap {

@@ -26,6 +26,7 @@ class POIListViewModel(private val repository: ItineraryRepository) :
     }
 
     fun getSelectedPOI(): Pair<List<Coordinates>, List<String>> {
+        // crea una coppia di liste per poterle passare agli altri fragment
         _currentItinerary.value!!.poiSet.filter { it.inRoute }.apply {
             val coordinates = this.map { Coordinates(it.lat, it.lon) }
             val names = this.map { it.name!! }

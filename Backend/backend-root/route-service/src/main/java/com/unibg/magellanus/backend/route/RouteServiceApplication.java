@@ -13,6 +13,13 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 
+/**
+ * Microservizio relativo alla creazioni dei percorsi. Offre funzionalità di
+ * creazione, modifica e generazione automatica dei percorsi.
+ * 
+ * @since 0.2
+ *
+ */
 @SpringBootApplication
 @EnableEurekaClient
 @OpenAPIDefinition(info = @Info(title = "Route API", version = "v1.0", description = "Documentation Route API v1.0"))
@@ -22,10 +29,10 @@ public class RouteServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(RouteServiceApplication.class, args);
 	}
-	
+
 	@Bean
-    public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
-        return restTemplateBuilder.build();
-    }
+	public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
+		return restTemplateBuilder.build();
+	}
 
 }

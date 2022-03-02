@@ -15,4 +15,33 @@
 		<module>discovery-service</module>
 		<module>gateway-service</module>
 	</modules>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<!-- Default configuration for all reports -->
+					<noqualifier>all</noqualifier>
+					<javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+					<destDir>javadoc</destDir>
+				</configuration>
+				<executions>
+					<execution>
+						<id>aggregate</id>
+						<goals>
+							<goal>aggregate</goal>
+						</goals>
+						<configuration>
+							<!-- Specific configuration for the aggregate report -->
+							<reportOutputDirectory>${project.basedir}</reportOutputDirectory>
+							<destDir>javadoc</destDir>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
