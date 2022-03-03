@@ -1,0 +1,14 @@
+com.unibg.magellanus.backend.discovery
+com.unibg.magellanus.backend.gateway
+com.unibg.magellanus.backend.itinerary
+com.unibg.magellanus.backend.itinerary.service
+com.unibg.magellanus.backend.itinerary.service.impl
+com.unibg.magellanus.backend.route
+com.unibg.magellanus.backend.route.service
+com.unibg.magellanus.backend.route.service.alg
+com.unibg.magellanus.backend.route.service.distance
+com.unibg.magellanus.backend.route.service.impl
+com.unibg.magellanus.backend.route.service.itinerary
+com.unibg.magellanus.backend.user
+com.unibg.magellanus.backend.user.service
+com.unibg.magellanus.backend.user.service.impl
